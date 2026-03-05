@@ -3,1229 +3,921 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Générateur d'Emails — Groupe Diploma</title>
+<title>Générateur d'Emails Marketing — Groupe Diploma</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-
-  :root {
-    --bg: #0a0a0f;
-    --surface: #111118;
-    --surface2: #18181f;
-    --border: rgba(255,255,255,0.07);
-    --accent: #6c63ff;
-    --accent2: #ff6b6b;
-    --accent3: #43e97b;
-    --text: #f0f0f8;
-    --muted: #6b6b88;
-    --radius: 14px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    top: -30%;
-    left: -10%;
-    width: 60%;
-    height: 60%;
-    background: radial-gradient(ellipse, rgba(108,99,255,0.12) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    height: 56px;
-    background: rgba(10,10,15,0.85);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    z-index: 100;
-  }
-
-  .nav-logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 15px;
-    letter-spacing: -0.02em;
-    color: var(--text);
-  }
-
-  .nav-logo span { color: var(--accent); }
-
-  .nav-badge {
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px 10px;
-    background: rgba(108,99,255,0.15);
-    border: 1px solid rgba(108,99,255,0.3);
-    border-radius: 20px;
-    color: var(--accent);
-  }
-
-  .app {
-    display: flex;
-    height: 100vh;
-    padding-top: 56px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .sidebar {
-    width: 240px;
-    flex-shrink: 0;
-    border-right: 1px solid var(--border);
-    background: var(--surface);
-    overflow-y: auto;
-    padding: 20px 0;
-  }
-
-  .sidebar-section {
-    padding: 0 16px;
-    margin-bottom: 24px;
-  }
-
-  .sidebar-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 0 8px;
-    margin-bottom: 8px;
-  }
-
-  .step-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.15s;
-    margin-bottom: 2px;
-  }
-
-  .step-item:hover { background: var(--surface2); }
-  .step-item.active { background: rgba(108,99,255,0.12); }
-  .step-item.active .step-num { background: var(--accent); color: white; }
-  .step-item.done .step-num { background: rgba(67,233,123,0.15); color: var(--accent3); border-color: rgba(67,233,123,0.3); }
-  .step-item.done .step-label { color: var(--muted); }
-
-  .step-num {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    font-family: 'Syne', sans-serif;
-    flex-shrink: 0;
-    color: var(--muted);
-    transition: all 0.15s;
-  }
-
-  .step-label { font-size: 12.5px; font-weight: 500; color: var(--text); }
-  .step-arrow { margin-left: auto; color: var(--muted); font-size: 10px; }
-
-  .brand-mini { display: flex; flex-direction: column; gap: 4px; }
-
-  .brand-mini-btn {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12.5px;
-    font-weight: 500;
-    text-align: left;
-    transition: all 0.15s;
-    width: 100%;
-  }
-
-  .brand-mini-btn:hover { background: var(--surface2); color: var(--text); }
-  .brand-mini-btn.active {
-    background: rgba(108,99,255,0.1);
-    border-color: rgba(108,99,255,0.25);
-    color: var(--text);
-  }
-
-  .brand-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-
-  .main { flex: 1; overflow-y: auto; padding: 32px 40px; }
-
-  .panel { display: none; max-width: 760px; }
-  .panel.active { display: block; }
-
-  .panel-header { margin-bottom: 28px; }
-
-  .panel-tag {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 8px;
-  }
-
-  .panel-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 26px;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 10px;
-  }
-
-  .panel-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-
-  .card-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: var(--text);
-    letter-spacing: 0.02em;
-  }
-
-  .brands-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 24px;
-  }
-
-  .brand-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .brand-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
-  .brand-card:hover { border-color: rgba(108,99,255,0.3); transform: translateY(-1px); }
-  .brand-card.selected { border-color: rgba(108,99,255,0.5); background: rgba(108,99,255,0.06); }
-  .brand-card.selected::before { opacity: 1; }
-  .brand-card[data-brand="diploma"]::before { background: #6c63ff; }
-  .brand-card[data-brand="hermione"]::before { background: #ff6b6b; }
-  .brand-card[data-brand="medibox"]::before { background: #43e97b; }
-  .brand-card[data-brand="edumove"]::before { background: #f9ca24; }
-
-  .brand-card-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-  .brand-card-tag { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
-  .brand-card-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
-
-  .brand-check {
-    position: absolute;
-    top: 14px; right: 14px;
-    width: 18px; height: 18px;
-    background: var(--accent);
-    border-radius: 50%;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-  }
-
-  .brand-card.selected .brand-check { display: flex; }
-
-  .levels-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .level-btn {
-    padding: 12px 10px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12.5px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: center;
-    line-height: 1.3;
-  }
-
-  .level-btn:hover { border-color: rgba(108,99,255,0.3); color: var(--text); }
-  .level-btn.selected {
-    border-color: var(--accent);
-    background: rgba(108,99,255,0.1);
-    color: var(--text);
-  }
-
-  .level-btn small { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
-
-  input[type="text"], input[type="number"], textarea, select {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13.5px;
-    outline: none;
-    transition: border-color 0.15s;
-    resize: vertical;
-  }
-
-  input:focus, textarea:focus, select:focus { border-color: rgba(108,99,255,0.5); }
-  input::placeholder, textarea::placeholder { color: var(--muted); }
-  select option { background: #18181f; }
-
-  .input-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-
-  .input-group { margin-bottom: 14px; }
-
-  .input-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--muted);
-    margin-bottom: 6px;
-    display: block;
-  }
-
-  .cta-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
-
-  .cta-check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    cursor: pointer;
-    font-size: 12.5px;
-    color: var(--muted);
-    transition: all 0.15s;
-    user-select: none;
-  }
-
-  .cta-check:hover { border-color: rgba(108,99,255,0.3); color: var(--text); }
-  .cta-check.checked {
-    border-color: rgba(108,99,255,0.4);
-    background: rgba(108,99,255,0.08);
-    color: var(--text);
-  }
-
-  .cta-box {
-    width: 14px; height: 14px;
-    border-radius: 4px;
-    border: 1px solid var(--border);
-    background: transparent;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    transition: all 0.15s;
-    color: transparent;
-  }
-
-  .cta-check.checked .cta-box {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: white;
-  }
-
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 11px 22px;
-    border-radius: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13.5px;
-    font-weight: 500;
-    cursor: pointer;
-    border: none;
-    transition: all 0.2s;
-  }
-
-  .btn-primary { background: var(--accent); color: white; }
-  .btn-primary:hover { background: #7b74ff; transform: translateY(-1px); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
-  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
-  .btn-success { background: rgba(67,233,123,0.15); color: var(--accent3); border: 1px solid rgba(67,233,123,0.25); }
-  .btn-row { display: flex; gap: 10px; margin-top: 20px; align-items: center; }
-
-  .loading-bar { height: 3px; background: var(--surface2); border-radius: 3px; overflow: hidden; margin-bottom: 20px; }
-  .loading-bar-inner {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), #a78bfa);
-    border-radius: 3px;
-    width: 0%;
-    transition: width 0.4s;
-    animation: pulse-bar 2s infinite;
-  }
-
-  @keyframes pulse-bar { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-
-  .loading-status { font-size: 13px; color: var(--muted); margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
-
-  .spinner {
-    width: 14px; height: 14px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .emails-list { display: flex; flex-direction: column; gap: 12px; }
-
-  .email-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    transition: border-color 0.15s;
-  }
-
-  .email-item:hover { border-color: rgba(108,99,255,0.25); }
-
-  .email-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 14px 18px;
-    cursor: pointer;
-    user-select: none;
-  }
-
-  .email-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--accent);
-    background: rgba(108,99,255,0.12);
-    border: 1px solid rgba(108,99,255,0.2);
-    padding: 3px 8px;
-    border-radius: 6px;
-    flex-shrink: 0;
-  }
-
-  .email-subject { font-size: 13.5px; font-weight: 500; flex: 1; }
-
-  .email-cta-badge {
-    font-size: 10.5px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    background: rgba(255,107,107,0.12);
-    border: 1px solid rgba(255,107,107,0.2);
-    color: var(--accent2);
-    flex-shrink: 0;
-  }
-
-  .email-toggle { color: var(--muted); font-size: 11px; transition: transform 0.2s; }
-  .email-item.open .email-toggle { transform: rotate(180deg); }
-
-  .email-body { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
-  .email-item.open .email-body { display: block; }
-
-  .email-body-tabs { display: flex; gap: 4px; padding: 12px 0 14px; }
-
-  .email-tab {
-    padding: 5px 12px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid transparent;
-    color: var(--muted);
-    transition: all 0.15s;
-  }
-
-  .email-tab.active { background: rgba(108,99,255,0.12); border-color: rgba(108,99,255,0.25); color: var(--accent); }
-
-  .email-content {
-    font-size: 13px;
-    line-height: 1.75;
-    color: var(--text);
-    white-space: pre-wrap;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-family: 'DM Sans', sans-serif;
-  }
-
-  .email-hubspot {
-    display: none;
-    font-size: 12px;
-    line-height: 1.6;
-    color: #a0e0ff;
-    background: #0d1520;
-    border: 1px solid rgba(160,224,255,0.15);
-    border-radius: 8px;
-    padding: 14px 16px;
-    font-family: monospace;
-    white-space: pre-wrap;
-    overflow-x: auto;
-  }
-
-  .copy-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: 7px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.15s;
-    margin-top: 10px;
-  }
-
-  .copy-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
-  .copy-btn.copied { color: var(--accent3); border-color: rgba(67,233,123,0.3); }
-
-  .export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-  .export-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-
-  .export-card:hover { border-color: rgba(108,99,255,0.3); transform: translateY(-1px); }
-  .export-icon { font-size: 28px; margin-bottom: 8px; }
-  .export-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-  .export-desc { font-size: 12px; color: var(--muted); }
-
-  .summary-bar {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
-    display: flex;
-    gap: 20px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-
-  .summary-item { display: flex; flex-direction: column; gap: 2px; }
-  .summary-key { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
-  .summary-val { font-size: 13px; font-weight: 500; color: var(--text); }
-
-  .info-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 11.5px;
-    color: var(--muted);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 4px 10px;
-    margin-top: 8px;
-  }
-
-  .divider { height: 1px; background: var(--border); margin: 20px 0; }
-
-  .kb-toggle {
-    position: fixed;
-    bottom: 24px; right: 24px;
-    width: 44px; height: 44px;
-    background: var(--accent);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 18px;
-    z-index: 200;
-    box-shadow: 0 4px 20px rgba(108,99,255,0.4);
-    transition: all 0.2s;
-    border: none;
-  }
-
-  .kb-toggle:hover { transform: scale(1.05); }
-
-  .kb-panel {
-    position: fixed;
-    bottom: 80px; right: 24px;
-    width: 340px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
-    z-index: 200;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
-    display: none;
-  }
-
-  .kb-panel.open { display: block; }
-  .kb-panel-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-  .kb-panel-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
-  .kb-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 16px; line-height: 1; }
-  .kb-tabs { display: flex; gap: 4px; margin-bottom: 14px; }
-
-  .kb-tab {
-    flex: 1; padding: 7px;
-    border-radius: 7px;
-    font-size: 11.5px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    background: transparent;
-    font-family: 'DM Sans', sans-serif;
-    transition: all 0.15s;
-  }
-
-  .kb-tab.active { background: rgba(108,99,255,0.12); border-color: rgba(108,99,255,0.25); color: var(--accent); }
-
-  .kb-textarea {
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12.5px;
-    resize: none;
-    height: 90px;
-    outline: none;
-    margin-bottom: 10px;
-  }
-
-  .kb-textarea:focus { border-color: rgba(108,99,255,0.4); }
-  .kb-entries { max-height: 140px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
-
-  .kb-entry {
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 8px 10px;
-    font-size: 12px;
-    color: var(--text);
-    display: flex;
-    gap: 8px;
-    align-items: flex-start;
-  }
-
-  .kb-entry-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 12px; margin-left: auto; flex-shrink: 0; }
-  .kb-entry-del:hover { color: var(--accent2); }
-
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+/* ======================== BRAND SELECTOR ======================== */
+#brand-selector {
+  min-height: 100vh;
+  background: #0c0c0c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+#brand-selector::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, rgba(139,92,246,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(16,185,129,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+.selector-title { font-family: 'Syne', sans-serif; font-size: clamp(20px, 3vw, 32px); font-weight: 800; color: #fff; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px; }
+.selector-sub { font-family: 'Outfit', sans-serif; font-size: 14px; color: #666; text-align: center; margin-bottom: 48px; }
+.brand-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 900px; width: 100%; }
+@media (max-width: 600px) { .brand-grid { grid-template-columns: 1fr; } }
+
+.brand-card {
+  border-radius: 20px; padding: 32px; cursor: pointer;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s;
+  position: relative; overflow: hidden; min-height: 220px;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.brand-card:hover { transform: translateY(-6px) scale(1.01); }
+
+.brand-diploma { background: linear-gradient(135deg, #0f1c3a 0%, #1a2d5a 50%, #0f1c3a 100%); border: 1px solid rgba(212,175,85,0.25); box-shadow: 0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(212,175,85,0.15); }
+.brand-diploma::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #d4af55, transparent); }
+.brand-diploma:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(212,175,85,0.12); }
+
+.brand-hermione { background: linear-gradient(135deg, #1a0530 0%, #2d0a4e 40%, #1f0638 100%); border: 1px solid rgba(232,68,196,0.2); box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+.brand-hermione::after { content: ''; position: absolute; bottom: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(232,68,196,0.3), transparent 70%); }
+.brand-hermione:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 50px rgba(232,68,196,0.15); }
+
+.brand-medibox { background: linear-gradient(135deg, #020817 0%, #0a1628 50%, #040d1f 100%); border: 1px solid rgba(37,139,255,0.2); box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+.brand-medibox::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(37,139,255,0.02) 30px, rgba(37,139,255,0.02) 31px), repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(37,139,255,0.02) 30px, rgba(37,139,255,0.02) 31px); }
+.brand-medibox:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 50px rgba(37,139,255,0.1); }
+
+.brand-edumove { background: linear-gradient(135deg, #0d1f0f 0%, #162b18 50%, #0d1f0f 100%); border: 1px solid rgba(74,222,128,0.2); box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+.brand-edumove::before { content: ''; position: absolute; top: -40px; left: -40px; width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle, rgba(74,222,128,0.12), transparent 70%); }
+.brand-edumove:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 50px rgba(74,222,128,0.12); }
+
+.brand-logo { font-weight: 700; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; position: relative; z-index: 1; }
+.brand-diploma .brand-logo { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: #d4af55; letter-spacing: 3px; }
+.brand-hermione .brand-logo { font-family: 'Bricolage Grotesque', sans-serif; font-size: 16px; color: #e844c4; letter-spacing: 0; font-weight: 800; }
+.brand-medibox .brand-logo { font-family: 'DM Mono', monospace; font-size: 13px; color: #258bff; letter-spacing: 1px; font-weight: 500; }
+.brand-edumove .brand-logo { font-family: 'Fraunces', serif; font-size: 16px; color: #4ade80; letter-spacing: 1px; font-style: italic; }
+
+.brand-title { font-size: clamp(18px, 2.5vw, 26px); font-weight: 700; line-height: 1.2; color: #fff; margin-bottom: 10px; position: relative; z-index: 1; }
+.brand-diploma .brand-title { font-family: 'Playfair Display', serif; font-weight: 600; }
+.brand-hermione .brand-title { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; }
+.brand-medibox .brand-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; }
+.brand-edumove .brand-title { font-family: 'Fraunces', serif; font-weight: 400; }
+
+.brand-desc { font-size: 12px; line-height: 1.5; position: relative; z-index: 1; margin-bottom: 20px; }
+.brand-diploma .brand-desc { font-family: 'Cormorant Garamond', serif; font-size: 14px; color: rgba(212,175,85,0.7); }
+.brand-hermione .brand-desc { font-family: 'Outfit', sans-serif; color: rgba(255,255,255,0.5); }
+.brand-medibox .brand-desc { font-family: 'Plus Jakarta Sans', sans-serif; color: rgba(255,255,255,0.45); font-weight: 300; }
+.brand-edumove .brand-desc { font-family: 'Outfit', sans-serif; color: rgba(255,255,255,0.5); }
+
+.brand-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 100px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; width: fit-content; position: relative; z-index: 1; }
+.brand-diploma .brand-btn { background: rgba(212,175,85,0.15); color: #d4af55; border: 1px solid rgba(212,175,85,0.3); font-family: 'Cormorant Garamond', serif; font-size: 14px; }
+.brand-hermione .brand-btn { background: linear-gradient(135deg, #e844c4, #9b34ef); color: #fff; font-family: 'Bricolage Grotesque', sans-serif; }
+.brand-medibox .brand-btn { background: rgba(37,139,255,0.15); color: #258bff; border: 1px solid rgba(37,139,255,0.3); font-family: 'Plus Jakarta Sans', sans-serif; }
+.brand-edumove .brand-btn { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); font-family: 'Outfit', sans-serif; }
+
+/* ======================== THEMES ======================== */
+.theme-diploma { --bg:#f8f6f0;--bg2:#fff;--surface:#fff;--surface2:#f2ede4;--border:#e2d9c8;--accent:#0f1c3a;--accent2:#d4af55;--accent3:#8b0000;--text:#1a1208;--text-dim:#6b5e45;--text-muted:#b8a98a;--radius:4px; background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',serif; }
+.theme-hermione { --bg:#09030f;--bg2:#120720;--surface:#160924;--surface2:#1f0d30;--border:rgba(232,68,196,0.15);--accent:#e844c4;--accent2:#9b34ef;--accent3:#ff6b6b;--text:#f5f0ff;--text-dim:rgba(245,240,255,0.55);--text-muted:rgba(245,240,255,0.25);--radius:16px; background:var(--bg);color:var(--text);font-family:'Bricolage Grotesque',sans-serif; }
+.theme-medibox { --bg:#020817;--bg2:#040d1f;--surface:#071020;--surface2:#0a1628;--border:rgba(37,139,255,0.12);--accent:#258bff;--accent2:#00d4ff;--accent3:#ff6060;--text:#e8f4ff;--text-dim:rgba(232,244,255,0.5);--text-muted:rgba(232,244,255,0.2);--radius:8px; background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif; }
+.theme-edumove { --bg:#faf9f7;--bg2:#fff;--surface:#fff;--surface2:#f0f5f1;--border:#d4e8d8;--accent:#1a5c2e;--accent2:#4ade80;--accent3:#c2622a;--text:#0f1f12;--text-dim:#4a6b52;--text-muted:#a3bea8;--radius:12px; background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif; }
+
+/* ======================== APP LAYOUT ======================== */
+#app-wrapper { display: none; min-height: 100vh; }
+
+.app-header { display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:64px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;backdrop-filter:blur(16px); }
+.theme-diploma .app-header { background:rgba(248,246,240,0.95); }
+.theme-hermione .app-header { background:rgba(9,3,15,0.92); }
+.theme-medibox .app-header { background:rgba(2,8,23,0.95); }
+.theme-edumove .app-header { background:rgba(250,249,247,0.95); }
+
+.app-logo { display:flex;align-items:center;gap:10px;font-weight:700; }
+.theme-diploma .app-logo { font-family:'Playfair Display',serif;font-size:17px;color:var(--accent); }
+.theme-diploma .app-logo span { color:var(--accent2); }
+.theme-hermione .app-logo { font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800;color:var(--accent); }
+.theme-hermione .app-logo span { color:var(--text-dim); }
+.theme-medibox .app-logo { font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);font-weight:500; }
+.theme-medibox .app-logo span { color:var(--text-muted); }
+.theme-edumove .app-logo { font-family:'Fraunces',serif;font-size:18px;font-style:italic;color:var(--accent); }
+.theme-edumove .app-logo span { color:var(--accent3); }
+
+.back-btn { display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;font-size:12px;font-family:inherit;transition:all 0.2s; }
+.back-btn:hover { color:var(--text);border-color:var(--accent); }
+
+.ai-pill { display:flex;align-items:center;gap:6px;font-size:11px;padding:5px 12px;border-radius:100px;border:1px solid var(--border);color:var(--text-dim);background:var(--surface2); }
+.ai-dot { width:6px;height:6px;border-radius:50%;animation:pulse 2s infinite; }
+.theme-diploma .ai-dot { background:var(--accent2); }
+.theme-hermione .ai-dot { background:var(--accent); }
+.theme-medibox .ai-dot { background:var(--accent2); }
+.theme-edumove .ai-dot { background:var(--accent2); }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+.stepper-bar { display:flex;align-items:center;padding:0 36px;height:52px;border-bottom:1px solid var(--border);gap:4px;overflow-x:auto;scrollbar-width:none; }
+.stepper-bar::-webkit-scrollbar { display:none; }
+.st-item { display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:100px;white-space:nowrap;font-size:12px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all 0.2s;flex-shrink:0; }
+.st-item.active { background:var(--accent);color:#fff; }
+.theme-diploma .st-item.active { background:transparent;color:var(--accent2);border:1px solid var(--accent2); }
+.st-item.done { color:var(--text-dim); }
+.st-item.done::before { content:'✓ '; }
+.st-sep { color:var(--text-muted);font-size:14px;flex-shrink:0; }
+
+.app-main { display:grid;grid-template-columns:1fr 300px;min-height:calc(100vh - 116px); }
+@media (max-width:860px) { .app-main { grid-template-columns:1fr; } .app-sidebar { display:none; } }
+
+.app-content { padding:36px 40px;overflow-y:auto;border-right:1px solid var(--border); }
+.app-sidebar { padding:24px;overflow-y:auto;position:sticky;top:116px;max-height:calc(100vh - 116px); }
+.theme-hermione .app-sidebar,.theme-medibox .app-sidebar { background:var(--surface); }
+
+.step-panel { display:none; }
+.step-panel.active { display:block; }
+
+/* TYPOGRAPHY */
+.s-tag { font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:block; }
+.theme-diploma .s-tag { font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:3px;color:var(--accent2); }
+.theme-hermione .s-tag { color:var(--accent); }
+.theme-medibox .s-tag { font-family:'DM Mono',monospace;color:var(--accent); }
+.theme-edumove .s-tag { color:var(--accent); }
+
+.s-title { margin-bottom:8px;line-height:1.2; }
+.theme-diploma .s-title { font-family:'Playfair Display',serif;font-size:32px;color:var(--accent);font-weight:600; }
+.theme-hermione .s-title { font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:800; }
+.theme-medibox .s-title { font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:700; }
+.theme-edumove .s-title { font-family:'Fraunces',serif;font-size:30px;font-weight:400;color:var(--accent); }
+
+.s-desc { font-size:14px;line-height:1.6;margin-bottom:28px; }
+.theme-diploma .s-desc { font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--text-dim); }
+.theme-hermione .s-desc,.theme-medibox .s-desc,.theme-edumove .s-desc { color:var(--text-dim); }
+
+/* INPUTS */
+.f-group { margin-bottom:20px; }
+.f-label { display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-dim);margin-bottom:7px; }
+.theme-diploma .f-label { font-family:'Cormorant Garamond',serif;font-size:13px;letter-spacing:2px; }
+
+input[type=text],input[type=number],textarea,select { width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:11px 14px;border-radius:var(--radius);font-family:inherit;font-size:14px;outline:none;transition:border-color 0.2s;resize:vertical; }
+input:focus,textarea:focus,select:focus { border-color:var(--accent); }
+select option { background:var(--surface); }
+.theme-diploma input,.theme-diploma textarea,.theme-diploma select { background:#fff;border-radius:2px; }
+.theme-edumove input,.theme-edumove textarea,.theme-edumove select { background:#fff; }
+textarea { min-height:80px; }
+.input-row { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+
+/* BUTTONS */
+.btn { display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border:none;border-radius:var(--radius);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s; }
+.btn:disabled { opacity:0.4;cursor:not-allowed; }
+.theme-diploma .btn-primary { background:var(--accent);color:var(--accent2);font-family:'Cormorant Garamond',serif;font-size:15px;border-radius:2px;letter-spacing:0.5px; }
+.theme-diploma .btn-primary:hover:not(:disabled) { background:#1a2d5a; }
+.theme-hermione .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:100px; }
+.theme-hermione .btn-primary:hover:not(:disabled) { opacity:0.88;transform:translateY(-1px); }
+.theme-medibox .btn-primary { background:var(--accent);color:#fff;border-radius:6px; }
+.theme-medibox .btn-primary:hover:not(:disabled) { background:#1a7cf0;transform:translateY(-1px); }
+.theme-edumove .btn-primary { background:var(--accent);color:#fff;border-radius:100px; }
+.theme-edumove .btn-primary:hover:not(:disabled) { background:#234d2e;transform:translateY(-1px); }
+.btn-sec { background:var(--surface2);color:var(--text-dim);border:1px solid var(--border); }
+.btn-sec:hover { border-color:var(--accent);color:var(--text); }
+
+/* CARDS */
+.card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px; }
+.theme-diploma .card,.theme-edumove .card { background:#fff; }
+.card-title { font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px; }
+.theme-diploma .card-title { font-family:'Cormorant Garamond',serif;font-size:12px; }
+
+/* LEVELS */
+.levels-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px; }
+.level-btn { padding:11px 8px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:center;line-height:1.3; }
+.level-btn:hover { border-color:var(--accent);color:var(--text); }
+.level-btn.selected { border-color:var(--accent);color:var(--text); }
+.theme-diploma .level-btn.selected { background:rgba(15,28,58,0.04); }
+.theme-hermione .level-btn.selected { background:rgba(232,68,196,0.06); }
+.theme-medibox .level-btn.selected { background:rgba(37,139,255,0.07); }
+.theme-edumove .level-btn.selected { background:rgba(26,92,46,0.06); }
+.level-btn small { display:block;font-size:10px;color:var(--text-muted);margin-top:2px; }
+
+/* CTA & CAMPAIGN */
+.cta-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+.cta-btn { padding:9px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:left;display:flex;align-items:center;gap:8px; }
+.cta-btn:hover { border-color:var(--accent);color:var(--text); }
+.cta-btn.selected { border-color:var(--accent);color:var(--text); }
+.theme-diploma .cta-btn.selected { background:rgba(15,28,58,0.04); }
+.theme-hermione .cta-btn.selected { background:rgba(232,68,196,0.06); }
+.theme-medibox .cta-btn.selected { background:rgba(37,139,255,0.07); }
+.theme-edumove .cta-btn.selected { background:rgba(26,92,46,0.06); }
+.cta-check { width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent;transition:all 0.15s; }
+.cta-btn.selected .cta-check { background:var(--accent);border-color:var(--accent);color:#fff; }
+
+.campaign-toggle { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+.campaign-btn { padding:12px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:left;line-height:1.4; }
+.campaign-btn:hover { border-color:var(--accent);color:var(--text); }
+.campaign-btn.selected { border-color:var(--accent);color:var(--text); }
+.theme-diploma .campaign-btn.selected { background:rgba(15,28,58,0.04); }
+.theme-hermione .campaign-btn.selected { background:rgba(232,68,196,0.06); }
+.theme-medibox .campaign-btn.selected { background:rgba(37,139,255,0.07); }
+.theme-edumove .campaign-btn.selected { background:rgba(26,92,46,0.06); }
+.campaign-btn small { display:block;font-size:11px;color:var(--text-muted);margin-top:3px; }
+
+/* LOADING */
+.lbar { height:2px;border-radius:1px;overflow:hidden;margin:12px 0;background:var(--surface2); }
+.lbar-fill { height:100%;animation:lbarAnim 1.5s ease-in-out infinite;border-radius:1px; }
+.theme-diploma .lbar-fill { background:linear-gradient(90deg,var(--accent2),var(--accent)); }
+.theme-hermione .lbar-fill { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+.theme-medibox .lbar-fill { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+.theme-edumove .lbar-fill { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+@keyframes lbarAnim { 0%{width:0;margin-left:0}50%{width:65%;margin-left:18%}100%{width:0;margin-left:100%} }
+.lbar-txt { font-size:12px;color:var(--text-dim);margin-top:6px; }
+
+/* SIDEBAR */
+.sb-section { margin-bottom:24px; }
+.sb-title { font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border); }
+.sb-row { display:flex;justify-content:space-between;align-items:center;padding:5px 0;font-size:12px;border-bottom:1px solid rgba(128,128,128,0.05); }
+.sb-key { color:var(--text-dim); }
+.sb-val { font-weight:600;color:var(--text); }
+.sb-val.acc { color:var(--accent); }
+.theme-diploma .sb-val.acc { color:var(--accent2); }
+.wf-step { display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius);font-size:12px;transition:all 0.2s;color:var(--text-muted); }
+.wf-step.active { color:var(--text); }
+.theme-diploma .wf-step.active { background:rgba(212,175,85,0.08);color:var(--accent); }
+.theme-hermione .wf-step.active { background:var(--surface2);color:var(--accent); }
+.theme-medibox .wf-step.active { background:rgba(37,139,255,0.07);color:var(--accent); }
+.theme-edumove .wf-step.active { background:var(--surface2);color:var(--accent); }
+.wf-step.done { color:var(--text-dim); }
+
+/* EMAIL ITEMS */
+.email-item { border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color 0.2s; }
+.email-item:hover { border-color:var(--accent); }
+.email-header { display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;background:var(--surface); }
+.theme-diploma .email-header,.theme-edumove .email-header { background:#fff; }
+.email-num { font-size:11px;font-weight:700;letter-spacing:1px;color:var(--accent);flex-shrink:0;min-width:30px; }
+.theme-diploma .email-num { font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--accent2); }
+.email-subject { font-weight:600;font-size:14px;flex:1;line-height:1.3; }
+.theme-diploma .email-subject { font-family:'Playfair Display',serif; }
+.theme-edumove .email-subject { font-family:'Fraunces',serif; }
+.email-toggle { font-size:11px;color:var(--text-muted);flex-shrink:0;transition:transform 0.2s; }
+.email-item.open .email-toggle { transform:rotate(180deg); }
+.email-body { display:none;padding:16px;border-top:1px solid var(--border);background:var(--surface2); }
+.email-item.open .email-body { display:block; }
+
+.email-tabs { display:flex;gap:2px;margin-bottom:14px;background:var(--surface);border-radius:var(--radius);padding:3px;border:1px solid var(--border); }
+.email-tab-btn { flex:1;padding:7px 8px;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;background:transparent;color:var(--text-muted);transition:all 0.15s; }
+.email-tab-btn.active { background:var(--accent);color:#fff; }
+
+.email-preheader { font-size:12px;color:var(--text-dim);margin-bottom:12px;padding:8px 10px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);line-height:1.5; }
+.email-content { font-size:13.5px;line-height:1.75;color:var(--text-dim);white-space:pre-wrap;padding:14px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border); }
+.theme-diploma .email-content { font-family:'Cormorant Garamond',serif;font-size:15px; }
+.email-hubspot { display:none;font-size:11.5px;line-height:1.7;color:var(--text-dim);white-space:pre-wrap;padding:14px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);font-family:'DM Mono',monospace; }
+
+.copy-btn { padding:6px 12px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text-dim);font-size:11px;font-family:inherit;cursor:pointer;transition:all 0.15s;margin-top:10px;margin-right:6px; }
+.copy-btn:hover { border-color:var(--accent);color:var(--text); }
+.copy-btn.copied { background:var(--accent);border-color:var(--accent);color:#fff; }
+
+/* EXPORT */
+.export-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px; }
+.export-card { border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all 0.2s;text-align:center; }
+.export-card:not(.disabled):hover { border-color:var(--accent);transform:translateY(-2px); }
+.export-card.disabled { opacity:0.4;cursor:default; }
+.export-icon { font-size:28px;margin-bottom:10px; }
+.export-title { font-weight:700;font-size:14px;margin-bottom:6px; }
+.theme-diploma .export-title { font-family:'Playfair Display',serif; }
+.theme-edumove .export-title { font-family:'Fraunces',serif; }
+.export-desc { font-size:12px;color:var(--text-dim);line-height:1.5; }
+
+/* SUMMARY BAR */
+.summary-bar { display:flex;gap:20px;flex-wrap:wrap;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px; }
+.summary-item { display:flex;flex-direction:column;gap:2px; }
+.summary-key { font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-muted); }
+.summary-val { font-size:13px;font-weight:600;color:var(--text); }
+.theme-diploma .summary-val { font-family:'Cormorant Garamond',serif; }
+
+/* SCORE BOX */
+.score-box { border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;margin-bottom:16px; }
+.score-num { font-size:44px;font-weight:700;line-height:1;margin-bottom:4px; }
+.theme-diploma .score-num { font-family:'Playfair Display',serif;color:var(--accent2); }
+.theme-hermione .score-num { font-family:'Bricolage Grotesque',sans-serif;color:var(--accent); }
+.theme-medibox .score-num { font-family:'Plus Jakarta Sans',sans-serif;color:var(--accent); }
+.theme-edumove .score-num { font-family:'Fraunces',serif;color:var(--accent); }
+.score-lbl { font-size:11px;color:var(--text-dim); }
+
+.badge { display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:100px;border:1px solid;font-weight:500;margin-right:4px;margin-top:4px; }
+.b-blue { color:#60a5fa;border-color:rgba(96,165,250,0.3);background:rgba(96,165,250,0.06); }
+.b-dim { color:var(--text-dim);border-color:var(--border);background:var(--surface2); }
+
+/* KB */
+.kb-entry { display:flex;gap:10px;padding:8px 10px;border-radius:8px;background:var(--surface2);margin-bottom:6px;align-items:flex-start;border:1px solid var(--border); }
+.kb-entry-text { font-size:12px;color:var(--text-dim);flex:1;line-height:1.5; }
+.kb-del { background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;flex-shrink:0; }
+.kb-del:hover { color:#f87171; }
+
+/* GEN LOG */
+.gen-log { background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:12px;color:var(--text-dim);line-height:2;min-height:100px;font-family:'DM Mono',monospace;white-space:pre-wrap; }
+
+.flex-row { display:flex;gap:10px;flex-wrap:wrap;margin-top:16px; }
 </style>
 </head>
 <body>
 
-<nav>
-  <div class="nav-logo">Email · <span>Groupe Diploma</span></div>
-  <div style="display:flex;align-items:center;gap:10px;">
-    <span id="navBrand" style="font-size:12px;color:var(--muted);">— Aucune marque</span>
-    <div class="nav-badge">Claude AI</div>
-  </div>
-</nav>
+<!-- ======================== BRAND SELECTOR ======================== -->
+<div id="brand-selector">
+  <div class="selector-title">Générateur Emails Marketing · Groupe Diploma</div>
+  <div class="selector-sub">Sélectionne ta marque pour commencer</div>
 
-<div class="app">
-  <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Marque active</div>
-      <div class="brand-mini">
-        <button class="brand-mini-btn" data-brand="diploma" onclick="selectBrandMini('diploma')">
-          <div class="brand-dot" style="background:#6c63ff"></div>Diploma Santé
-        </button>
-        <button class="brand-mini-btn" data-brand="hermione" onclick="selectBrandMini('hermione')">
-          <div class="brand-dot" style="background:#ff6b6b"></div>Hermione Médecine
-        </button>
-        <button class="brand-mini-btn" data-brand="medibox" onclick="selectBrandMini('medibox')">
-          <div class="brand-dot" style="background:#43e97b"></div>Medibox
-        </button>
-        <button class="brand-mini-btn" data-brand="edumove" onclick="selectBrandMini('edumove')">
-          <div class="brand-dot" style="background:#f9ca24"></div>Edumove
-        </button>
-      </div>
-    </div>
-
-    <div class="divider" style="margin:0 16px 20px;"></div>
-
-    <div class="sidebar-section">
-      <div class="sidebar-label">Workflow</div>
-      <div class="step-item active" id="step-nav-0" onclick="goToStep(0)">
-        <div class="step-num">00</div><div class="step-label">Marque</div><div class="step-arrow">›</div>
-      </div>
-      <div class="step-item" id="step-nav-1" onclick="goToStep(1)">
-        <div class="step-num">01</div><div class="step-label">Cible</div><div class="step-arrow">›</div>
-      </div>
-      <div class="step-item" id="step-nav-2" onclick="goToStep(2)">
-        <div class="step-num">02</div><div class="step-label">Séquence</div><div class="step-arrow">›</div>
-      </div>
-      <div class="step-item" id="step-nav-3" onclick="goToStep(3)">
-        <div class="step-num">03</div><div class="step-label">Génération</div><div class="step-arrow">›</div>
-      </div>
-      <div class="step-item" id="step-nav-4" onclick="goToStep(4)">
-        <div class="step-num">04</div><div class="step-label">Emails</div><div class="step-arrow">›</div>
-      </div>
-      <div class="step-item" id="step-nav-5" onclick="goToStep(5)">
-        <div class="step-num">05</div><div class="step-label">Export</div><div class="step-arrow">›</div>
-      </div>
-    </div>
+  <!-- API KEY BAR -->
+  <div id="api-key-bar" style="display:flex;align-items:center;gap:10px;margin-bottom:32px;padding:10px 18px;border-radius:100px;max-width:520px;width:100%;transition:all 0.2s;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);">
+    <span id="api-key-dot" style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:#ef4444;"></span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#555;flex-shrink:0;">API KEY</span>
+    <input type="password" id="api-key-input" placeholder="sk-ant-api03-…" oninput="onApiKeyChange(this.value)" style="flex:1;background:transparent;border:none;outline:none;font-family:'DM Mono',monospace;font-size:12px;color:#ccc;padding:0;" autocomplete="off" spellcheck="false" />
+    <span id="api-key-status" style="font-size:10px;flex-shrink:0;font-family:'Outfit',sans-serif;color:#555;"></span>
   </div>
 
-  <div class="main">
-
-    <!-- STEP 0 -->
-    <div class="panel active" id="panel-0">
-      <div class="panel-header">
-        <div class="panel-tag">Étape 00</div>
-        <div class="panel-title">Choisir ta marque</div>
-        <div class="panel-desc">Chaque marque a son propre univers éditorial, sa cible et son ton.</div>
+  <div class="brand-grid">
+    <div class="brand-card brand-diploma" onclick="launchBrand('diploma')">
+      <div>
+        <div class="brand-logo">Diploma Santé</div>
+        <div class="brand-title">Emails premium<br>pour la prépa d'excellence</div>
+        <div class="brand-desc">Séquences raffinées pour lycéens, étudiants PASS et leurs parents — ton expert et rassurant.</div>
       </div>
-      <div class="brands-grid">
-        <div class="brand-card" data-brand="diploma" onclick="selectBrand('diploma')">
-          <div class="brand-check">✓</div>
-          <div class="brand-card-name">Diploma Santé</div>
-          <div class="brand-card-tag">Prépa médecine · Paris</div>
-          <div class="brand-card-desc">Prépa d'excellence pour PASS/LAS, accompagnement premium, résultats prouvés.</div>
-        </div>
-        <div class="brand-card" data-brand="hermione" onclick="selectBrand('hermione')">
-          <div class="brand-check">✓</div>
-          <div class="brand-card-name">Hermione Médecine</div>
-          <div class="brand-card-tag">Média #1 PASS/LAS 🔥</div>
-          <div class="brand-card-desc">Contenu Gen-Z, viral, pour les étudiants en santé.</div>
-        </div>
-        <div class="brand-card" data-brand="medibox" onclick="selectBrand('medibox')">
-          <div class="brand-check">✓</div>
-          <div class="brand-card-name">Medibox</div>
-          <div class="brand-card-tag">Prépa 100% en ligne</div>
-          <div class="brand-card-desc">Formation à distance, toutes villes de France.</div>
-        </div>
-        <div class="brand-card" data-brand="edumove" onclick="selectBrand('edumove')">
-          <div class="brand-check">✓</div>
-          <div class="brand-card-name">Edumove</div>
-          <div class="brand-card-tag">Études en Europe</div>
-          <div class="brand-card-desc">Alternative après échec PASS. Universités européennes.</div>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" onclick="goToStep(1)" id="step0Next" disabled>Continuer →</button>
-      </div>
+      <button class="brand-btn">Lancer →</button>
     </div>
 
-    <!-- STEP 1 -->
-    <div class="panel" id="panel-1">
-      <div class="panel-header">
-        <div class="panel-tag">Étape 01</div>
-        <div class="panel-title">Définir ta cible</div>
-        <div class="panel-desc">Sélectionne le niveau scolaire. Ton adapté étudiant + parents.</div>
+    <div class="brand-card brand-hermione" onclick="launchBrand('hermione')">
+      <div>
+        <div class="brand-logo">Hermione Médecine</div>
+        <div class="brand-title">Emails Gen-Z<br>cash et percutants 🔥</div>
+        <div class="brand-desc">Séquences ton direct pour étudiants PASS/LAS — honnête, concret, sans langue de bois.</div>
       </div>
-      <div class="card">
-        <div class="card-title">📚 Niveau scolaire</div>
-        <div class="levels-grid">
-          <button class="level-btn" data-level="seconde" onclick="toggleLevel('seconde')">Seconde<small>15–16 ans</small></button>
-          <button class="level-btn" data-level="premiere" onclick="toggleLevel('premiere')">Première<small>16–17 ans</small></button>
-          <button class="level-btn" data-level="terminale" onclick="toggleLevel('terminale')">Terminale<small>17–18 ans</small></button>
-          <button class="level-btn" data-level="postbac" onclick="toggleLevel('postbac')">Post-bac / PASS<small>18–20 ans</small></button>
-          <button class="level-btn" data-level="reorientation" onclick="toggleLevel('reorientation')">Réorientation<small>Après échec PASS</small></button>
-          <button class="level-btn" data-level="all" onclick="toggleLevel('all')">Toutes cibles<small>Segment large</small></button>
-        </div>
-        <div class="info-badge">💡 Ton inclusif : étudiant + parents</div>
-      </div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goToStep(0)">← Retour</button>
-        <button class="btn btn-primary" onclick="goToStep(2)" id="step1Next" disabled>Continuer →</button>
-      </div>
+      <button class="brand-btn">Lancer →</button>
     </div>
 
-    <!-- STEP 2 -->
-    <div class="panel" id="panel-2">
-      <div class="panel-header">
-        <div class="panel-tag">Étape 02</div>
-        <div class="panel-title">Paramétrer la séquence</div>
-        <div class="panel-desc">Décris le sujet et les objectifs de ta séquence.</div>
+    <div class="brand-card brand-medibox" onclick="launchBrand('medibox')">
+      <div>
+        <div class="brand-logo">Medibox</div>
+        <div class="brand-title">Emails data-driven<br>100% en ligne</div>
+        <div class="brand-desc">Campagnes ciblant toute la France — distanciel, flexibilité, accessibilité.</div>
       </div>
+      <button class="brand-btn">Lancer →</button>
+    </div>
 
-      <div class="card">
-        <div class="card-title">📣 Type de campagne</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-          <button class="level-btn selected" id="typeGenerique" onclick="selectCampaignType('generique')">
-            🎯 Générique<small>Promouvoir la prépa</small>
-          </button>
-          <button class="level-btn" id="typeEvenement" onclick="selectCampaignType('evenement')">
-            📅 Événement<small>PO, webinaire, date...</small>
-          </button>
-        </div>
+    <div class="brand-card brand-edumove" onclick="launchBrand('edumove')">
+      <div>
+        <div class="brand-logo">Edumove</div>
+        <div class="brand-title">Emails positifs<br>vers l'Europe</div>
+        <div class="brand-desc">Séquences empathiques après PASS — rebond valorisant, études en Europe.</div>
       </div>
+      <button class="brand-btn">Lancer →</button>
+    </div>
+  </div>
+</div>
 
-      <div class="card">
-        <div class="card-title">✉️ Sujet de la séquence</div>
-        <div class="input-group">
-          <label class="input-label">Thème principal *</label>
-          <input type="text" id="emailSubject" placeholder="ex : Pourquoi choisir Diploma Santé, Portes ouvertes 15 jan..." />
-        </div>
-        <div class="input-row">
-          <div class="input-group" style="margin:0">
-            <label class="input-label">Nombre d'emails</label>
-            <input type="number" id="emailCount" min="1" max="50" value="10" placeholder="ex: 10" style="height:42px;" />
+<!-- ======================== APP ======================== -->
+<div id="app-wrapper">
+
+  <div class="app-header">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <button class="back-btn" onclick="backToSelector()">← Marques</button>
+      <div class="app-logo" id="app-logo">Groupe Diploma</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="font-size:11px;padding:4px 10px;border-radius:100px;background:rgba(108,99,255,0.1);color:#a78bfa;border:1px solid rgba(108,99,255,0.2);font-weight:600;">✉️ EMAILS MARKETING</div>
+      <div class="ai-pill"><span class="ai-dot"></span> Claude AI</div>
+    </div>
+  </div>
+
+  <div class="stepper-bar" id="stepper-bar">
+    <div class="st-item active" id="st-0" onclick="navTo(0)">01 · Cible</div>
+    <span class="st-sep">›</span>
+    <div class="st-item" id="st-1" onclick="navTo(1)">02 · Séquence</div>
+    <span class="st-sep">›</span>
+    <div class="st-item" id="st-2" onclick="navTo(2)">03 · Génération</div>
+    <span class="st-sep">›</span>
+    <div class="st-item" id="st-3" onclick="navTo(3)">04 · Emails</div>
+    <span class="st-sep">›</span>
+    <div class="st-item" id="st-4" onclick="navTo(4)">05 · Export</div>
+  </div>
+
+  <div class="app-main">
+    <div class="app-content">
+
+      <!-- STEP 0: CIBLE -->
+      <div class="step-panel active" id="p-0">
+        <span class="s-tag">Étape 01</span>
+        <div class="s-title">Choisir la cible</div>
+        <div class="s-desc">Sélectionne le niveau scolaire. Les emails seront adaptés au profil : vocabulaire, angle émotionnel, maturité dans le parcours.</div>
+
+        <div class="card">
+          <div class="card-title">Niveau scolaire</div>
+          <div class="levels-grid">
+            <button class="level-btn" data-level="seconde" onclick="selectLevel(this)">Seconde<small>15-16 ans</small></button>
+            <button class="level-btn" data-level="premiere" onclick="selectLevel(this)">Première<small>16-17 ans</small></button>
+            <button class="level-btn" data-level="terminale" onclick="selectLevel(this)">Terminale<small>17-18 ans</small></button>
+            <button class="level-btn" data-level="postbac" onclick="selectLevel(this)">Post-bac / PASS<small>18+ ans</small></button>
+            <button class="level-btn" data-level="reorientation" onclick="selectLevel(this)">Réorientation<small>Après PASS/LAS</small></button>
+            <button class="level-btn" data-level="all" onclick="selectLevel(this)">Toutes cibles<small>Généraliste</small></button>
           </div>
-          <div class="input-group" style="margin:0">
-            <label class="input-label">Durée</label>
-            <div style="display:flex;gap:6px;">
-              <input type="number" id="emailDurationNum" min="1" value="1" style="height:42px;width:70px;flex-shrink:0;" />
-              <select id="emailDurationUnit" style="height:42px;">
-                <option value="jour(s)">Jour(s)</option>
-                <option value="semaine(s)">Semaine(s)</option>
-                <option value="mois" selected>Mois</option>
-              </select>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Base de connaissances 🧠</div>
+          <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px;line-height:1.6;">Ajoute des données à injecter dans les emails : chiffres clés, offres du moment, événements, arguments différenciants…</div>
+          <textarea id="kb-input" placeholder="Ex: Portes ouvertes le 15 mars, -10% sur la brochure, 92% de réussite en kiné, 25 élèves max par classe…" style="margin-bottom:10px;"></textarea>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button class="btn btn-sec" onclick="addKbEntry()" style="padding:8px 16px;font-size:12px;">+ Ajouter</button>
+            <span style="font-size:11px;color:var(--text-muted);" id="kb-count-label">0 entrée(s)</span>
+          </div>
+          <div id="kb-list" style="margin-top:12px;"></div>
+        </div>
+
+        <div class="flex-row">
+          <button class="btn btn-primary" id="btn-step0-next" onclick="advance(1)" disabled>Suivant →</button>
+        </div>
+      </div>
+
+      <!-- STEP 1: SÉQUENCE -->
+      <div class="step-panel" id="p-1">
+        <span class="s-tag">Étape 02</span>
+        <div class="s-title">Configurer la séquence</div>
+        <div class="s-desc">Définis le sujet, le type de campagne, la durée et les CTA à utiliser.</div>
+
+        <div class="card">
+          <div class="card-title">Type de campagne</div>
+          <div class="campaign-toggle">
+            <button class="campaign-btn selected" id="btn-generique" onclick="selectCampaign('generique')">🎯 Générique<small>Promouvoir la prépa de façon continue</small></button>
+            <button class="campaign-btn" id="btn-evenement" onclick="selectCampaign('evenement')">📅 Événement<small>PO, webinaire, date précise…</small></button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Sujet & Paramètres</div>
+          <div class="f-group">
+            <label class="f-label">Thème principal *</label>
+            <input type="text" id="email-subject" placeholder="ex : Réussir son PASS, Portes ouvertes 15 mars, Témoignages admis médecine…" />
+          </div>
+          <div class="input-row" style="margin-bottom:14px;">
+            <div class="f-group" style="margin:0;">
+              <label class="f-label">Nombre d'emails</label>
+              <input type="number" id="email-count" min="1" max="30" value="5" />
+            </div>
+            <div class="f-group" style="margin:0;">
+              <label class="f-label">Durée totale</label>
+              <div style="display:flex;gap:6px;">
+                <input type="number" id="duration-num" min="1" value="3" style="width:70px;flex-shrink:0;" />
+                <select id="duration-unit">
+                  <option value="jours">Jours</option>
+                  <option value="semaines" selected>Semaines</option>
+                  <option value="mois">Mois</option>
+                </select>
+              </div>
             </div>
           </div>
+          <div class="f-group" style="margin:0;">
+            <label class="f-label">Contexte additionnel (optionnel)</label>
+            <textarea id="email-context" placeholder="Ex : Cibler particulièrement les parents, insister sur les taux de réussite, ton plus urgent car J-30…"></textarea>
+          </div>
         </div>
-        <div class="input-group">
-          <label class="input-label">Contexte / infos supplémentaires</label>
-          <textarea id="emailContext" rows="3" placeholder="Ex : stats de réussite, promo, date événement..."></textarea>
+
+        <div class="card">
+          <div class="card-title">CTA à inclure (variés entre les emails)</div>
+          <div class="cta-grid">
+            <button class="cta-btn" data-cta="brochure" onclick="toggleCta(this)"><span class="cta-check">✓</span>📄 Télécharger la brochure</button>
+            <button class="cta-btn" data-cta="rdv" onclick="toggleCta(this)"><span class="cta-check">✓</span>📅 Prendre un RDV</button>
+            <button class="cta-btn" data-cta="portes-ouvertes" onclick="toggleCta(this)"><span class="cta-check">✓</span>🏫 S'inscrire aux PO</button>
+            <button class="cta-btn" data-cta="candidature" onclick="toggleCta(this)"><span class="cta-check">✓</span>📝 Déposer candidature</button>
+            <button class="cta-btn" data-cta="webinaire" onclick="toggleCta(this)"><span class="cta-check">✓</span>🎥 S'inscrire webinaire</button>
+            <button class="cta-btn" data-cta="essai" onclick="toggleCta(this)"><span class="cta-check">✓</span>✨ Cours d'essai gratuit</button>
+          </div>
         </div>
-      </div>
 
-      <div class="card">
-        <div class="card-title">🎯 CTA principaux</div>
-        <div class="cta-grid">
-          <div class="cta-check" data-value="brochure" onclick="toggleCta(this)"><div class="cta-box">✓</div>📄 Télécharger la brochure</div>
-          <div class="cta-check" data-value="rdv" onclick="toggleCta(this)"><div class="cta-box">✓</div>📅 Prendre RDV</div>
-          <div class="cta-check" data-value="portes-ouvertes" onclick="toggleCta(this)"><div class="cta-box">✓</div>🏫 S'inscrire aux PO</div>
-          <div class="cta-check" data-value="candidature" onclick="toggleCta(this)"><div class="cta-box">✓</div>📝 Déposer candidature</div>
-          <div class="cta-check" data-value="webinaire" onclick="toggleCta(this)"><div class="cta-box">✓</div>🎥 S'inscrire webinaire</div>
-          <div class="cta-check" data-value="essai" onclick="toggleCta(this)"><div class="cta-box">✓</div>✨ Cours d'essai gratuit</div>
-        </div>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goToStep(1)">← Retour</button>
-        <button class="btn btn-primary" onclick="generateEmails()">✨ Générer les emails</button>
-      </div>
-    </div>
-
-    <!-- STEP 3 -->
-    <div class="panel" id="panel-3">
-      <div class="panel-header">
-        <div class="panel-tag">Étape 03</div>
-        <div class="panel-title">Génération en cours…</div>
-        <div class="panel-desc">L'IA rédige ta séquence email complète.</div>
-      </div>
-      <div class="loading-bar"><div class="loading-bar-inner" id="loadingBar"></div></div>
-      <div class="loading-status">
-        <div class="spinner"></div>
-        <span id="loadingText">Initialisation…</span>
-      </div>
-      <div class="card">
-        <div class="card-title">Progression</div>
-        <div id="progressLog" style="font-size:12.5px;color:var(--muted);line-height:2;"></div>
-      </div>
-    </div>
-
-    <!-- STEP 4 -->
-    <div class="panel" id="panel-4">
-      <div class="panel-header">
-        <div class="panel-tag">Étape 04</div>
-        <div class="panel-title">Ta séquence email</div>
-        <div class="panel-desc">Clique sur un email pour voir son contenu. Bascule texte / HubSpot HTML.</div>
-      </div>
-      <div class="summary-bar">
-        <div class="summary-item"><span class="summary-key">Marque</span><span class="summary-val" id="sumBrand">—</span></div>
-        <div class="summary-item"><span class="summary-key">Cible</span><span class="summary-val" id="sumLevel">—</span></div>
-        <div class="summary-item"><span class="summary-key">Sujet</span><span class="summary-val" id="sumSubject">—</span></div>
-        <div class="summary-item"><span class="summary-key">Emails</span><span class="summary-val" id="sumCount">—</span></div>
-      </div>
-      <div class="emails-list" id="emailsList"></div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goToStep(2)">← Régénérer</button>
-        <button class="btn btn-primary" onclick="goToStep(5)">Exporter →</button>
-      </div>
-    </div>
-
-    <!-- STEP 5 -->
-    <div class="panel" id="panel-5">
-      <div class="panel-header">
-        <div class="panel-tag">Étape 05</div>
-        <div class="panel-title">Exporter ta séquence</div>
-        <div class="panel-desc">Format HubSpot — pas de balises html/body, copier-coller direct.</div>
-      </div>
-      <div class="export-grid">
-        <div class="export-card" onclick="exportAll()"><div class="export-icon">📋</div><div class="export-title">Tout copier</div><div class="export-desc">Presse-papier</div></div>
-        <div class="export-card" onclick="exportTxt()"><div class="export-icon">📄</div><div class="export-title">Fichier .txt</div><div class="export-desc">Télécharger</div></div>
-        <div class="export-card" onclick="exportHubspot()"><div class="export-icon">🟠</div><div class="export-title">Format HubSpot</div><div class="export-desc">HTML inline sans body/html</div></div>
-        <div class="export-card" style="opacity:0.45;cursor:default;"><div class="export-icon">🔗</div><div class="export-title">Sync HubSpot</div><div class="export-desc">Bientôt disponible</div></div>
-      </div>
-      <div class="card" style="margin-top:20px;">
-        <div class="card-title">🔗 Communication inter-outils</div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.7;">
-          Cette séquence sera disponible pour :<br>
-          <span style="color:var(--text);">• Générateur d'images</span> — créas sur « <span id="exportSubjectRef" style="color:var(--accent);">—</span> »<br>
-          <span style="color:var(--text);">• Scripts vidéo</span> — alignés sur la séquence<br>
-          <span style="color:var(--text);">• Générateur SEO</span> — même cluster thématique
+        <div class="flex-row">
+          <button class="btn btn-sec" onclick="navTo(0)">← Retour</button>
+          <button class="btn btn-primary" onclick="startGeneration()">✨ Générer les emails →</button>
         </div>
       </div>
-      <div class="btn-row">
-        <button class="btn btn-ghost" onclick="goToStep(4)">← Retour</button>
-        <button class="btn btn-success" onclick="newSequence()">✨ Nouvelle séquence</button>
+
+      <!-- STEP 2: GÉNÉRATION -->
+      <div class="step-panel" id="p-2">
+        <span class="s-tag">Étape 03</span>
+        <div class="s-title">Génération en cours…</div>
+        <div class="s-desc">L'IA rédige ta séquence. Chaque email est unique, progressif, adapté au niveau et au ton de la marque.</div>
+        <div class="lbar"><div class="lbar-fill"></div></div>
+        <div class="lbar-txt" id="gen-status">Initialisation…</div>
+        <div style="margin-top:20px;" class="card">
+          <div class="card-title">Progression</div>
+          <div class="gen-log" id="gen-log"></div>
+        </div>
+      </div>
+
+      <!-- STEP 3: EMAILS -->
+      <div class="step-panel" id="p-3">
+        <span class="s-tag">Étape 04</span>
+        <div class="s-title">Ta séquence email</div>
+        <div class="s-desc">Clique sur un email pour voir son contenu. Bascule entre texte brut et code HubSpot.</div>
+        <div class="summary-bar" id="summary-bar">
+          <div class="summary-item"><span class="summary-key">Marque</span><span class="summary-val" id="sum-brand">—</span></div>
+          <div class="summary-item"><span class="summary-key">Cible</span><span class="summary-val" id="sum-level">—</span></div>
+          <div class="summary-item"><span class="summary-key">Sujet</span><span class="summary-val" id="sum-subject" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</span></div>
+          <div class="summary-item"><span class="summary-key">Emails</span><span class="summary-val" id="sum-count">—</span></div>
+        </div>
+        <div id="emails-list"></div>
+        <div class="flex-row">
+          <button class="btn btn-sec" onclick="navTo(1)">← Régénérer</button>
+          <button class="btn btn-primary" onclick="advance(4)">Exporter →</button>
+        </div>
+      </div>
+
+      <!-- STEP 4: EXPORT -->
+      <div class="step-panel" id="p-4">
+        <span class="s-tag">Étape 05</span>
+        <div class="s-title">Exporter la séquence</div>
+        <div class="s-desc">Tous les emails sont formatés HubSpot — sans balises html/body, compatible copier-coller direct.</div>
+        <div class="export-grid">
+          <div class="export-card" onclick="exportAllCopy()"><div class="export-icon">📋</div><div class="export-title">Tout copier</div><div class="export-desc">Tous les emails dans le presse-papier</div></div>
+          <div class="export-card" onclick="exportTxt()"><div class="export-icon">📄</div><div class="export-title">Fichier .txt</div><div class="export-desc">Télécharger la séquence complète</div></div>
+          <div class="export-card" onclick="exportHubspot()"><div class="export-icon">🟠</div><div class="export-title">Format HubSpot</div><div class="export-desc">HTML inline compatible HubSpot</div></div>
+          <div class="export-card disabled"><div class="export-icon">🔗</div><div class="export-title">Sync HubSpot</div><div class="export-desc">Connexion API directe (bientôt)</div></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔗 Communication inter-outils</div>
+          <div style="font-size:13px;color:var(--text-dim);line-height:1.8;">
+            Cette séquence sera disponible pour les autres outils :<br>
+            <span style="color:var(--text);">• Générateur SEO</span> — articles autour du même cluster thématique<br>
+            <span style="color:var(--text);">• Générateur d'images</span> — créas visuelles adaptées à « <span id="export-subject-ref" style="color:var(--accent);">—</span> »<br>
+            <span style="color:var(--text);">• Scripts vidéo</span> — contenu aligné sur la séquence email
+          </div>
+        </div>
+        <div class="flex-row">
+          <button class="btn btn-sec" onclick="navTo(3)">← Retour</button>
+          <button class="btn btn-primary" onclick="newSequence()">✨ Nouvelle séquence</button>
+        </div>
+      </div>
+
+    </div><!-- /app-content -->
+
+    <!-- SIDEBAR -->
+    <div class="app-sidebar">
+      <div class="sb-section">
+        <div class="sb-title">Campagne</div>
+        <div class="sb-row"><span class="sb-key">Marque</span><span class="sb-val acc" id="sb-brand">—</span></div>
+        <div class="sb-row"><span class="sb-key">Cible</span><span class="sb-val" id="sb-level">—</span></div>
+        <div class="sb-row"><span class="sb-key">Type</span><span class="sb-val" id="sb-type">—</span></div>
+        <div class="sb-row"><span class="sb-key">Emails</span><span class="sb-val" id="sb-count">—</span></div>
+        <div class="sb-row"><span class="sb-key">Étape</span><span class="sb-val acc" id="sb-step">01 / 05</span></div>
+      </div>
+      <div class="sb-section">
+        <div class="sb-title">Workflow</div>
+        <div id="wf-steps">
+          <div class="wf-step active" id="wf-0">🎯 Cible & Base de connaissances</div>
+          <div class="wf-step" id="wf-1">📐 Séquence & CTA</div>
+          <div class="wf-step" id="wf-2">⚡ Génération IA</div>
+          <div class="wf-step" id="wf-3">✉️ Lecture & copie</div>
+          <div class="wf-step" id="wf-4">📦 Export</div>
+        </div>
+      </div>
+      <div class="sb-section" id="results-sidebar" style="display:none;">
+        <div class="sb-title">Résultats</div>
+        <div class="score-box">
+          <div class="score-num" id="sb-email-count">—</div>
+          <div class="score-lbl">emails générés</div>
+        </div>
       </div>
     </div>
 
-  </div>
-</div>
-
-<button class="kb-toggle" onclick="toggleKB()">🧠</button>
-
-<div class="kb-panel" id="kbPanel">
-  <div class="kb-panel-header">
-    <div class="kb-panel-title">🧠 Base de connaissances</div>
-    <button class="kb-close" onclick="toggleKB()">✕</button>
-  </div>
-  <div class="kb-tabs">
-    <button class="kb-tab active" onclick="switchKbTab('add',event)">+ Ajouter</button>
-    <button class="kb-tab" onclick="switchKbTab('list',event)" id="kbListTab">Entrées (0)</button>
-  </div>
-  <div id="kbAddSection">
-    <textarea class="kb-textarea" id="kbInput" placeholder="Chiffre, info, argument clé, accroche..."></textarea>
-    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="addKbEntry()">Ajouter à la base</button>
-  </div>
-  <div id="kbListSection" style="display:none;">
-    <div class="kb-entries" id="kbEntries">
-      <div style="font-size:12px;color:var(--muted);text-align:center;padding:20px;">Aucune entrée</div>
-    </div>
-  </div>
-</div>
+  </div><!-- /app-main -->
+</div><!-- /app-wrapper -->
 
 <script>
-const state = {
-  brand: null, level: null, campaignType: 'generique',
-  subject: '', count: 10, duration: '1 mois', context: '',
-  ctas: [], emails: [], kb: []
+const API = 'https://api.anthropic.com/v1/messages';
+const MODEL = 'claude-sonnet-4-20250514';
+function getApiKey() { return localStorage.getItem('diploma_api_key') || ''; }
+function setApiKey(k) { localStorage.setItem('diploma_api_key', k); }
+
+const BRANDS = {
+  diploma: { name:'Diploma Santé', logoHtml:'Diploma <span>Santé</span>', theme:'theme-diploma', tone:"Ton premium, rassurant, orienté excellence et résultats. Données chiffrées. S'adresse aux parents autant qu'aux étudiants. Phrases soignées. Jamais de familiarités ni d'emojis.", context:"Diploma Santé — prépa médecine d'excellence à Paris, fondée par Benjamin Haddad, ancien major de PACES. 204h de cours PASS (vs 56h chez Medisup). 25 élèves/classe max. 79% de réussite en médecine vs 29,6% nationale. 3 campus Paris 12e/16e ouverts 7j/7. Seule prépa fondée par un major du concours.", sign:"L'équipe Diploma Santé" },
+  hermione: { name:'Hermione Médecine', logoHtml:'Hermione <span>Médecine</span>', theme:'theme-hermione', tone:"Ton Gen-Z, direct, cash. Phrases courtes. Emojis OK. Tutoiement naturel. S'adresse aux étudiants PASS/LAS. Pas de langue de bois, honnête et transparent.", context:"Hermione Médecine — média #1 PASS/LAS suivi sur Instagram et TikTok. Contenu viral entre étudiants en santé.", sign:"L'équipe Hermione 👋" },
+  medibox: { name:'Medibox', logoHtml:'Medi<span>box</span>', theme:'theme-medibox', tone:"Ton pragmatique, tech, centré sur la flexibilité et l'accessibilité. Digital-first. Efficace et direct. Pas de pression géographique.", context:"Medibox — prépa médecine 100% en ligne en France. Cours replay, QCM interactifs, planning personnalisé. Cible toutes les villes de France.", sign:"L'équipe Medibox" },
+  edumove: { name:'Edumove', logoHtml:'<span>Edu</span>move', theme:'theme-edumove', tone:"Ton empathique, positif, tourné vers l'espoir et le rebond après un échec. Alternative valorisante. Jamais dévalorisante ou 'plan B'. Rassurant et ouvert.", context:"Edumove — accompagnement pour études de médecine en Europe (Roumanie, Espagne, Belgique, Hongrie). Après échec PASS/LAS ou pour choisir une voie différente.", sign:"L'équipe Edumove" }
 };
 
-const brandLabels = { diploma:'Diploma Santé', hermione:'Hermione Médecine', medibox:'Medibox', edumove:'Edumove' };
-const levelLabels = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
-const brandTones = {
-  diploma: "Ton premium, rassurant, orienté excellence et résultats. Données chiffrées. S'adresse aux parents aussi bien qu'aux étudiants.",
-  hermione: "Ton Gen-Z, direct, un peu provoc. Phrases courtes. Émoticônes ok. S'adresse surtout aux étudiants PASS/LAS.",
-  medibox: "Ton pragmatique, centré sur la flexibilité et l'accessibilité. Pas de pression géographique. Digital-first.",
-  edumove: "Ton empathique, tourné vers l'espoir et le rebond après un échec. Alternative positive aux études européennes."
-};
+const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
 
-let currentStep = 0;
+const ST = { brand:null, level:null, campaignType:'generique', subject:'', count:5, duration:'3 semaines', context:'', ctas:[], kb:[], emails:[], currentStep:0 };
 
-function goToStep(n) {
-  document.querySelector(`#panel-${currentStep}`).classList.remove('active');
-  document.querySelector(`#step-nav-${currentStep}`).classList.remove('active');
-  currentStep = n;
-  document.querySelector(`#panel-${n}`).classList.add('active');
-  document.querySelector(`#step-nav-${n}`).classList.add('active');
-  for (let i = 0; i < n; i++) document.querySelector(`#step-nav-${i}`).classList.add('done');
+// ========================
+// API KEY MANAGEMENT
+// ========================
+function onApiKeyChange(val) {
+  setApiKey(val.trim());
+  updateApiKeyBar();
 }
 
-function selectBrand(brand) {
-  state.brand = brand;
-  document.querySelectorAll('.brand-card').forEach(c => c.classList.remove('selected'));
-  document.querySelector(`.brand-card[data-brand="${brand}"]`).classList.add('selected');
-  document.querySelectorAll('.brand-mini-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.brand-mini-btn[data-brand="${brand}"]`).classList.add('active');
-  document.getElementById('navBrand').textContent = brandLabels[brand];
-  document.getElementById('step0Next').disabled = false;
+function updateApiKeyBar() {
+  const key = getApiKey();
+  const bar = document.getElementById('api-key-bar');
+  const dot = document.getElementById('api-key-dot');
+  const status = document.getElementById('api-key-status');
+  const input = document.getElementById('api-key-input');
+  if (!bar) return;
+  const ok = key.startsWith('sk-ant-');
+  dot.style.background = ok ? '#22c55e' : '#ef4444';
+  bar.style.borderColor = ok ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.2)';
+  bar.style.background = ok ? 'rgba(34,197,94,0.05)' : 'rgba(255,255,255,0.04)';
+  status.textContent = ok ? '✓ Connecté' : 'Clé requise';
+  status.style.color = ok ? '#22c55e' : '#ef4444';
 }
 
-function selectBrandMini(brand) {
-  selectBrand(brand);
-  if (currentStep === 0) goToStep(1);
+document.addEventListener('DOMContentLoaded', () => {
+  const saved = getApiKey();
+  const input = document.getElementById('api-key-input');
+  if (saved && input) input.value = saved;
+  updateApiKeyBar();
+});
+
+function launchBrand(id) {
+  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = []; ST.campaignType = 'generique'; ST.currentStep = 0;
+  const b = BRANDS[id];
+  document.getElementById('brand-selector').style.display = 'none';
+  const app = document.getElementById('app-wrapper');
+  app.style.display = 'block'; app.className = b.theme;
+  document.getElementById('app-logo').innerHTML = b.logoHtml;
+  document.getElementById('sb-brand').textContent = b.name;
+  resetUI(); switchStep(0);
 }
 
-function toggleLevel(level) {
-  state.level = level;
-  document.querySelectorAll('.level-btn[data-level]').forEach(b => b.classList.remove('selected'));
-  document.querySelector(`.level-btn[data-level="${level}"]`).classList.add('selected');
-  document.getElementById('step1Next').disabled = false;
+function backToSelector() {
+  document.getElementById('app-wrapper').style.display = 'none';
+  document.getElementById('brand-selector').style.display = 'flex';
 }
 
-function toggleCta(el) {
-  el.classList.toggle('checked');
-  const val = el.getAttribute('data-value');
-  const idx = state.ctas.indexOf(val);
-  if (idx === -1) state.ctas.push(val);
-  else state.ctas.splice(idx, 1);
+function switchStep(n) {
+  document.querySelectorAll('#app-wrapper .step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`p-${n}`).classList.add('active');
+  document.querySelectorAll('#stepper-bar .st-item').forEach((el, i) => {
+    el.classList.remove('active','done');
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  });
+  document.querySelectorAll('#wf-steps .wf-step').forEach((el, i) => {
+    el.className = 'wf-step ' + (i < n ? 'done' : i === n ? 'active' : '');
+  });
+  document.getElementById('sb-step').textContent = `0${n+1} / 05`;
+  ST.currentStep = n;
 }
 
-function selectCampaignType(type) {
-  state.campaignType = type;
-  document.getElementById('typeGenerique').classList.toggle('selected', type === 'generique');
-  document.getElementById('typeEvenement').classList.toggle('selected', type === 'evenement');
+function navTo(n) { if (n <= ST.currentStep) switchStep(n); }
+function advance(n) { ST.currentStep = n - 1; switchStep(n); }
+
+function selectLevel(btn) {
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  ST.level = btn.dataset.level;
+  document.getElementById('sb-level').textContent = LEVEL_LABELS[ST.level];
+  document.getElementById('btn-step0-next').disabled = false;
 }
 
-async function generateEmails() {
-  state.subject = document.getElementById('emailSubject').value.trim();
-  state.count = parseInt(document.getElementById('emailCount').value) || 10;
-  const durNum = document.getElementById('emailDurationNum').value || '1';
-  const durUnit = document.getElementById('emailDurationUnit').value;
-  state.duration = `${durNum} ${durUnit}`;
-  state.context = document.getElementById('emailContext').value.trim();
+function addKbEntry() {
+  const val = document.getElementById('kb-input').value.trim();
+  if (!val) return;
+  ST.kb.push(val);
+  document.getElementById('kb-input').value = '';
+  renderKb();
+}
 
-  if (!state.subject) { document.getElementById('emailSubject').focus(); return; }
+function removeKbEntry(i) { ST.kb.splice(i, 1); renderKb(); }
 
-  goToStep(3);
-  const progressLog = document.getElementById('progressLog');
-  const loadingBar = document.getElementById('loadingBar');
-  const loadingText = document.getElementById('loadingText');
-  progressLog.innerHTML = '';
-  loadingBar.style.width = '0%';
+function renderKb() {
+  document.getElementById('kb-count-label').textContent = `${ST.kb.length} entrée(s)`;
+  document.getElementById('kb-list').innerHTML = ST.kb.map((e, i) => `
+    <div class="kb-entry">
+      <span class="kb-entry-text">${e}</span>
+      <button class="kb-del" onclick="removeKbEntry(${i})">✕</button>
+    </div>
+  `).join('');
+}
 
-  const steps = ['🎯 Analyse du profil de cible…','📊 Intégration de la base de connaissances…','✍️ Construction de la structure…','📧 Rédaction des emails…','🎨 Adaptation au ton de la marque…','📋 Mise en forme HubSpot…','✅ Finalisation…'];
+function selectCampaign(type) {
+  ST.campaignType = type;
+  document.getElementById('btn-generique').classList.toggle('selected', type === 'generique');
+  document.getElementById('btn-evenement').classList.toggle('selected', type === 'evenement');
+  document.getElementById('sb-type').textContent = type === 'generique' ? 'Générique' : 'Événement';
+}
 
+function toggleCta(btn) {
+  btn.classList.toggle('selected');
+  const val = btn.dataset.cta;
+  const idx = ST.ctas.indexOf(val);
+  if (idx === -1) ST.ctas.push(val); else ST.ctas.splice(idx, 1);
+}
+
+async function startGeneration() {
+  if (!getApiKey().startsWith('sk-ant-')) {
+    alert('⚠️ Entre ta clé API Anthropic dans le champ en haut de la page de sélection de marque.');
+    backToSelector();
+    return;
+  }
+  const subjectEl = document.getElementById('email-subject');
+  ST.subject = subjectEl.value.trim();
+  if (!ST.subject) { subjectEl.focus(); return; }
+  ST.count = parseInt(document.getElementById('email-count').value) || 5;
+  ST.duration = `${document.getElementById('duration-num').value} ${document.getElementById('duration-unit').value}`;
+  ST.context = document.getElementById('email-context').value.trim();
+  document.getElementById('sb-count').textContent = `${ST.count} emails`;
+  document.getElementById('sb-type').textContent = ST.campaignType === 'generique' ? 'Générique' : 'Événement';
+
+  switchStep(2);
+
+  const log = document.getElementById('gen-log');
+  const status = document.getElementById('gen-status');
+  const steps = ['🎯 Analyse du profil de cible…','📊 Intégration de la base de connaissances…','✍️ Construction de la structure de séquence…','📧 Rédaction des emails…','🎨 Adaptation au ton de la marque…','📋 Mise en forme HubSpot…'];
+
+  log.textContent = '';
   for (let i = 0; i < steps.length - 1; i++) {
-    progressLog.innerHTML += `<div style="color:var(--accent3)">✓ ${steps[i]}</div>`;
-    loadingText.textContent = steps[i];
-    loadingBar.style.width = (Math.floor(80 / (steps.length - 1)) * (i + 1)) + '%';
-    await sleep(400);
+    log.textContent += `✓ ${steps[i]}\n`;
+    status.textContent = steps[i];
+    await sleep(350);
   }
 
-  const ctaLabels = { brochure:'télécharger la brochure', rdv:'prendre rendez-vous', 'portes-ouvertes':"s'inscrire aux portes ouvertes", candidature:'déposer sa candidature', webinaire:'rejoindre un webinaire', essai:'essayer un cours gratuit' };
-  const ctaText = state.ctas.length > 0 ? state.ctas.map(c => ctaLabels[c]).join(', ') : 'télécharger la brochure, prendre rendez-vous';
-  const campaignTypeLabel = state.campaignType === 'evenement' ? "Campagne événementielle (autour d'une date/événement précis)" : 'Campagne générique (promouvoir la prépa de façon continue)';
-  const kbText = state.kb.length > 0 ? `\nBase de connaissances :\n${state.kb.join('\n')}` : '';
+  const ctaLabels = { brochure:'télécharger la brochure', rdv:'prendre rendez-vous avec un conseiller', 'portes-ouvertes':"s'inscrire aux portes ouvertes", candidature:'déposer sa candidature', webinaire:'rejoindre un webinaire', essai:'essayer un cours gratuit' };
+  const ctaText = ST.ctas.length > 0 ? ST.ctas.map(c => ctaLabels[c]).join(', ') : 'télécharger la brochure, prendre rendez-vous';
+  const kbText = ST.kb.length > 0 ? `\nDONNÉES & INFOS À INTÉGRER (base de connaissances) :\n${ST.kb.map(e => '• ' + e).join('\n')}\n` : '';
+  const campaignLabel = ST.campaignType === 'evenement' ? "Campagne événementielle (centrée sur un événement ou date précise)" : "Campagne générique (promouvoir la prépa de façon continue et progressive)";
+  const b = BRANDS[ST.brand];
 
-  const prompt = `Tu es un expert en marketing email pour des prépas médicales en France.
+  const prompt = `Tu es un expert en email marketing pour des prépas médicales et formations de santé en France.
 
-Marque : ${brandLabels[state.brand]}
-Ton : ${brandTones[state.brand]}
-Cible : ${levelLabels[state.level]} — peut être l'étudiant OU ses parents. Ton lisible par les deux.
-Type de campagne : ${campaignTypeLabel}
-Sujet : ${state.subject}
-Durée : ${state.duration}
-Nombre d'emails : ${state.count}
-CTA à varier : ${ctaText}
-${state.context ? `Contexte : ${state.context}` : ''}${kbText}
+MARQUE : ${b.name}
+CONTEXTE MARQUE : ${b.context}
+TON DE MARQUE : ${b.tone}
+CIBLE : ${LEVEL_LABELS[ST.level]} — le lecteur peut être l'étudiant OU ses parents, souvent les deux. Adapte le ton pour être lisible par les deux profils.
+TYPE DE CAMPAGNE : ${campaignLabel}
+SUJET DE LA SÉQUENCE : ${ST.subject}
+DURÉE TOTALE : ${ST.duration}
+NOMBRE D'EMAILS : ${ST.count}
+CTA À UTILISER (varier d'un email à l'autre) : ${ctaText}
+${ST.context ? `\nCONTEXTE ADDITIONNEL : ${ST.context}` : ''}
+${kbText}
 
-Génère exactement ${state.count} emails distincts.
+RÈGLES IMPORTANTES :
+- Chaque email doit avoir un OBJET accrocheur (max 50 caractères, sans spam words)
+- Préheader court et accrocheur (max 80 caractères, complète l'objet sans le répéter)
+- Corps : 100 à 180 mots maximum par email
+- Varier les angles : urgence, bénéfice, preuve sociale, question, storytelling, chiffre, FOMO, témoignage…
+- Les CTA doivent varier entre les emails
+- PAS de balises <html>, <head>, <body> dans le champ "hubspot" — format HubSpot uniquement
+- Dans "hubspot" : uniquement <strong>, <em>, <a href="#">, <br>, <p>
+- Signature courte en fin d'email : "${b.sign}"
 
-RÈGLES :
-- OBJET accrocheur max 50 caractères
-- Corps 120-200 mots
-- Angles variés : urgence, bénéfice, social proof, storytelling, chiffre, témoignage
-- CTA variés entre les emails
-- AUCUNE balise html/head/body — format HubSpot uniquement
-- HTML inline léger autorisé : strong, br, a href
-
-Réponds UNIQUEMENT en JSON valide sans markdown :
+Réponds UNIQUEMENT au format JSON valide, sans markdown, sans backticks :
 {"emails":[{"num":1,"objet":"...","preheader":"...","cta":"...","angle":"...","corps":"...","hubspot":"..."}]}
 
-"corps" = texte brut. "hubspot" = même contenu avec HTML inline léger, SANS html/head/body.`;
+- "corps" : texte brut lisible, sans HTML
+- "hubspot" : même contenu avec HTML inline léger, SANS balises html/head/body
+Génère exactement ${ST.count} emails distincts.`;
 
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "anthropic-dangerous-direct-browser-access": "true" },
-      body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 8000, messages: [{ role: "user", content: prompt }] })
+    log.textContent += `✓ ${steps[steps.length-1]}\n`;
+    status.textContent = 'Appel API Claude…';
+
+    const r = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-api-key':getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model:MODEL, max_tokens:8000, messages:[{ role:'user', content:prompt }] })
     });
 
-    const data = await response.json();
-    loadingBar.style.width = '95%';
-    progressLog.innerHTML += `<div style="color:var(--accent3)">✓ ${steps[steps.length-1]}</div>`;
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
 
-    let raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
-    state.emails = JSON.parse(raw).emails;
-    loadingBar.style.width = '100%';
-    await sleep(300);
+    let raw = d.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    ST.emails = parsed.emails;
+
+    log.textContent += `✅ ${ST.emails.length} emails générés avec succès !\n`;
+    status.textContent = '✅ Terminé !';
+    await sleep(400);
     renderEmails();
-    goToStep(4);
+    advance(3);
   } catch (err) {
-    progressLog.innerHTML += `<div style="color:var(--accent2)">❌ Erreur : ${err.message}</div>`;
+    log.textContent += `❌ Erreur : ${err.message}\n`;
+    status.textContent = 'Erreur';
     console.error(err);
   }
 }
 
 function renderEmails() {
-  const list = document.getElementById('emailsList');
-  list.innerHTML = '';
-  document.getElementById('sumBrand').textContent = brandLabels[state.brand];
-  document.getElementById('sumLevel').textContent = levelLabels[state.level];
-  document.getElementById('sumSubject').textContent = state.subject;
-  document.getElementById('sumCount').textContent = state.emails.length + ' emails';
-  document.getElementById('exportSubjectRef').textContent = state.subject;
+  document.getElementById('sum-brand').textContent = BRANDS[ST.brand].name;
+  document.getElementById('sum-level').textContent = LEVEL_LABELS[ST.level];
+  document.getElementById('sum-subject').textContent = ST.subject;
+  document.getElementById('sum-count').textContent = `${ST.emails.length} emails`;
+  document.getElementById('export-subject-ref').textContent = ST.subject;
+  document.getElementById('sb-email-count').textContent = ST.emails.length;
+  document.getElementById('results-sidebar').style.display = 'block';
 
-  state.emails.forEach((email, i) => {
-    const item = document.createElement('div');
-    item.className = 'email-item';
-    item.innerHTML = `
+  document.getElementById('emails-list').innerHTML = ST.emails.map((email, i) => `
+    <div class="email-item" id="email-item-${i}">
       <div class="email-header" onclick="toggleEmail(${i})">
         <div class="email-num">E${String(email.num).padStart(2,'0')}</div>
-        <div style="flex:1">
+        <div style="flex:1;min-width:0;">
           <div class="email-subject">${email.objet}</div>
-          <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">${email.angle||''}</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">${email.angle||''}</div>
         </div>
-        <div class="email-cta-badge">${email.cta}</div>
+        <div class="badge b-blue" style="flex-shrink:0;">${email.cta}</div>
         <div class="email-toggle">▼</div>
       </div>
       <div class="email-body">
-        <div class="email-body-tabs">
-          <div class="email-tab active" onclick="switchEmailTab(${i},'text',event)">Texte</div>
-          <div class="email-tab" onclick="switchEmailTab(${i},'hubspot',event)">HubSpot HTML</div>
+        <div class="email-tabs">
+          <button class="email-tab-btn active" id="tab-text-${i}" onclick="switchEmailTab(${i},'text',event)">Texte brut</button>
+          <button class="email-tab-btn" id="tab-hubspot-${i}" onclick="switchEmailTab(${i},'hubspot',event)">HubSpot HTML</button>
         </div>
-        <div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;"><strong style="color:var(--text)">Préheader :</strong> ${email.preheader||'—'}</div>
-        <div class="email-content" id="emailText-${i}">${email.corps}</div>
-        <div class="email-hubspot" id="emailHubspot-${i}">${escapeHtml(email.hubspot)}</div>
-        <div style="display:flex;gap:8px;margin-top:8px;">
-          <button class="copy-btn" onclick="copyEmail(${i},'text')">📋 Copier texte</button>
-          <button class="copy-btn" onclick="copyEmail(${i},'hubspot')">🟠 Copier HubSpot</button>
+        <div class="email-preheader"><strong>Préheader :</strong> ${email.preheader||'—'}</div>
+        <div class="email-content" id="email-text-${i}">${email.corps}</div>
+        <div class="email-hubspot" id="email-hubspot-${i}">${escHtml(email.hubspot)}</div>
+        <div>
+          <button class="copy-btn" id="copy-text-${i}" onclick="copyEmail(${i},'text')">📋 Copier texte</button>
+          <button class="copy-btn" id="copy-hubspot-${i}" onclick="copyEmail(${i},'hubspot')">🟠 Copier HubSpot</button>
         </div>
-      </div>`;
-    list.appendChild(item);
-  });
+      </div>
+    </div>
+  `).join('');
 }
 
-function toggleEmail(i) { document.querySelectorAll('.email-item')[i].classList.toggle('open'); }
+function toggleEmail(i) { document.getElementById(`email-item-${i}`).classList.toggle('open'); }
 
 function switchEmailTab(i, tab, e) {
   e.stopPropagation();
-  const item = document.querySelectorAll('.email-item')[i];
-  item.querySelectorAll('.email-tab').forEach(t => t.classList.remove('active'));
-  e.target.classList.add('active');
-  item.querySelector(`#emailText-${i}`).style.display = tab === 'text' ? 'block' : 'none';
-  item.querySelector(`#emailHubspot-${i}`).style.display = tab === 'hubspot' ? 'block' : 'none';
+  document.getElementById(`email-text-${i}`).style.display = tab==='text'?'block':'none';
+  document.getElementById(`email-hubspot-${i}`).style.display = tab==='hubspot'?'block':'none';
+  document.getElementById(`tab-text-${i}`).classList.toggle('active',tab==='text');
+  document.getElementById(`tab-hubspot-${i}`).classList.toggle('active',tab==='hubspot');
 }
 
 function copyEmail(i, type) {
-  const text = type === 'hubspot' ? state.emails[i].hubspot : document.querySelector(`#emailText-${i}`).textContent;
+  const text = type==='hubspot' ? ST.emails[i].hubspot : ST.emails[i].corps;
   navigator.clipboard.writeText(text).then(() => {
-    const btns = document.querySelectorAll('.email-item')[i].querySelectorAll('.copy-btn');
-    const idx = type === 'text' ? 0 : 1;
-    btns[idx].textContent = '✓ Copié !';
-    btns[idx].classList.add('copied');
-    setTimeout(() => { btns[idx].textContent = type === 'text' ? '📋 Copier texte' : '🟠 Copier HubSpot'; btns[idx].classList.remove('copied'); }, 2000);
+    const btn = document.getElementById(`copy-${type}-${i}`);
+    const orig = btn.textContent;
+    btn.textContent='✓ Copié !'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent=orig; btn.classList.remove('copied'); }, 2000);
   });
 }
 
-function exportAll() {
-  const txt = state.emails.map(e => `=== EMAIL ${e.num} ===\nOBJET : ${e.objet}\nPRÉHEADER : ${e.preheader}\n\n${e.corps}\n`).join('\n\n');
-  navigator.clipboard.writeText(txt).then(() => alert('✓ Tous les emails copiés !'));
+function exportAllCopy() {
+  const txt = ST.emails.map(e => `=== EMAIL ${e.num} ===\nOBJET : ${e.objet}\nPRÉHEADER : ${e.preheader}\n\n${e.corps}\n`).join('\n\n');
+  navigator.clipboard.writeText(txt).then(()=>alert('✓ Tous les emails copiés !'));
 }
 
 function exportTxt() {
-  const txt = state.emails.map(e => `=== EMAIL ${e.num} — ${e.objet} ===\nAngle : ${e.angle}\nPréheader : ${e.preheader}\nCTA : ${e.cta}\n\n${e.corps}\n\n---`).join('\n\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([txt], {type:'text/plain'}));
-  a.download = `sequence-email-${state.brand}-${Date.now()}.txt`;
-  a.click();
+  const txt = `${BRANDS[ST.brand].name.toUpperCase()} — Séquence : ${ST.subject}\nCible : ${LEVEL_LABELS[ST.level]}\nDurée : ${ST.duration}\nGénérée le ${new Date().toLocaleDateString('fr-FR')}\n${'='.repeat(60)}\n\n${ST.emails.map(e=>`=== EMAIL ${e.num} — ${e.objet} ===\nAngle : ${e.angle}\nPréheader : ${e.preheader}\nCTA : ${e.cta}\n\n${e.corps}\n\n${'—'.repeat(40)}`).join('\n\n')}`;
+  const blob = new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`emails-${ST.brand}-${Date.now()}.txt`; a.click(); URL.revokeObjectURL(url);
 }
 
 function exportHubspot() {
-  const txt = state.emails.map(e => `<!-- EMAIL ${e.num} | OBJET: ${e.objet} -->\n${e.hubspot}\n`).join('\n\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([txt], {type:'text/html'}));
-  a.download = `hubspot-emails-${state.brand}-${Date.now()}.html`;
-  a.click();
+  const txt = ST.emails.map(e=>`<!-- EMAIL ${e.num} | OBJET: ${e.objet} -->\n${e.hubspot}\n`).join('\n\n');
+  const blob = new Blob([txt],{type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`hubspot-${ST.brand}-${Date.now()}.html`; a.click(); URL.revokeObjectURL(url);
 }
 
 function newSequence() {
-  state.emails = []; state.ctas = []; state.campaignType = 'generique';
-  document.getElementById('emailSubject').value = '';
-  document.getElementById('emailContext').value = '';
-  document.getElementById('emailCount').value = '10';
-  document.getElementById('emailDurationNum').value = '1';
-  document.querySelectorAll('.cta-check').forEach(c => c.classList.remove('checked'));
-  document.getElementById('typeGenerique').classList.add('selected');
-  document.getElementById('typeEvenement').classList.remove('selected');
-  document.querySelectorAll('.step-item').forEach(s => s.classList.remove('done','active'));
-  goToStep(0);
+  ST.emails=[]; ST.ctas=[]; ST.campaignType='generique'; ST.level=null;
+  document.getElementById('email-subject').value='';
+  document.getElementById('email-context').value='';
+  document.getElementById('email-count').value='5';
+  document.querySelectorAll('.cta-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('btn-generique').classList.add('selected');
+  document.getElementById('btn-evenement').classList.remove('selected');
+  document.getElementById('sb-type').textContent='—';
+  document.getElementById('sb-count').textContent='—';
+  document.getElementById('sb-level').textContent='—';
+  document.getElementById('results-sidebar').style.display='none';
+  document.getElementById('btn-step0-next').disabled=true;
+  ST.currentStep=-1; switchStep(0);
 }
 
-function toggleKB() { document.getElementById('kbPanel').classList.toggle('open'); }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+function escHtml(str) { if(!str) return ''; return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-function switchKbTab(tab, e) {
-  document.querySelectorAll('.kb-tab').forEach(t => t.classList.remove('active'));
-  e.target.classList.add('active');
-  document.getElementById('kbAddSection').style.display = tab === 'add' ? 'block' : 'none';
-  document.getElementById('kbListSection').style.display = tab === 'list' ? 'block' : 'none';
+function resetUI() {
+  document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('.cta-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('kb-input').value='';
+  document.getElementById('kb-list').innerHTML='';
+  document.getElementById('kb-count-label').textContent='0 entrée(s)';
+  document.getElementById('email-subject').value='';
+  document.getElementById('email-context').value='';
+  document.getElementById('email-count').value='5';
+  document.getElementById('emails-list').innerHTML='';
+  document.getElementById('sb-level').textContent='—';
+  document.getElementById('sb-type').textContent='—';
+  document.getElementById('sb-count').textContent='—';
+  document.getElementById('btn-step0-next').disabled=true;
+  document.getElementById('results-sidebar').style.display='none';
+  document.getElementById('btn-generique').classList.add('selected');
+  document.getElementById('btn-evenement').classList.remove('selected');
 }
-
-function addKbEntry() {
-  const val = document.getElementById('kbInput').value.trim();
-  if (!val) return;
-  state.kb.push(val);
-  document.getElementById('kbInput').value = '';
-  renderKb();
-  document.getElementById('kbListTab').textContent = `Entrées (${state.kb.length})`;
-}
-
-function renderKb() {
-  const list = document.getElementById('kbEntries');
-  if (!state.kb.length) { list.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px;">Aucune entrée</div>'; return; }
-  list.innerHTML = state.kb.map((e, i) => `<div class="kb-entry"><span>${e}</span><button class="kb-entry-del" onclick="removeKb(${i})">✕</button></div>`).join('');
-}
-
-function removeKb(i) {
-  state.kb.splice(i, 1);
-  renderKb();
-  document.getElementById('kbListTab').textContent = `Entrées (${state.kb.length})`;
-}
-
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-function escapeHtml(str) { if (!str) return ''; return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
