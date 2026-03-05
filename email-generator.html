@@ -200,6 +200,20 @@ textarea { min-height:80px; }
 .level-btn small { display:block;font-size:10px;color:var(--text-muted);margin-top:2px; }
 
 /* CTA & CAMPAIGN */
+/* ── ANGLE CARDS ── */
+.angle-card { display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;transition:all 0.15s;user-select:none; }
+.angle-card:hover { border-color:var(--accent); }
+.angle-card.selected { border-color:var(--accent); }
+.theme-diploma .angle-card.selected { background:rgba(15,28,58,0.04); }
+.theme-hermione .angle-card.selected { background:rgba(232,68,196,0.06); }
+.theme-medibox .angle-card.selected { background:rgba(37,139,255,0.06); }
+.theme-edumove .angle-card.selected { background:rgba(26,92,46,0.05); }
+.angle-check { width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all 0.15s;margin-top:1px; }
+.angle-card.selected .angle-check { background:var(--accent);border-color:var(--accent);color:#fff; }
+.angle-body { flex:1; }
+.angle-subject { font-size:13.5px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:3px; }
+.angle-preview { font-size:11.5px;color:var(--text-dim);line-height:1.5; }
+.angle-tag { display:inline-block;font-size:10px;padding:2px 7px;border-radius:100px;border:1px solid var(--border);color:var(--text-muted);margin-bottom:6px;font-weight:500; }
 .cta-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
 .cta-btn { padding:9px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-family:inherit;font-size:12.5px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:left;display:flex;align-items:center;gap:8px; }
 .cta-btn:hover { border-color:var(--accent);color:var(--text); }
@@ -389,13 +403,15 @@ textarea { min-height:80px; }
   <div class="stepper-bar" id="stepper-bar">
     <div class="st-item active" id="st-0" onclick="navTo(0)">01 · Cible</div>
     <span class="st-sep">›</span>
-    <div class="st-item" id="st-1" onclick="navTo(1)">02 · Séquence</div>
+    <div class="st-item" id="st-1" onclick="navTo(1)">02 · Brief</div>
     <span class="st-sep">›</span>
-    <div class="st-item" id="st-2" onclick="navTo(2)">03 · Génération</div>
+    <div class="st-item" id="st-1b">03 · Angles</div>
     <span class="st-sep">›</span>
-    <div class="st-item" id="st-3" onclick="navTo(3)">04 · Emails</div>
+    <div class="st-item" id="st-2" onclick="navTo(2)">04 · Génération</div>
     <span class="st-sep">›</span>
-    <div class="st-item" id="st-4" onclick="navTo(4)">05 · Export</div>
+    <div class="st-item" id="st-3" onclick="navTo(3)">05 · Emails</div>
+    <span class="st-sep">›</span>
+    <div class="st-item" id="st-4" onclick="navTo(4)">06 · Export</div>
   </div>
 
   <div class="app-main">
@@ -435,11 +451,11 @@ textarea { min-height:80px; }
         </div>
       </div>
 
-      <!-- STEP 1: SÉQUENCE -->
+      <!-- STEP 1: BRIEF -->
       <div class="step-panel" id="p-1">
         <span class="s-tag">Étape 02</span>
-        <div class="s-title">Configurer la séquence</div>
-        <div class="s-desc">Définis le sujet, le type de campagne, la durée et les CTA à utiliser.</div>
+        <div class="s-title">Décrire la campagne</div>
+        <div class="s-desc">Dis ce que tu veux promouvoir en langage naturel. L'IA proposera 10 angles d'emails, tu choisiras ceux à rédiger.</div>
 
         <div class="card">
           <div class="card-title">Type de campagne</div>
@@ -450,16 +466,12 @@ textarea { min-height:80px; }
         </div>
 
         <div class="card">
-          <div class="card-title">Sujet & Paramètres</div>
+          <div class="card-title">Brief de campagne</div>
           <div class="f-group">
-            <label class="f-label">Thème principal *</label>
-            <input type="text" id="email-subject" placeholder="ex : Réussir son PASS, Portes ouvertes 15 mars, Témoignages admis médecine…" />
+            <label class="f-label">Ce que tu veux promouvoir *</label>
+            <textarea id="brief-input" rows="4" placeholder="Ex : Fais-moi 5 mails pour promouvoir Diploma Santé auprès des élèves de Terminale. Mettre en avant les résultats, le coaching perso, les 3 campus Paris.&#10;&#10;Ou : Campagne pour les portes ouvertes du 15 mars, créer de l'urgence, insister sur les places limitées."></textarea>
           </div>
-          <div class="input-row" style="margin-bottom:14px;">
-            <div class="f-group" style="margin:0;">
-              <label class="f-label">Nombre d'emails</label>
-              <input type="number" id="email-count" min="1" max="30" value="5" />
-            </div>
+          <div class="input-row" style="margin-bottom:0;">
             <div class="f-group" style="margin:0;">
               <label class="f-label">Durée totale</label>
               <div style="display:flex;gap:6px;">
@@ -471,36 +483,62 @@ textarea { min-height:80px; }
                 </select>
               </div>
             </div>
-          </div>
-          <div class="f-group" style="margin:0;">
-            <label class="f-label">Contexte additionnel (optionnel)</label>
-            <textarea id="email-context" placeholder="Ex : Cibler particulièrement les parents, insister sur les taux de réussite, ton plus urgent car J-30…"></textarea>
+            <div class="f-group" style="margin:0;">
+              <label class="f-label">Contexte optionnel</label>
+              <input type="text" id="email-context" placeholder="Ex : insister sur parents, J-30 inscriptions…" />
+            </div>
           </div>
         </div>
 
         <div class="card">
           <div class="card-title">CTA à inclure (variés entre les emails)</div>
           <div class="cta-grid">
-            <button class="cta-btn" data-cta="brochure" onclick="toggleCta(this)"><span class="cta-check">✓</span>📄 Télécharger la brochure</button>
-            <button class="cta-btn" data-cta="rdv" onclick="toggleCta(this)"><span class="cta-check">✓</span>📅 Prendre un RDV</button>
-            <button class="cta-btn" data-cta="portes-ouvertes" onclick="toggleCta(this)"><span class="cta-check">✓</span>🏫 S'inscrire aux PO</button>
-            <button class="cta-btn" data-cta="candidature" onclick="toggleCta(this)"><span class="cta-check">✓</span>📝 Déposer candidature</button>
-            <button class="cta-btn" data-cta="webinaire" onclick="toggleCta(this)"><span class="cta-check">✓</span>🎥 S'inscrire webinaire</button>
-            <button class="cta-btn" data-cta="essai" onclick="toggleCta(this)"><span class="cta-check">✓</span>✨ Cours d'essai gratuit</button>
+            <button class="cta-btn selected" data-cta="brochure" onclick="toggleCta(this)"><span class="cta-check">✓</span>📄 Brochure</button>
+            <button class="cta-btn selected" data-cta="rdv" onclick="toggleCta(this)"><span class="cta-check">✓</span>📅 RDV orientation</button>
+            <button class="cta-btn" data-cta="portes-ouvertes" onclick="toggleCta(this)"><span class="cta-check">✓</span>🏫 Portes ouvertes</button>
+            <button class="cta-btn" data-cta="candidature" onclick="toggleCta(this)"><span class="cta-check">✓</span>📝 Candidature</button>
+            <button class="cta-btn" data-cta="webinaire" onclick="toggleCta(this)"><span class="cta-check">✓</span>🎥 Webinaire</button>
+            <button class="cta-btn" data-cta="essai" onclick="toggleCta(this)"><span class="cta-check">✓</span>✨ Cours d'essai</button>
           </div>
         </div>
 
         <div class="flex-row">
           <button class="btn btn-sec" onclick="navTo(0)">← Retour</button>
-          <button class="btn btn-primary" onclick="startGeneration()">✨ Générer les emails →</button>
+          <button class="btn btn-primary" onclick="proposeAngles()">🔍 Proposer des angles →</button>
+        </div>
+      </div>
+
+      <!-- STEP 1b: CHOIX DES ANGLES -->
+      <div class="step-panel" id="p-1b">
+        <span class="s-tag">Étape 03</span>
+        <div class="s-title">Choisir les angles</div>
+        <div class="s-desc" id="angles-desc">L'IA a proposé 10 angles. Coche ceux que tu veux rédiger.</div>
+
+        <div id="angles-loading" class="card" style="text-align:center;padding:40px 20px;">
+          <div style="font-size:32px;margin-bottom:12px;">⚙️</div>
+          <div style="color:var(--text-dim);font-size:14px;line-height:1.7;">Analyse du brief et génération des angles…</div>
+          <div class="lbar" style="margin-top:20px;"><div class="lbar-fill" id="angles-lbar"></div></div>
+        </div>
+
+        <div id="angles-card" class="card" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div class="card-title" style="margin:0;">Angles proposés</div>
+            <div style="font-size:12px;color:var(--accent);font-weight:600;" id="sel-count-label">0 sélectionné(s)</div>
+          </div>
+          <div id="angles-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+
+        <div class="flex-row" id="angles-footer" style="display:none;">
+          <button class="btn btn-sec" onclick="navTo(1)">← Modifier le brief</button>
+          <button class="btn btn-primary" id="btn-rediger" onclick="startGeneration()" disabled>✨ Rédiger les emails →</button>
         </div>
       </div>
 
       <!-- STEP 2: GÉNÉRATION -->
       <div class="step-panel" id="p-2">
-        <span class="s-tag">Étape 03</span>
+        <span class="s-tag">Étape 04</span>
         <div class="s-title">Génération en cours…</div>
-        <div class="s-desc">L'IA rédige ta séquence. Chaque email est unique, progressif, adapté au niveau et au ton de la marque.</div>
+        <div class="s-desc">L'IA rédige ta séquence dans le style exact Diploma Santé.</div>
         <div class="lbar"><div class="lbar-fill"></div></div>
         <div class="lbar-txt" id="gen-status">Initialisation…</div>
         <div style="margin-top:20px;" class="card">
@@ -523,7 +561,7 @@ textarea { min-height:80px; }
         <div id="emails-list"></div>
         <div class="flex-row">
           <button class="btn btn-sec" onclick="navTo(1)">← Régénérer</button>
-          <button class="btn btn-primary" onclick="advance(4)">Exporter →</button>
+          <button class="btn btn-primary" onclick="advance(5)">Exporter →</button>
         </div>
       </div>
 
@@ -593,6 +631,175 @@ const MODEL = 'claude-sonnet-4-20250514';
 function getApiKey() { return localStorage.getItem('diploma_api_key') || ''; }
 function setApiKey(k) { localStorage.setItem('diploma_api_key', k); }
 
+
+// ============================================================
+// BASE D'EMAILS DE RÉFÉRENCE — style Diploma Santé
+// ============================================================
+const EMAIL_EXAMPLES = {
+  diploma: [
+    {
+      type: 'bienvenue',
+      objet: "Médecine : faut-il vraiment attendre le post-bac pour s'y préparer ?",
+      corps: `Si vous lisez ces lignes, c'est sans doute que le projet première année de Médecine fait déjà partie des réflexions de votre enfant… et peut-être des vôtres.
+
+Et une question revient souvent chez les familles que nous accompagnons :
+Faut-il attendre le post-bac pour commencer à se préparer ?
+
+Attendre la première année de Médecine pour découvrir tout cela, c'est souvent le faire dans l'urgence.
+La Terminale permet d'anticiper sans surcharge, dans un cadre progressif et structuré.
+
+👉 Pour en discuter lors d'un entretien d'orientation offert, cliquez ici.
+
+L'équipe Diploma Santé`
+    },
+    {
+      type: 'temoignage',
+      objet: "Cyril : \"J'ai commencé à préparer Médecine en Terminale. J'ai fini major.\"",
+      corps: `Commencer à préparer Médecine dès la Terminale ne garantit pas de devenir major.
+Mais ne pas le faire expose souvent à une année vécue dans la confusion et l'urgence.
+
+« La prépa PASS Diploma Santé m'a offert des fiches claires et fiables, des enseignants capables de rendre simples les notions les plus complexes, et un cadre structurant dans une année où l'on peut vite se perdre. »
+— Cyril, Major, Grande Admis en médecine
+
+La vraie question : est-ce que ce cadre serait utile à votre enfant pour aborder la suite plus sereinement ?
+
+👉 Voyons ensemble si ce parcours est adapté : prenez RDV en cliquant ici.
+
+L'équipe Diploma Santé`
+    },
+    {
+      type: 'erreur',
+      objet: "L'erreur que font 80 % des futurs étudiants en Médecine",
+      corps: `Chaque année, nous voyons arriver des étudiants brillants, motivés, avec de très bons dossiers scolaires.
+Et pourtant… beaucoup d'entre eux se retrouvent en difficulté dès les premiers mois.
+
+Pourquoi ?
+À cause d'une erreur très fréquente : tout remettre à la première année.
+
+"Je travaillerai vraiment une fois en PASS."
+Cette stratégie est devenue risquée.
+La PASS n'est plus une année pour apprendre à apprendre.
+C'est une année pour performer immédiatement.
+
+Préparer dès la Terminale, ce n'est pas faire une PASS déguisée.
+C'est installer une méthode avant que la pression n'entre en jeu.
+
+👉 Réservez votre diagnostic d'orientation en cliquant ici.
+
+L'équipe Diploma Santé`
+    },
+    {
+      type: 'resultats',
+      objet: "Pourquoi nos élèves de Terminale Santé réussissent mieux Médecine ensuite",
+      corps: `Les résultats montrent clairement que commencer plus tôt change la trajectoire des étudiants.
+
+Diploma Santé accompagne plusieurs dizaines d'élèves vers les filières MMOPK, avec un taux de réussite de 92 % en MMOPK dès la première tentative.
+
+Mais au-delà du chiffre, une tendance est éclairante :
+Les élèves qui commencent dès la Terminale obtiennent systématiquement de meilleurs résultats.
+
+Ils arrivent en PASS/LAS déjà structurés méthodologiquement.
+Ils gèrent mieux la charge cognitive et le stress.
+Ils abordent les concours avec davantage de confiance.
+
+La Terminale Santé n'est pas une "avance scolaire".
+C'est un véritable changement de posture.
+
+👉 Prenez votre rendez-vous d'orientation dès maintenant, en cliquant ici.
+
+L'équipe Diploma Santé`
+    },
+    {
+      type: 'urgence',
+      objet: "Terminale Santé 2026 : des places volontairement limitées",
+      corps: `Chaque année, la question revient :
+"Pourquoi les places en Terminale Santé sont-elles limitées ?"
+
+La réponse est simple, et volontaire.
+
+Terminale Santé repose sur un accompagnement humain, personnalisé et exigeant.
+Nous ne pouvons pas accompagner correctement un nombre illimité d'élèves.
+
+Les places sont attribuées par campus, en fonction de votre localisation.
+Certaines sessions se remplissent plus tôt qu'on ne l'imagine.
+
+Il ne s'agit pas de s'inscrire "dans l'urgence",
+mais de vérifier si le programme est adapté, tant qu'il reste de la disponibilité.
+
+👉 Réservez votre rendez-vous d'orientation dès maintenant, en cliquant ici.
+
+L'équipe Diploma Santé`
+    },
+    {
+      type: 'pedagogique',
+      objet: "1ère année de Médecine : ce que vous devez vraiment comprendre",
+      corps: `PASS, LAS, LSPS…
+Quand on commence à s'intéresser aux études de Médecine, ces sigles peuvent vite devenir anxiogènes… surtout quand on est parent.
+
+Pourtant, c'est beaucoup plus simple qu'il n'y paraît.
+
+PASS : une année très dense, centrée sur les sciences de la santé, avec une sélection exigeante.
+LAS : une licence classique à laquelle s'ajoute une mineure santé.
+
+📌 À retenir :
+Il n'existe pas un seul bon parcours, mais un parcours adapté à chaque profil.
+
+Ces points ne se règlent pas en urgence après le bac.
+Ils se travaillent en amont, pendant l'année de Terminale, dans un cadre encore sans pression de classement.
+
+👉 Prenez RDV pour poser toutes vos questions, gratuitement et sans engagement.
+
+L'équipe Diploma Santé`
+    }
+  ]
+};
+
+// Sélectionne 2 exemples pertinents selon le sujet et la campagne
+function pickExamples(brand, subject, campaignType) {
+  const pool = EMAIL_EXAMPLES[brand] || EMAIL_EXAMPLES.diploma;
+  const subjectLower = (subject || '').toLowerCase();
+
+  const base = pool.find(e => e.type === 'bienvenue') || pool[0];
+
+  let second;
+  if (subjectLower.includes('résultat') || subjectLower.includes('chiffre') || subjectLower.includes('%') || subjectLower.includes('réussite')) {
+    second = pool.find(e => e.type === 'resultats');
+  } else if (subjectLower.includes('erreur') || subjectLower.includes('éviter') || subjectLower.includes('piège') || subjectLower.includes('risque')) {
+    second = pool.find(e => e.type === 'erreur');
+  } else if (subjectLower.includes('témoignage') || subjectLower.includes('parcours') || subjectLower.includes('histoire') || subjectLower.includes('major')) {
+    second = pool.find(e => e.type === 'temoignage');
+  } else if (subjectLower.includes('pass') || subjectLower.includes('las') || subjectLower.includes('comprendre') || subjectLower.includes('expliquer')) {
+    second = pool.find(e => e.type === 'pedagogique');
+  } else if (campaignType === 'evenement') {
+    second = pool.find(e => e.type === 'urgence');
+  } else {
+    second = pool.find(e => e.type === 'temoignage');
+  }
+
+  second = second || pool[1] || pool[0];
+  const result = [base, second].filter((e, i, arr) => arr.findIndex(x => x.type === e.type) === i);
+  return result;
+}
+
+function buildExamplesBlock(brand, subject, campaignType) {
+  const examples = pickExamples(brand, subject, campaignType);
+  return `
+EXEMPLES RÉELS D'EMAILS DIPLOMA SANTÉ (référence absolue pour le style) :
+${examples.map((e, i) => `--- EXEMPLE ${i+1} (angle : ${e.type}) ---
+Objet : ${e.objet}
+Corps :
+${e.corps}
+`).join('\n')}
+IMPÉRATIF STYLISTIQUE : Imite exactement ce style —
+- Phrases courtes, paragraphes aérés, beaucoup de sauts de ligne
+- Structure : accroche question/problème → développement → CTA discret
+- Ton rassurant, humain, jamais agressif ni commercial
+- CTAs doux : "pour en discuter", "pour y voir clair", "sans engagement", "gratuitement"
+- Reformulations du type "ce n'est pas X, c'est Y"
+- Jamais de jargon marketing générique (pas de "offre exclusive", "ne ratez pas", etc.)
+`;
+}
+
 const BRANDS = {
   diploma: { name:'Diploma Santé', logoHtml:'Diploma <span>Santé</span>', theme:'theme-diploma', tone:"Ton premium, rassurant, orienté excellence et résultats. Données chiffrées. S'adresse aux parents autant qu'aux étudiants. Phrases soignées. Jamais de familiarités ni d'emojis.", context:"Diploma Santé — prépa médecine d'excellence à Paris, fondée par Benjamin Haddad, ancien major de PACES. 204h de cours PASS (vs 56h chez Medisup). 25 élèves/classe max. 79% de réussite en médecine vs 29,6% nationale. 3 campus Paris 12e/16e ouverts 7j/7. Seule prépa fondée par un major du concours.", sign:"L'équipe Diploma Santé" },
   hermione: { name:'Hermione Médecine', logoHtml:'Hermione <span>Médecine</span>', theme:'theme-hermione', tone:"Ton Gen-Z, direct, cash. Phrases courtes. Emojis OK. Tutoiement naturel. S'adresse aux étudiants PASS/LAS. Pas de langue de bois, honnête et transparent.", context:"Hermione Médecine — média #1 PASS/LAS suivi sur Instagram et TikTok. Contenu viral entre étudiants en santé.", sign:"L'équipe Hermione 👋" },
@@ -602,7 +809,7 @@ const BRANDS = {
 
 const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
 
-const ST = { brand:null, level:null, campaignType:'generique', subject:'', count:5, duration:'3 semaines', context:'', ctas:[], kb:[], emails:[], currentStep:0 };
+const ST = { brand:null, level:null, campaignType:'generique', brief:'', selectedAngles:[], count:5, duration:'3 semaines', context:'', ctas:[], kb:[], emails:[], currentStep:0 };
 
 // ========================
 // API KEY MANAGEMENT
@@ -635,7 +842,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function launchBrand(id) {
-  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = []; ST.campaignType = 'generique'; ST.currentStep = 0;
+  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = []; ST.campaignType = 'generique'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = [];
   const b = BRANDS[id];
   document.getElementById('brand-selector').style.display = 'none';
   const app = document.getElementById('app-wrapper');
@@ -650,10 +857,15 @@ function backToSelector() {
   document.getElementById('brand-selector').style.display = 'flex';
 }
 
+const STEP_PANELS = ['p-0','p-1','p-1b','p-2','p-3','p-4'];
+const STEP_LABELS = ['01 · Cible','02 · Brief','03 · Angles','04 · Génération','05 · Emails','06 · Export'];
+
 function switchStep(n) {
   document.querySelectorAll('#app-wrapper .step-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`p-${n}`).classList.add('active');
-  document.querySelectorAll('#stepper-bar .st-item').forEach((el, i) => {
+  const panelId = STEP_PANELS[n];
+  if (panelId) document.getElementById(panelId).classList.add('active');
+  const stepperItems = document.querySelectorAll('#stepper-bar .st-item');
+  stepperItems.forEach((el, i) => {
     el.classList.remove('active','done');
     if (i < n) el.classList.add('done');
     else if (i === n) el.classList.add('active');
@@ -661,7 +873,7 @@ function switchStep(n) {
   document.querySelectorAll('#wf-steps .wf-step').forEach((el, i) => {
     el.className = 'wf-step ' + (i < n ? 'done' : i === n ? 'active' : '');
   });
-  document.getElementById('sb-step').textContent = `0${n+1} / 05`;
+  document.getElementById('sb-step').textContent = `0${n+1} / 06`;
   ST.currentStep = n;
 }
 
@@ -710,26 +922,133 @@ function toggleCta(btn) {
   if (idx === -1) ST.ctas.push(val); else ST.ctas.splice(idx, 1);
 }
 
-async function startGeneration() {
+// ── STEP 1 → 1b : proposer 10 angles ──────────────────────────────────────
+async function proposeAngles() {
   if (!getApiKey().startsWith('sk-ant-')) {
-    alert('⚠️ Entre ta clé API Anthropic dans le champ en haut de la page de sélection de marque.');
-    backToSelector();
-    return;
+    alert('⚠️ Entre ta clé API Anthropic dans le champ de saisie en haut.');
+    backToSelector(); return;
   }
-  const subjectEl = document.getElementById('email-subject');
-  ST.subject = subjectEl.value.trim();
-  if (!ST.subject) { subjectEl.focus(); return; }
-  ST.count = parseInt(document.getElementById('email-count').value) || 5;
+  ST.brief = document.getElementById('brief-input').value.trim();
+  if (!ST.brief) { document.getElementById('brief-input').focus(); return; }
   ST.duration = `${document.getElementById('duration-num').value} ${document.getElementById('duration-unit').value}`;
   ST.context = document.getElementById('email-context').value.trim();
-  document.getElementById('sb-count').textContent = `${ST.count} emails`;
   document.getElementById('sb-type').textContent = ST.campaignType === 'generique' ? 'Générique' : 'Événement';
 
+  // Show step 1b with loading
   switchStep(2);
+  document.getElementById('angles-loading').style.display = 'block';
+  document.getElementById('angles-card').style.display = 'none';
+  document.getElementById('angles-footer').style.display = 'none';
+
+  const b = BRANDS[ST.brand];
+  const styleRef = EMAIL_EXAMPLES.diploma.slice(0,3).map(e => `Objet : ${e.objet}\nPréheader suggéré : ${e.corps.split('\n')[0].substring(0,80)}`).join('\n---\n');
+
+  const isEvent = ST.campaignType === 'evenement';
+
+  const anglesGuidance = isEvent
+    ? `Ta mission : proposer 10 angles d'emails TOUS centrés sur cet événement, couvrant l'arc narratif complet d'une campagne événementielle.
+Pense à varier : teaser mystère avant l'annonce, annonce officielle, "ce que tu vas y trouver", témoignage d'un ancien participant, levée des objections ("j'ai pas le temps"), urgence places limitées, programme détaillé, portrait d'un intervenant, FAQ événement, dernier rappel J-1…
+Chaque angle doit avoir un lien direct avec l'événement décrit dans le brief.`
+    : `Ta mission : proposer 10 angles d'emails VARIÉS et PERTINENTS pour promouvoir la marque de façon continue.
+Les angles peuvent s'inspirer des emails existants de la marque OU explorer de nouveaux sujets pertinents pour la cible.
+Pense à varier : témoignage élève, témoignage parent, résultats chiffrés, erreur à éviter, interview fondateur, comparatif prépas, profil d'élève, pédagogique (PASS vs LAS…), FAQ, coulisses de la prépa, urgence places, portrait d'un prof…
+Chaque angle doit apporter une valeur différente et complémentaire dans la séquence.`;
+
+  const prompt = `Tu es stratège en email marketing pour ${b.name}, une prépa médicale en France.
+
+BRIEF DE CAMPAGNE : ${ST.brief}
+CIBLE : ${LEVEL_LABELS[ST.level]}
+TYPE : ${isEvent ? 'Événementielle (tous les emails doivent tourner autour de l\'événement)' : 'Générique (promouvoir la marque de façon continue)'}
+${ST.context ? `CONTEXTE : ${ST.context}` : ''}
+
+EXEMPLES D'OBJETS RÉELS DE LA MARQUE (pour calibrer le style des objets) :
+${styleRef}
+
+${anglesGuidance}
+
+Réponds UNIQUEMENT en JSON valide sans markdown :
+{"angles":[{"id":1,"objet":"...","preheader":"...","angle":"...","tag":"..."}]}
+- "objet" : ligne d'objet email (max 50 caractères, percutant, dans le style de la marque)
+- "preheader" : complète l'objet sans le répéter (max 80 caractères)
+- "angle" : description de l'approche en 1 phrase claire (ex: "Témoignage d'un ancien participant aux PO qui explique ce qu'il y a découvert")
+- "tag" : ${isEvent ? 'type parmi teaser|annonce|programme|témoignage|objection|urgence|intervenant|FAQ|rappel|autre' : 'type parmi témoignage|pédagogique|résultats|erreur|urgence|comparatif|interview|FAQ|profil|autre'}
+Génère exactement 10 angles distincts et complémentaires.`;
+
+  try {
+    const r = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-api-key':getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model:MODEL, max_tokens:2000, messages:[{role:'user',content:prompt}] })
+    });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    let raw = d.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    ST.proposedAngles = parsed.angles;
+    renderAngles(parsed.angles);
+  } catch(err) {
+    document.getElementById('angles-loading').innerHTML = `<div style="color:#ef4444;font-size:14px;">❌ Erreur : ${err.message}</div><button class="btn btn-sec" onclick="navTo(1)" style="margin-top:12px;">← Retour</button>`;
+  }
+}
+
+function renderAngles(angles) {
+  document.getElementById('angles-loading').style.display = 'none';
+  document.getElementById('angles-card').style.display = 'block';
+  document.getElementById('angles-footer').style.display = 'flex';
+  ST.selectedAngles = [];
+
+  const TAG_COLORS = {
+    // Générique
+    témoignage:'#8b5cf6', pédagogique:'#3b82f6', résultats:'#10b981',
+    erreur:'#ef4444', urgence:'#f59e0b', comparatif:'#06b6d4',
+    interview:'#ec4899', FAQ:'#6366f1', profil:'#84cc16', autre:'#6b7280',
+    // Événement
+    teaser:'#a855f7', annonce:'#3b82f6', programme:'#10b981',
+    objection:'#ef4444', intervenant:'#ec4899', rappel:'#f59e0b'
+  };
+
+  document.getElementById('angles-list').innerHTML = angles.map(a => `
+    <div class="angle-card" id="angle-${a.id}" onclick="toggleAngle(${a.id})">
+      <div class="angle-check">✓</div>
+      <div class="angle-body">
+        <span class="angle-tag" style="border-color:${TAG_COLORS[a.tag]||'#6b7280'};color:${TAG_COLORS[a.tag]||'#6b7280'};">${a.tag}</span>
+        <div class="angle-subject">${a.objet}</div>
+        <div class="angle-preview">${a.preheader} — <em>${a.angle}</em></div>
+      </div>
+    </div>
+  `).join('');
+
+  updateAngleCounter();
+}
+
+function toggleAngle(id) {
+  const card = document.getElementById(`angle-${id}`);
+  card.classList.toggle('selected');
+  const idx = ST.selectedAngles.indexOf(id);
+  if (idx === -1) ST.selectedAngles.push(id); else ST.selectedAngles.splice(idx, 1);
+  updateAngleCounter();
+}
+
+function updateAngleCounter() {
+  const n = ST.selectedAngles.length;
+  document.getElementById('sel-count-label').textContent = `${n} sélectionné(s)`;
+  const btn = document.getElementById('btn-rediger');
+  btn.disabled = n === 0;
+  btn.textContent = n > 0 ? `✨ Rédiger ${n} email${n>1?'s':''} →` : '✨ Rédiger les emails →';
+}
+
+// ── STEP 1b → 2 : rédiger les emails sélectionnés ──────────────────────────
+async function startGeneration() {
+  if (ST.selectedAngles.length === 0) return;
+  ST.count = ST.selectedAngles.length;
+  document.getElementById('sb-count').textContent = `${ST.count} emails`;
+
+  const selectedData = ST.proposedAngles.filter(a => ST.selectedAngles.includes(a.id));
+  switchStep(3);
 
   const log = document.getElementById('gen-log');
   const status = document.getElementById('gen-status');
-  const steps = ['🎯 Analyse du profil de cible…','📊 Intégration de la base de connaissances…','✍️ Construction de la structure de séquence…','📧 Rédaction des emails…','🎨 Adaptation au ton de la marque…','📋 Mise en forme HubSpot…'];
+  const steps = ['🎯 Analyse des angles sélectionnés…','📚 Chargement de la base de style…','✍️ Construction de la séquence…','📧 Rédaction des emails…','🎨 Adaptation au ton de la marque…','📋 Mise en forme HubSpot…'];
 
   log.textContent = '';
   for (let i = 0; i < steps.length - 1; i++) {
@@ -740,40 +1059,49 @@ async function startGeneration() {
 
   const ctaLabels = { brochure:'télécharger la brochure', rdv:'prendre rendez-vous avec un conseiller', 'portes-ouvertes':"s'inscrire aux portes ouvertes", candidature:'déposer sa candidature', webinaire:'rejoindre un webinaire', essai:'essayer un cours gratuit' };
   const ctaText = ST.ctas.length > 0 ? ST.ctas.map(c => ctaLabels[c]).join(', ') : 'télécharger la brochure, prendre rendez-vous';
-  const kbText = ST.kb.length > 0 ? `\nDONNÉES & INFOS À INTÉGRER (base de connaissances) :\n${ST.kb.map(e => '• ' + e).join('\n')}\n` : '';
-  const campaignLabel = ST.campaignType === 'evenement' ? "Campagne événementielle (centrée sur un événement ou date précise)" : "Campagne générique (promouvoir la prépa de façon continue et progressive)";
+  const kbText = ST.kb.length > 0 ? `\nDONNÉES À INTÉGRER :\n${ST.kb.map(e => '• ' + e).join('\n')}\n` : '';
   const b = BRANDS[ST.brand];
 
-  const prompt = `Tu es un expert en email marketing pour des prépas médicales et formations de santé en France.
+  const anglesBlock = selectedData.map((a,i) => `EMAIL ${i+1} — Angle : ${a.angle}\nObjet proposé : ${a.objet}\nPréheader proposé : ${a.preheader}`).join('\n\n');
+
+  const styleExamples = EMAIL_EXAMPLES.diploma.slice(0,3).map(e => `--- EXEMPLE ---\nObjet : ${e.objet}\n${e.corps}`).join('\n\n');
+
+  const prompt = `Tu es un expert en email marketing pour ${b.name}, une prépa médicale en France.
+
+STYLE DE RÉFÉRENCE ABSOLU (imite exactement) :
+${styleExamples}
+
+RÈGLES DE STYLE IMPÉRATIVES :
+- Phrases courtes, paragraphes aérés, beaucoup de sauts de ligne
+- Structure : accroche question ou constat → développement → CTA discret
+- Ton rassurant, humain, jamais agressif ni commercial
+- CTAs doux : "pour en discuter", "pour y voir clair", "sans engagement"
+- Reformulations "ce n'est pas X, c'est Y"
+- Jamais de jargon marketing générique
 
 MARQUE : ${b.name}
-CONTEXTE MARQUE : ${b.context}
-TON DE MARQUE : ${b.tone}
-CIBLE : ${LEVEL_LABELS[ST.level]} — le lecteur peut être l'étudiant OU ses parents, souvent les deux. Adapte le ton pour être lisible par les deux profils.
-TYPE DE CAMPAGNE : ${campaignLabel}
-SUJET DE LA SÉQUENCE : ${ST.subject}
-DURÉE TOTALE : ${ST.duration}
-NOMBRE D'EMAILS : ${ST.count}
-CTA À UTILISER (varier d'un email à l'autre) : ${ctaText}
-${ST.context ? `\nCONTEXTE ADDITIONNEL : ${ST.context}` : ''}
+CONTEXTE : ${b.context}
+TON : ${b.tone}
+CIBLE : ${LEVEL_LABELS[ST.level]} (peut être étudiant OU parent — adapte)
+BRIEF DE CAMPAGNE : ${ST.brief}
+DURÉE : ${ST.duration}
+CTA DISPONIBLES : ${ctaText}
+${ST.context ? `CONTEXTE ADDITIONNEL : ${ST.context}` : ''}
 ${kbText}
 
-RÈGLES IMPORTANTES :
-- Chaque email doit avoir un OBJET accrocheur (max 50 caractères, sans spam words)
-- Préheader court et accrocheur (max 80 caractères, complète l'objet sans le répéter)
-- Corps : 100 à 180 mots maximum par email
-- Varier les angles : urgence, bénéfice, preuve sociale, question, storytelling, chiffre, FOMO, témoignage…
-- Les CTA doivent varier entre les emails
-- PAS de balises <html>, <head>, <body> dans le champ "hubspot" — format HubSpot uniquement
-- Dans "hubspot" : uniquement <strong>, <em>, <a href="#">, <br>, <p>
-- Signature courte en fin d'email : "${b.sign}"
+EMAILS À RÉDIGER (${selectedData.length} emails, dans cet ordre précis) :
+${anglesBlock}
 
-Réponds UNIQUEMENT au format JSON valide, sans markdown, sans backticks :
+RÈGLES TECHNIQUES :
+- Objet : max 50 caractères
+- Préheader : max 80 caractères (complète l'objet)
+- Corps : 120 à 200 mots, aéré, lisible
+- "hubspot" : HTML léger uniquement <strong><em><a href="#"><br><p> — JAMAIS <html><head><body>
+- Signature : "${b.sign}"
+
+Réponds UNIQUEMENT en JSON valide sans markdown :
 {"emails":[{"num":1,"objet":"...","preheader":"...","cta":"...","angle":"...","corps":"...","hubspot":"..."}]}
-
-- "corps" : texte brut lisible, sans HTML
-- "hubspot" : même contenu avec HTML inline léger, SANS balises html/head/body
-Génère exactement ${ST.count} emails distincts.`;
+Génère exactement ${selectedData.length} emails dans l'ordre des angles fournis.`;
 
   try {
     log.textContent += `✓ ${steps[steps.length-1]}\n`;
@@ -782,7 +1110,7 @@ Génère exactement ${ST.count} emails distincts.`;
     const r = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'x-api-key':getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-      body: JSON.stringify({ model:MODEL, max_tokens:8000, messages:[{ role:'user', content:prompt }] })
+      body: JSON.stringify({ model:MODEL, max_tokens:8000, messages:[{role:'user',content:prompt}] })
     });
 
     const d = await r.json();
@@ -796,7 +1124,8 @@ Génère exactement ${ST.count} emails distincts.`;
     status.textContent = '✅ Terminé !';
     await sleep(400);
     renderEmails();
-    advance(3);
+    advance(4);
+
   } catch (err) {
     log.textContent += `❌ Erreur : ${err.message}\n`;
     status.textContent = 'Erreur';
@@ -807,9 +1136,9 @@ Génère exactement ${ST.count} emails distincts.`;
 function renderEmails() {
   document.getElementById('sum-brand').textContent = BRANDS[ST.brand].name;
   document.getElementById('sum-level').textContent = LEVEL_LABELS[ST.level];
-  document.getElementById('sum-subject').textContent = ST.subject;
+  document.getElementById('sum-subject').textContent = ST.brief.substring(0,60) + (ST.brief.length > 60 ? '…' : '');
   document.getElementById('sum-count').textContent = `${ST.emails.length} emails`;
-  document.getElementById('export-subject-ref').textContent = ST.subject;
+  document.getElementById('export-subject-ref').textContent = ST.brief.substring(0,50);
   document.getElementById('sb-email-count').textContent = ST.emails.length;
   document.getElementById('results-sidebar').style.display = 'block';
 
@@ -867,7 +1196,7 @@ function exportAllCopy() {
 }
 
 function exportTxt() {
-  const txt = `${BRANDS[ST.brand].name.toUpperCase()} — Séquence : ${ST.subject}\nCible : ${LEVEL_LABELS[ST.level]}\nDurée : ${ST.duration}\nGénérée le ${new Date().toLocaleDateString('fr-FR')}\n${'='.repeat(60)}\n\n${ST.emails.map(e=>`=== EMAIL ${e.num} — ${e.objet} ===\nAngle : ${e.angle}\nPréheader : ${e.preheader}\nCTA : ${e.cta}\n\n${e.corps}\n\n${'—'.repeat(40)}`).join('\n\n')}`;
+  const txt = `${BRANDS[ST.brand].name.toUpperCase()} — Campagne : ${ST.brief.substring(0,60)}\nCible : ${LEVEL_LABELS[ST.level]}\nDurée : ${ST.duration}\nGénérée le ${new Date().toLocaleDateString('fr-FR')}\n${'='.repeat(60)}\n\n${ST.emails.map(e=>`=== EMAIL ${e.num} — ${e.objet} ===\nAngle : ${e.angle}\nPréheader : ${e.preheader}\nCTA : ${e.cta}\n\n${e.corps}\n\n${'—'.repeat(40)}`).join('\n\n')}`;
   const blob = new Blob([txt],{type:'text/plain;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href=url; a.download=`emails-${ST.brand}-${Date.now()}.txt`; a.click(); URL.revokeObjectURL(url);
@@ -881,8 +1210,8 @@ function exportHubspot() {
 }
 
 function newSequence() {
-  ST.emails=[]; ST.ctas=[]; ST.campaignType='generique'; ST.level=null;
-  document.getElementById('email-subject').value='';
+  ST.emails=[]; ST.ctas=[]; ST.campaignType='generique'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[];
+  const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
   document.getElementById('email-count').value='5';
   document.querySelectorAll('.cta-btn').forEach(b=>b.classList.remove('selected'));
@@ -906,7 +1235,7 @@ function resetUI() {
   document.getElementById('kb-input').value='';
   document.getElementById('kb-list').innerHTML='';
   document.getElementById('kb-count-label').textContent='0 entrée(s)';
-  document.getElementById('email-subject').value='';
+  const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
   document.getElementById('email-count').value='5';
   document.getElementById('emails-list').innerHTML='';
