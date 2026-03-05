@@ -1,0 +1,1691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Générateur d'Emails — Groupe Diploma</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: rgba(255,255,255,0.07);
+    --accent: #6c63ff;
+    --accent2: #ff6b6b;
+    --accent3: #43e97b;
+    --text: #f0f0f8;
+    --muted: #6b6b88;
+    --radius: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BACKGROUND EFFECT */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: -10%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(108,99,255,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    z-index: 100;
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .nav-logo span { color: var(--accent); }
+
+  .nav-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 20px;
+    color: var(--accent);
+  }
+
+  /* LAYOUT */
+  .app {
+    display: flex;
+    height: 100vh;
+    padding-top: 56px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    overflow-y: auto;
+    padding: 20px 0;
+  }
+
+  .sidebar-section {
+    padding: 0 16px;
+    margin-bottom: 24px;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 0 8px;
+    margin-bottom: 8px;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+
+  .step-item:hover { background: var(--surface2); }
+  .step-item.active { background: rgba(108,99,255,0.12); }
+  .step-item.active .step-num { background: var(--accent); color: white; }
+  .step-item.done .step-num { background: rgba(67,233,123,0.15); color: var(--accent3); border-color: rgba(67,233,123,0.3); }
+  .step-item.done .step-label { color: var(--muted); }
+
+  .step-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    flex-shrink: 0;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .step-label {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .step-arrow {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 10px;
+  }
+
+  /* MARQUE SELECTOR in sidebar */
+  .brand-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .brand-mini-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    text-align: left;
+    transition: all 0.15s;
+    width: 100%;
+  }
+
+  .brand-mini-btn:hover { background: var(--surface2); color: var(--text); }
+  .brand-mini-btn.active {
+    background: rgba(108,99,255,0.1);
+    border-color: rgba(108,99,255,0.25);
+    color: var(--text);
+  }
+
+  .brand-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+  }
+
+  /* STEP PANELS */
+  .panel {
+    display: none;
+    max-width: 760px;
+  }
+
+  .panel.active { display: block; }
+
+  .panel-header {
+    margin-bottom: 28px;
+  }
+
+  .panel-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .panel-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+
+  /* BRAND CARDS */
+  .brands-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .brand-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .brand-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .brand-card:hover { border-color: rgba(108,99,255,0.3); transform: translateY(-1px); }
+  .brand-card.selected { border-color: rgba(108,99,255,0.5); background: rgba(108,99,255,0.06); }
+  .brand-card.selected::before { opacity: 1; }
+
+  .brand-card[data-brand="diploma"]::before { background: #6c63ff; }
+  .brand-card[data-brand="hermione"]::before { background: #ff6b6b; }
+  .brand-card[data-brand="medibox"]::before { background: #43e97b; }
+  .brand-card[data-brand="edumove"]::before { background: #f9ca24; }
+
+  .brand-card-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .brand-card-tag {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .brand-card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .brand-check {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+  }
+
+  .brand-card.selected .brand-check { display: flex; }
+
+  /* LEVEL SELECTOR */
+  .levels-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .level-btn {
+    padding: 12px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .level-btn:hover { border-color: rgba(108,99,255,0.3); color: var(--text); }
+  .level-btn.selected {
+    border-color: var(--accent);
+    background: rgba(108,99,255,0.1);
+    color: var(--text);
+  }
+
+  .level-btn small {
+    display: block;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* INPUTS */
+  input[type="text"], textarea, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    outline: none;
+    transition: border-color 0.15s;
+    resize: vertical;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    border-color: rgba(108,99,255,0.5);
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--muted); }
+
+  select option { background: #18181f; }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .input-group {
+    margin-bottom: 14px;
+  }
+
+  .input-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  /* CTA CHECKBOXES */
+  .cta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .cta-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 12.5px;
+    color: var(--muted);
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .cta-check:hover { border-color: rgba(108,99,255,0.3); color: var(--text); }
+  .cta-check.checked {
+    border-color: rgba(108,99,255,0.4);
+    background: rgba(108,99,255,0.08);
+    color: var(--text);
+  }
+
+  .cta-check input { display: none; }
+
+  .cta-box {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    transition: all 0.15s;
+  }
+
+  .cta-check.checked .cta-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 22px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-primary:hover { background: #7b74ff; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.15); }
+
+  .btn-success {
+    background: rgba(67,233,123,0.15);
+    color: var(--accent3);
+    border: 1px solid rgba(67,233,123,0.25);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    align-items: center;
+  }
+
+  /* LOADING */
+  .loading-bar {
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .loading-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #a78bfa);
+    border-radius: 3px;
+    width: 0%;
+    transition: width 0.4s;
+    animation: pulse-bar 2s infinite;
+  }
+
+  @keyframes pulse-bar {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .loading-status {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* EMAILS OUTPUT */
+  .emails-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .email-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  .email-item:hover { border-color: rgba(108,99,255,0.25); }
+
+  .email-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .email-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(108,99,255,0.12);
+    border: 1px solid rgba(108,99,255,0.2);
+    padding: 3px 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .email-subject {
+    font-size: 13.5px;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .email-cta-badge {
+    font-size: 10.5px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(255,107,107,0.12);
+    border: 1px solid rgba(255,107,107,0.2);
+    color: var(--accent2);
+    flex-shrink: 0;
+  }
+
+  .email-toggle {
+    color: var(--muted);
+    font-size: 11px;
+    transition: transform 0.2s;
+  }
+
+  .email-item.open .email-toggle { transform: rotate(180deg); }
+
+  .email-body {
+    display: none;
+    padding: 0 18px 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .email-item.open .email-body { display: block; }
+
+  .email-body-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 12px 0 14px;
+  }
+
+  .email-tab {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .email-tab.active {
+    background: rgba(108,99,255,0.12);
+    border-color: rgba(108,99,255,0.25);
+    color: var(--accent);
+  }
+
+  .email-content {
+    font-size: 13px;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .email-hubspot {
+    display: none;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #a0e0ff;
+    background: #0d1520;
+    border: 1px solid rgba(160,224,255,0.15);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    overflow-x: auto;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-top: 10px;
+  }
+
+  .copy-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+  .copy-btn.copied { color: var(--accent3); border-color: rgba(67,233,123,0.3); }
+
+  /* EXPORT */
+  .export-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .export-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .export-card:hover { border-color: rgba(108,99,255,0.3); transform: translateY(-1px); }
+
+  .export-icon { font-size: 28px; margin-bottom: 8px; }
+  .export-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .export-desc { font-size: 12px; color: var(--muted); }
+
+  /* SUMMARY BAR */
+  .summary-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .summary-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .summary-key {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  .summary-val {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  /* PROGRESS DOTS */
+  .progress-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 28px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: all 0.2s;
+  }
+
+  .dot.active { background: var(--accent); width: 18px; border-radius: 3px; }
+  .dot.done { background: var(--accent3); }
+
+  /* KB PANEL */
+  .kb-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 44px;
+    height: 44px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 200;
+    box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+    transition: all 0.2s;
+    border: none;
+  }
+
+  .kb-toggle:hover { transform: scale(1.05); }
+
+  .kb-panel {
+    position: fixed;
+    bottom: 80px;
+    right: 24px;
+    width: 340px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    z-index: 200;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    display: none;
+  }
+
+  .kb-panel.open { display: block; }
+
+  .kb-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .kb-panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .kb-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .kb-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .kb-tab {
+    flex: 1;
+    padding: 7px;
+    border-radius: 7px;
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+
+  .kb-tab.active { background: rgba(108,99,255,0.12); border-color: rgba(108,99,255,0.25); color: var(--accent); }
+
+  .kb-textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    resize: none;
+    height: 90px;
+    outline: none;
+    margin-bottom: 10px;
+  }
+
+  .kb-textarea:focus { border-color: rgba(108,99,255,0.4); }
+
+  .kb-entries {
+    max-height: 140px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .kb-entry {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 8px 10px;
+    font-size: 12px;
+    color: var(--text);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .kb-entry-del {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    margin-left: auto;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+
+  .kb-entry-del:hover { color: var(--accent2); }
+
+  /* SCROLL */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
+
+  /* TOOLTIP */
+  .info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    color: var(--muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    margin-top: 8px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 20px 0;
+  }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Email · <span>Groupe Diploma</span></div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span id="navBrand" style="font-size:12px;color:var(--muted);">— Aucune marque</span>
+    <div class="nav-badge">Claude AI</div>
+  </div>
+</nav>
+
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Marque active</div>
+      <div class="brand-mini" id="brandMini">
+        <button class="brand-mini-btn" data-brand="diploma" onclick="selectBrandMini('diploma')">
+          <div class="brand-dot" style="background:#6c63ff"></div>
+          Diploma Santé
+        </button>
+        <button class="brand-mini-btn" data-brand="hermione" onclick="selectBrandMini('hermione')">
+          <div class="brand-dot" style="background:#ff6b6b"></div>
+          Hermione Médecine
+        </button>
+        <button class="brand-mini-btn" data-brand="medibox" onclick="selectBrandMini('medibox')">
+          <div class="brand-dot" style="background:#43e97b"></div>
+          Medibox
+        </button>
+        <button class="brand-mini-btn" data-brand="edumove" onclick="selectBrandMini('edumove')">
+          <div class="brand-dot" style="background:#f9ca24"></div>
+          Edumove
+        </button>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:0 16px 20px;"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Workflow</div>
+
+      <div class="step-item active" id="step-nav-0" onclick="goToStep(0)">
+        <div class="step-num">00</div>
+        <div class="step-label">Marque</div>
+        <div class="step-arrow">›</div>
+      </div>
+      <div class="step-item" id="step-nav-1" onclick="goToStep(1)">
+        <div class="step-num">01</div>
+        <div class="step-label">Cible</div>
+        <div class="step-arrow">›</div>
+      </div>
+      <div class="step-item" id="step-nav-2" onclick="goToStep(2)">
+        <div class="step-num">02</div>
+        <div class="step-label">Séquence</div>
+        <div class="step-arrow">›</div>
+      </div>
+      <div class="step-item" id="step-nav-3" onclick="goToStep(3)">
+        <div class="step-num">03</div>
+        <div class="step-label">Génération</div>
+        <div class="step-arrow">›</div>
+      </div>
+      <div class="step-item" id="step-nav-4" onclick="goToStep(4)">
+        <div class="step-num">04</div>
+        <div class="step-label">Emails</div>
+        <div class="step-arrow">›</div>
+      </div>
+      <div class="step-item" id="step-nav-5" onclick="goToStep(5)">
+        <div class="step-num">05</div>
+        <div class="step-label">Export</div>
+        <div class="step-arrow">›</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- STEP 0 : MARQUE -->
+    <div class="panel active" id="panel-0">
+      <div class="panel-header">
+        <div class="panel-tag">Étape 00</div>
+        <div class="panel-title">Choisir ta marque</div>
+        <div class="panel-desc">Chaque marque a son propre univers éditorial, sa cible et son ton. Sélectionne celle pour laquelle tu crées la séquence email.</div>
+      </div>
+
+      <div class="brands-grid">
+        <div class="brand-card" data-brand="diploma" onclick="selectBrand('diploma')">
+          <div class="brand-check">✓</div>
+          <div class="brand-card-name">Diploma Santé</div>
+          <div class="brand-card-tag">Prépa médecine · Paris</div>
+          <div class="brand-card-desc">Prépa d'excellence pour PASS/LAS, accompagnement premium, résultats prouvés.</div>
+        </div>
+        <div class="brand-card" data-brand="hermione" onclick="selectBrand('hermione')">
+          <div class="brand-check">✓</div>
+          <div class="brand-card-name">Hermione Médecine</div>
+          <div class="brand-card-tag">Média #1 PASS/LAS 🔥</div>
+          <div class="brand-card-desc">Contenu Gen-Z, viral, pour les étudiants en santé. Ton décomplexé et direct.</div>
+        </div>
+        <div class="brand-card" data-brand="medibox" onclick="selectBrand('medibox')">
+          <div class="brand-check">✓</div>
+          <div class="brand-card-name">Medibox</div>
+          <div class="brand-card-tag">Prépa 100% en ligne</div>
+          <div class="brand-card-desc">Formation à distance, toutes villes de France. Flexibilité et accessibilité.</div>
+        </div>
+        <div class="brand-card" data-brand="edumove" onclick="selectBrand('edumove')">
+          <div class="brand-check">✓</div>
+          <div class="brand-card-name">Edumove</div>
+          <div class="brand-card-tag">Études en Europe</div>
+          <div class="brand-card-desc">Alternative après échec PASS. Universités européennes, nouveau départ.</div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="goToStep(1)" id="step0Next" disabled>Continuer →</button>
+      </div>
+    </div>
+
+    <!-- STEP 1 : CIBLE -->
+    <div class="panel" id="panel-1">
+      <div class="panel-header">
+        <div class="panel-tag">Étape 01</div>
+        <div class="panel-title">Définir ta cible</div>
+        <div class="panel-desc">Sélectionne le niveau scolaire. Les emails s'adresseront simultanément à l'étudiant et à ses parents — ton adapté aux deux.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📚 Niveau scolaire</div>
+        <div class="levels-grid">
+          <button class="level-btn" data-level="seconde" onclick="toggleLevel('seconde')">
+            Seconde
+            <small>15–16 ans</small>
+          </button>
+          <button class="level-btn" data-level="premiere" onclick="toggleLevel('premiere')">
+            Première
+            <small>16–17 ans</small>
+          </button>
+          <button class="level-btn" data-level="terminale" onclick="toggleLevel('terminale')">
+            Terminale
+            <small>17–18 ans</small>
+          </button>
+          <button class="level-btn" data-level="postbac" onclick="toggleLevel('postbac')">
+            Post-bac / PASS
+            <small>18–20 ans</small>
+          </button>
+          <button class="level-btn" data-level="reorientation" onclick="toggleLevel('reorientation')">
+            Réorientation
+            <small>Après échec PASS</small>
+          </button>
+          <button class="level-btn" data-level="all" onclick="toggleLevel('all')">
+            Toutes cibles
+            <small>Segment large</small>
+          </button>
+        </div>
+        <div class="info-badge">💡 Le ton sera inclusif : étudiant + parents lisent souvent ensemble</div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(0)">← Retour</button>
+        <button class="btn btn-primary" onclick="goToStep(2)" id="step1Next" disabled>Continuer →</button>
+      </div>
+    </div>
+
+    <!-- STEP 2 : SÉQUENCE -->
+    <div class="panel" id="panel-2">
+      <div class="panel-header">
+        <div class="panel-tag">Étape 02</div>
+        <div class="panel-title">Paramétrer la séquence</div>
+        <div class="panel-desc">Décris le sujet et les objectifs de ta séquence. L'IA générera des emails variés, complémentaires, avec les bons CTA.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">✉️ Sujet de la séquence</div>
+        <div class="input-group">
+          <label class="input-label">Thème principal *</label>
+          <input type="text" id="emailSubject" placeholder="ex : Portes ouvertes janvier 2025, résultats PASS, rentrée..." />
+        </div>
+        <div class="input-row">
+          <div class="input-group" style="margin:0">
+            <label class="input-label">Nombre d'emails</label>
+            <select id="emailCount">
+              <option value="5">5 emails</option>
+              <option value="7">7 emails</option>
+              <option value="10" selected>10 emails</option>
+              <option value="12">12 emails</option>
+            </select>
+          </div>
+          <div class="input-group" style="margin:0">
+            <label class="input-label">Durée de la séquence</label>
+            <select id="emailDuration">
+              <option value="2 semaines">2 semaines</option>
+              <option value="1 mois" selected>1 mois</option>
+              <option value="6 semaines">6 semaines</option>
+              <option value="2 mois">2 mois</option>
+            </select>
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Contexte / infos supplémentaires</label>
+          <textarea id="emailContext" rows="3" placeholder="Ex : Journée portes ouvertes le 15 jan, promo -10% sur brochure, stats de réussite à mentionner..."></textarea>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎯 CTA principaux</div>
+        <div class="cta-grid" id="ctaGrid">
+          <label class="cta-check" onclick="toggleCta(this)">
+            <input type="checkbox" value="brochure">
+            <div class="cta-box"></div>
+            📄 Télécharger la brochure
+          </label>
+          <label class="cta-check" onclick="toggleCta(this)">
+            <input type="checkbox" value="rdv">
+            <div class="cta-box"></div>
+            📅 Prendre RDV
+          </label>
+          <label class="cta-check" onclick="toggleCta(this)">
+            <input type="checkbox" value="portes-ouvertes">
+            <div class="cta-box"></div>
+            🏫 S'inscrire aux PO
+          </label>
+          <label class="cta-check" onclick="toggleCta(this)">
+            <input type="checkbox" value="candidature">
+            <div class="cta-box"></div>
+            📝 Déposer candidature
+          </label>
+          <label class="cta-check" onclick="toggleCta(this)">
+            <input type="checkbox" value="webinaire">
+            <div class="cta-box"></div>
+            🎥 S'inscrire webinaire
+          </label>
+          <label class="cta-check" onclick="toggleCta(this)">
+            <input type="checkbox" value="essai">
+            <div class="cta-box"></div>
+            ✨ Cours d'essai gratuit
+          </label>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(1)">← Retour</button>
+        <button class="btn btn-primary" onclick="generateEmails()" id="step2Next">
+          ✨ Générer les emails
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 3 : GÉNÉRATION -->
+    <div class="panel" id="panel-3">
+      <div class="panel-header">
+        <div class="panel-tag">Étape 03</div>
+        <div class="panel-title">Génération en cours…</div>
+        <div class="panel-desc">L'IA rédige ta séquence email complète. Chaque email est unique, progressif, et adapté au niveau et à la marque.</div>
+      </div>
+
+      <div class="loading-bar">
+        <div class="loading-bar-inner" id="loadingBar"></div>
+      </div>
+
+      <div class="loading-status" id="loadingStatus">
+        <div class="spinner"></div>
+        <span id="loadingText">Initialisation…</span>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Progression</div>
+        <div id="progressLog" style="font-size:12.5px;color:var(--muted);line-height:2;"></div>
+      </div>
+    </div>
+
+    <!-- STEP 4 : EMAILS -->
+    <div class="panel" id="panel-4">
+      <div class="panel-header">
+        <div class="panel-tag">Étape 04</div>
+        <div class="panel-title">Ta séquence email</div>
+        <div class="panel-desc">Clique sur un email pour voir son contenu. Bascule entre la version texte et le code HubSpot prêt à coller.</div>
+      </div>
+
+      <div class="summary-bar" id="summaryBar">
+        <div class="summary-item"><span class="summary-key">Marque</span><span class="summary-val" id="sumBrand">—</span></div>
+        <div class="summary-item"><span class="summary-key">Cible</span><span class="summary-val" id="sumLevel">—</span></div>
+        <div class="summary-item"><span class="summary-key">Sujet</span><span class="summary-val" id="sumSubject">—</span></div>
+        <div class="summary-item"><span class="summary-key">Emails</span><span class="summary-val" id="sumCount">—</span></div>
+      </div>
+
+      <div class="emails-list" id="emailsList"></div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(2)">← Régénérer</button>
+        <button class="btn btn-primary" onclick="goToStep(5)">Exporter →</button>
+      </div>
+    </div>
+
+    <!-- STEP 5 : EXPORT -->
+    <div class="panel" id="panel-5">
+      <div class="panel-header">
+        <div class="panel-tag">Étape 05</div>
+        <div class="panel-title">Exporter ta séquence</div>
+        <div class="panel-desc">Choisis ton format d'export. Tous les emails sont au format HubSpot — pas de balises html/body, compatible copier-coller direct.</div>
+      </div>
+
+      <div class="export-grid">
+        <div class="export-card" onclick="exportAll()">
+          <div class="export-icon">📋</div>
+          <div class="export-title">Tout copier</div>
+          <div class="export-desc">Tous les emails copiés dans le presse-papier</div>
+        </div>
+        <div class="export-card" onclick="exportTxt()">
+          <div class="export-icon">📄</div>
+          <div class="export-title">Fichier .txt</div>
+          <div class="export-desc">Télécharger la séquence complète en texte</div>
+        </div>
+        <div class="export-card" onclick="exportHubspot()">
+          <div class="export-icon">🟠</div>
+          <div class="export-title">Format HubSpot</div>
+          <div class="export-desc">HTML inline compatible HubSpot (sans body/html)</div>
+        </div>
+        <div class="export-card" style="opacity:0.45;cursor:default;">
+          <div class="export-icon">🔗</div>
+          <div class="export-title">Sync HubSpot</div>
+          <div class="export-desc">Connexion API HubSpot (bientôt)</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <div class="card-title">🔗 Communication inter-outils</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7;">
+          Cette séquence sera disponible pour les autres outils Groupe Diploma :<br>
+          <span style="color:var(--text);">• Générateur d'images</span> — créas visuelles adaptées au sujet « <span id="exportSubjectRef" style="color:var(--accent);">—</span> »<br>
+          <span style="color:var(--text);">• Scripts vidéo</span> — contenu aligné sur la séquence email<br>
+          <span style="color:var(--text);">• Générateur SEO</span> — articles autour du même cluster thématique
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(4)">← Retour</button>
+        <button class="btn btn-success" onclick="newSequence()">✨ Nouvelle séquence</button>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- KB TOGGLE -->
+<button class="kb-toggle" onclick="toggleKB()" title="Base de connaissances">🧠</button>
+
+<div class="kb-panel" id="kbPanel">
+  <div class="kb-panel-header">
+    <div class="kb-panel-title">🧠 Base de connaissances</div>
+    <button class="kb-close" onclick="toggleKB()">✕</button>
+  </div>
+  <div class="kb-tabs">
+    <button class="kb-tab active" onclick="switchKbTab('add')">+ Ajouter</button>
+    <button class="kb-tab" onclick="switchKbTab('list')">Entrées (0)</button>
+  </div>
+  <div id="kbAddSection">
+    <textarea class="kb-textarea" id="kbInput" placeholder="Ajoute un chiffre, une info, une accroche email, un argument clé…"></textarea>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="addKbEntry()">Ajouter à la base</button>
+  </div>
+  <div id="kbListSection" style="display:none;">
+    <div class="kb-entries" id="kbEntries">
+      <div style="font-size:12px;color:var(--muted);text-align:center;padding:20px;">Aucune entrée pour l'instant</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  brand: null,
+  level: null,
+  subject: '',
+  count: 10,
+  duration: '1 mois',
+  context: '',
+  ctas: [],
+  emails: [],
+  kb: []
+};
+
+const brandLabels = {
+  diploma: 'Diploma Santé',
+  hermione: 'Hermione Médecine',
+  medibox: 'Medibox',
+  edumove: 'Edumove'
+};
+
+const levelLabels = {
+  seconde: 'Seconde (15-16 ans)',
+  premiere: 'Première (16-17 ans)',
+  terminale: 'Terminale (17-18 ans)',
+  postbac: 'Post-bac / PASS',
+  reorientation: 'Réorientation',
+  all: 'Toutes cibles'
+};
+
+const brandTones = {
+  diploma: "Ton premium, rassurant, orienté excellence et résultats. Données chiffrées. S'adresse aux parents aussi bien qu'aux étudiants.",
+  hermione: "Ton Gen-Z, direct, un peu provoc. Phrases courtes. Émoticônes ok. S'adresse surtout aux étudiants PASS/LAS.",
+  medibox: "Ton pragmatique, centré sur la flexibilité et l'accessibilité. Pas de pression géographique. Digital-first.",
+  edumove: "Ton empathique, tourné vers l'espoir et le rebond après un échec. Alternative positive aux études européennes."
+};
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+let currentStep = 0;
+
+function goToStep(n) {
+  document.querySelector(`#panel-${currentStep}`).classList.remove('active');
+  document.querySelector(`#step-nav-${currentStep}`).classList.remove('active');
+  currentStep = n;
+  document.querySelector(`#panel-${n}`).classList.add('active');
+  document.querySelector(`#step-nav-${n}`).classList.add('active');
+  for (let i = 0; i < n; i++) {
+    document.querySelector(`#step-nav-${i}`).classList.add('done');
+  }
+}
+
+// ============================================================
+// BRAND SELECT
+// ============================================================
+function selectBrand(brand) {
+  state.brand = brand;
+  document.querySelectorAll('.brand-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`.brand-card[data-brand="${brand}"]`).classList.add('selected');
+  document.querySelectorAll('.brand-mini-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.brand-mini-btn[data-brand="${brand}"]`).classList.add('active');
+  document.getElementById('navBrand').textContent = brandLabels[brand];
+  document.getElementById('step0Next').disabled = false;
+}
+
+function selectBrandMini(brand) {
+  selectBrand(brand);
+  if (currentStep === 0) goToStep(1);
+}
+
+// ============================================================
+// LEVEL SELECT
+// ============================================================
+function toggleLevel(level) {
+  state.level = level;
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelector(`.level-btn[data-level="${level}"]`).classList.add('selected');
+  document.getElementById('step1Next').disabled = false;
+}
+
+// ============================================================
+// CTA SELECT
+// ============================================================
+function toggleCta(el) {
+  el.classList.toggle('checked');
+  const val = el.querySelector('input').value;
+  const idx = state.ctas.indexOf(val);
+  if (idx === -1) state.ctas.push(val);
+  else state.ctas.splice(idx, 1);
+}
+
+// ============================================================
+// GENERATE EMAILS
+// ============================================================
+async function generateEmails() {
+  state.subject = document.getElementById('emailSubject').value.trim();
+  state.count = parseInt(document.getElementById('emailCount').value);
+  state.duration = document.getElementById('emailDuration').value;
+  state.context = document.getElementById('emailContext').value.trim();
+
+  if (!state.subject) {
+    document.getElementById('emailSubject').focus();
+    return;
+  }
+
+  goToStep(3);
+
+  const progressLog = document.getElementById('progressLog');
+  const loadingBar = document.getElementById('loadingBar');
+  const loadingText = document.getElementById('loadingText');
+
+  const steps = [
+    '🎯 Analyse du profil de cible…',
+    '📊 Intégration de la base de connaissances…',
+    '✍️ Construction de la structure de séquence…',
+    '📧 Rédaction des emails…',
+    '🎨 Adaptation au ton de la marque…',
+    '📋 Mise en forme HubSpot…',
+    '✅ Finalisation…'
+  ];
+
+  let progress = 0;
+  for (let i = 0; i < steps.length - 1; i++) {
+    progressLog.innerHTML += `<div style="color:var(--accent3)">✓ ${steps[i]}</div>`;
+    loadingText.textContent = steps[i];
+    progress += Math.floor(80 / (steps.length - 1));
+    loadingBar.style.width = progress + '%';
+    await sleep(400);
+  }
+
+  // BUILD PROMPT
+  const ctaLabels = {
+    brochure: 'télécharger la brochure',
+    rdv: 'prendre rendez-vous avec un conseiller',
+    'portes-ouvertes': "s'inscrire aux portes ouvertes",
+    candidature: 'déposer sa candidature',
+    webinaire: 'rejoindre un webinaire',
+    essai: "essayer un cours gratuit"
+  };
+
+  const ctaText = state.ctas.length > 0
+    ? state.ctas.map(c => ctaLabels[c]).join(', ')
+    : 'télécharger la brochure, prendre rendez-vous';
+
+  const kbText = state.kb.length > 0
+    ? `\nBase de connaissances à intégrer :\n${state.kb.join('\n')}`
+    : '';
+
+  const prompt = `Tu es un expert en marketing email pour des prépas médicales en France.
+
+Marque : ${brandLabels[state.brand]}
+Ton de marque : ${brandTones[state.brand]}
+Cible : ${levelLabels[state.level]} — le lecteur peut être l'étudiant OU ses parents, souvent les deux. Adapte le ton pour être lisible par les deux.
+Sujet de la séquence : ${state.subject}
+Durée : ${state.duration}
+Nombre d'emails : ${state.count}
+CTA à utiliser (varier) : ${ctaText}
+${state.context ? `\nContexte additionnel : ${state.context}` : ''}
+${kbText}
+
+Génère exactement ${state.count} emails marketing distincts pour cette séquence.
+
+RÈGLES IMPORTANTES :
+- Chaque email doit avoir un OBJET accrocheur (max 50 caractères) 
+- Corps de 120 à 200 mots maximum par email
+- Varier les angles : urgence, bénéfice, social proof, question, storytelling, chiffre, témoignage…
+- Les CTA doivent varier entre les emails
+- PAS de balise <html>, <head>, <body> — format HubSpot uniquement
+- Utiliser des sauts de ligne, du texte simple + quelques balises inline (<strong>, <a href="#">, <br>) SEULEMENT
+- Fin de chaque email : signature courte de la marque
+
+Réponds UNIQUEMENT au format JSON valide, sans markdown, sans backticks :
+{
+  "emails": [
+    {
+      "num": 1,
+      "objet": "...",
+      "preheader": "...",
+      "cta": "...",
+      "angle": "...",
+      "corps": "...",
+      "hubspot": "..."
+    }
+  ]
+}
+
+Le champ "corps" est le texte brut lisible.
+Le champ "hubspot" est le même contenu avec du HTML inline léger (strong, br, a) — SANS balises html/head/body.`;
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 8000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+    loadingBar.style.width = '95%';
+    loadingText.textContent = steps[steps.length - 1];
+    progressLog.innerHTML += `<div style="color:var(--accent3)">✓ ${steps[steps.length - 1]}</div>`;
+
+    let raw = data.content[0].text.trim();
+    raw = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(raw);
+    state.emails = parsed.emails;
+
+    loadingBar.style.width = '100%';
+    await sleep(300);
+
+    renderEmails();
+    goToStep(4);
+
+  } catch (err) {
+    progressLog.innerHTML += `<div style="color:var(--accent2)">❌ Erreur : ${err.message}</div>`;
+    console.error(err);
+  }
+}
+
+// ============================================================
+// RENDER EMAILS
+// ============================================================
+function renderEmails() {
+  const list = document.getElementById('emailsList');
+  list.innerHTML = '';
+
+  document.getElementById('sumBrand').textContent = brandLabels[state.brand];
+  document.getElementById('sumLevel').textContent = levelLabels[state.level];
+  document.getElementById('sumSubject').textContent = state.subject;
+  document.getElementById('sumCount').textContent = state.emails.length + ' emails';
+  document.getElementById('exportSubjectRef').textContent = state.subject;
+
+  state.emails.forEach((email, i) => {
+    const item = document.createElement('div');
+    item.className = 'email-item';
+    item.innerHTML = `
+      <div class="email-header" onclick="toggleEmail(${i})">
+        <div class="email-num">E${String(email.num).padStart(2,'0')}</div>
+        <div>
+          <div class="email-subject">${email.objet}</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">${email.angle || ''}</div>
+        </div>
+        <div class="email-cta-badge">${email.cta}</div>
+        <div class="email-toggle">▼</div>
+      </div>
+      <div class="email-body">
+        <div class="email-body-tabs">
+          <div class="email-tab active" onclick="switchEmailTab(${i},'text',event)">Texte</div>
+          <div class="email-tab" onclick="switchEmailTab(${i},'hubspot',event)">HubSpot HTML</div>
+        </div>
+        <div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">
+          <strong style="color:var(--text);">Préheader :</strong> ${email.preheader || '—'}
+        </div>
+        <div class="email-content" id="emailText-${i}">${email.corps}</div>
+        <div class="email-hubspot" id="emailHubspot-${i}">${escapeHtml(email.hubspot)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+          <button class="copy-btn" onclick="copyEmail(${i},'text')">📋 Copier texte</button>
+          <button class="copy-btn" onclick="copyEmail(${i},'hubspot')">🟠 Copier HubSpot</button>
+        </div>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function toggleEmail(i) {
+  const item = document.querySelectorAll('.email-item')[i];
+  item.classList.toggle('open');
+}
+
+function switchEmailTab(i, tab, e) {
+  e.stopPropagation();
+  const item = document.querySelectorAll('.email-item')[i];
+  const tabs = item.querySelectorAll('.email-tab');
+  tabs.forEach(t => t.classList.remove('active'));
+  e.target.classList.add('active');
+  item.querySelector(`#emailText-${i}`).style.display = tab === 'text' ? 'block' : 'none';
+  item.querySelector(`#emailHubspot-${i}`).style.display = tab === 'hubspot' ? 'block' : 'none';
+}
+
+function copyEmail(i, type) {
+  const el = document.querySelector(type === 'text' ? `#emailText-${i}` : `#emailHubspot-${i}`);
+  const text = type === 'hubspot' ? state.emails[i].hubspot : el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('.email-item')[i].querySelectorAll('.copy-btn');
+    const idx = type === 'text' ? 0 : 1;
+    btns[idx].textContent = '✓ Copié !';
+    btns[idx].classList.add('copied');
+    setTimeout(() => {
+      btns[idx].textContent = type === 'text' ? '📋 Copier texte' : '🟠 Copier HubSpot';
+      btns[idx].classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// ============================================================
+// EXPORT
+// ============================================================
+function exportAll() {
+  const txt = state.emails.map(e =>
+    `=== EMAIL ${e.num} ===\nOBJET : ${e.objet}\nPRÉHEADER : ${e.preheader}\n\n${e.corps}\n`
+  ).join('\n\n');
+  navigator.clipboard.writeText(txt).then(() => alert('✓ Tous les emails copiés !'));
+}
+
+function exportTxt() {
+  const txt = state.emails.map(e =>
+    `=== EMAIL ${e.num} — ${e.objet} ===\nAngle : ${e.angle}\nPréheader : ${e.preheader}\nCTA : ${e.cta}\n\n${e.corps}\n\n---`
+  ).join('\n\n');
+  const blob = new Blob([txt], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `sequence-email-${state.brand}-${Date.now()}.txt`;
+  a.click();
+}
+
+function exportHubspot() {
+  const txt = state.emails.map(e =>
+    `<!-- EMAIL ${e.num} | OBJET: ${e.objet} -->\n${e.hubspot}\n`
+  ).join('\n\n');
+  const blob = new Blob([txt], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `hubspot-emails-${state.brand}-${Date.now()}.html`;
+  a.click();
+}
+
+function newSequence() {
+  state.emails = [];
+  state.ctas = [];
+  document.getElementById('emailSubject').value = '';
+  document.getElementById('emailContext').value = '';
+  document.querySelectorAll('.cta-check').forEach(c => c.classList.remove('checked'));
+  document.querySelectorAll('.step-item').forEach(s => s.classList.remove('done', 'active'));
+  goToStep(0);
+}
+
+// ============================================================
+// KB
+// ============================================================
+function toggleKB() {
+  document.getElementById('kbPanel').classList.toggle('open');
+}
+
+function switchKbTab(tab) {
+  document.querySelectorAll('.kb-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('kbAddSection').style.display = tab === 'add' ? 'block' : 'none';
+  document.getElementById('kbListSection').style.display = tab === 'list' ? 'block' : 'none';
+}
+
+function addKbEntry() {
+  const val = document.getElementById('kbInput').value.trim();
+  if (!val) return;
+  state.kb.push(val);
+  document.getElementById('kbInput').value = '';
+  renderKb();
+  document.querySelectorAll('.kb-tab')[1].textContent = `Entrées (${state.kb.length})`;
+}
+
+function renderKb() {
+  const list = document.getElementById('kbEntries');
+  if (state.kb.length === 0) {
+    list.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:20px;">Aucune entrée</div>';
+    return;
+  }
+  list.innerHTML = state.kb.map((e, i) => `
+    <div class="kb-entry">
+      <span>${e}</span>
+      <button class="kb-entry-del" onclick="removeKb(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeKb(i) {
+  state.kb.splice(i, 1);
+  renderKb();
+  document.querySelectorAll('.kb-tab')[1].textContent = `Entrées (${state.kb.length})`;
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
