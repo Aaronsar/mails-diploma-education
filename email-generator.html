@@ -235,6 +235,32 @@ textarea { min-height:80px; }
 .theme-edumove .campaign-btn.selected { background:rgba(26,92,46,0.06); }
 .campaign-btn small { display:block;font-size:11px;color:var(--text-muted);margin-top:3px; }
 
+/* FREQ PREVIEW BADGE */
+.freq-preview-badge { font-size:12px;font-weight:500;padding:7px 12px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border);color:var(--text-dim);margin-bottom:14px;display:block; }
+.theme-diploma .freq-preview-badge { font-family:'Cormorant Garamond',serif;font-size:13px; }
+
+/* EVENT SUBTYPE TOGGLE */
+.event-subtype-toggle { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px; }
+.event-sub-btn { padding:11px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:left;line-height:1.4; }
+.event-sub-btn:hover { border-color:var(--accent);color:var(--text); }
+.event-sub-btn.selected { border-color:var(--accent);color:var(--text); }
+.theme-diploma .event-sub-btn.selected { background:rgba(15,28,58,0.04); }
+.theme-hermione .event-sub-btn.selected { background:rgba(232,68,196,0.06); }
+.theme-medibox .event-sub-btn.selected { background:rgba(37,139,255,0.07); }
+.theme-edumove .event-sub-btn.selected { background:rgba(26,92,46,0.06); }
+.event-sub-btn small { display:block;font-size:11px;color:var(--text-muted);margin-top:3px; }
+
+/* CADENCE TAGS */
+.cadence-tags { display:flex;flex-wrap:wrap;gap:5px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);min-height:44px;align-items:center; }
+.j-tag { font-size:11px;font-weight:600;padding:3px 9px;border-radius:100px;background:var(--accent);color:#fff;font-family:monospace; }
+.theme-diploma .j-tag { font-family:'DM Mono',monospace;background:var(--accent); }
+
+/* J-TIMING TAG IN ANGLE CARDS */
+.j-timing-tag { display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:100px;background:var(--accent);color:#fff;margin-bottom:5px;font-family:monospace; }
+
+/* INSCRIPTION NOTE */
+.inscription-note { font-size:12px;color:var(--text-dim);padding:8px 12px;background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 var(--radius) var(--radius) 0;margin-bottom:14px;line-height:1.5; }
+
 /* LOADING */
 .lbar { height:2px;border-radius:1px;overflow:hidden;margin:12px 0;background:var(--surface2); }
 .lbar-fill { height:100%;animation:lbarAnim 1.5s ease-in-out infinite;border-radius:1px; }
@@ -469,28 +495,91 @@ textarea { min-height:80px; }
           <div class="card-title">Brief de campagne</div>
           <div class="f-group">
             <label class="f-label">Ce que tu veux promouvoir *</label>
-            <textarea id="brief-input" rows="4" placeholder="Ex : Fais-moi 5 mails pour promouvoir Diploma Santé auprès des élèves de Terminale. Mettre en avant les résultats, le coaching perso, les 3 campus Paris.&#10;&#10;Ou : Campagne pour les portes ouvertes du 15 mars, créer de l'urgence, insister sur les places limitées."></textarea>
+            <textarea id="brief-input" rows="4" placeholder="Ex : Promouvoir Diploma Santé auprès des Terminales. Mettre en avant les résultats, le coaching perso, les 3 campus Paris.&#10;&#10;Ou pour un événement : Portes ouvertes du 15 mars — salle de cours, rencontre avec les profs, Q&amp;A."></textarea>
           </div>
-          <div class="input-row" style="margin-bottom:0;">
-            <div class="f-group" style="margin:0;">
-              <label class="f-label">Durée totale</label>
-              <div style="display:flex;gap:6px;">
-                <input type="number" id="duration-num" min="1" value="3" style="width:70px;flex-shrink:0;" />
-                <select id="duration-unit">
-                  <option value="jours">Jours</option>
-                  <option value="semaines" selected>Semaines</option>
-                  <option value="mois">Mois</option>
-                </select>
+
+          <!-- GÉNÉRIQUE FIELDS -->
+          <div id="row-generique">
+            <div class="input-row" style="margin-bottom:8px;">
+              <div class="f-group" style="margin:0;">
+                <label class="f-label">Emails par</label>
+                <div style="display:flex;gap:6px;">
+                  <input type="number" id="freq-num" min="1" max="10" value="2" style="width:70px;flex-shrink:0;" oninput="updateFreqPreview()" />
+                  <select id="freq-unit" onchange="updateFreqPreview()">
+                    <option value="semaine">Semaine</option>
+                    <option value="mois">Mois</option>
+                  </select>
+                </div>
+              </div>
+              <div class="f-group" style="margin:0;">
+                <label class="f-label">Durée totale</label>
+                <div style="display:flex;gap:6px;">
+                  <input type="number" id="duration-num" min="1" value="4" style="width:70px;flex-shrink:0;" oninput="updateFreqPreview()" />
+                  <select id="duration-unit" onchange="updateFreqPreview()">
+                    <option value="semaines" selected>Semaines</option>
+                    <option value="mois">Mois</option>
+                  </select>
+                </div>
               </div>
             </div>
-            <div class="f-group" style="margin:0;">
-              <label class="f-label">Contexte optionnel</label>
-              <input type="text" id="email-context" placeholder="Ex : insister sur parents, J-30 inscriptions…" />
+            <span id="freq-preview" class="freq-preview-badge">= 8 emails au total · 16 angles proposés pour choisir</span>
+          </div>
+
+          <!-- ÉVÉNEMENT FIELDS -->
+          <div id="row-evenement" style="display:none;">
+            <div class="event-subtype-toggle">
+              <button class="event-sub-btn selected" id="btn-confirmation" onclick="selectEventSubType('confirmation')">🔔 Confirmation<small>Séquence de rappels J-countdown</small></button>
+              <button class="event-sub-btn" id="btn-inscription" onclick="selectEventSubType('inscription')">📝 Inscription<small>Email unique pour s'inscrire</small></button>
             </div>
+
+            <!-- Confirmation sub-fields -->
+            <div id="row-confirmation">
+              <div class="input-row" style="margin-bottom:8px;">
+                <div class="f-group" style="margin:0;">
+                  <label class="f-label">Nombre de rappels</label>
+                  <input type="number" id="confirm-count" min="1" max="7" value="4" oninput="updateCadencePreview()" />
+                </div>
+                <div class="f-group" style="margin:0;">
+                  <label class="f-label">Cadence automatique</label>
+                  <div id="event-cadence" class="cadence-tags"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inscription sub-fields -->
+            <div id="row-inscription" style="display:none;">
+              <p class="inscription-note">Un seul email percutant sera rédigé pour pousser à l'inscription.</p>
+              <div class="input-row" style="margin-bottom:10px;">
+                <div class="f-group" style="margin:0;">
+                  <label class="f-label">Date de l'événement *</label>
+                  <input type="text" id="event-date" placeholder="Ex : 15 mars 2025" />
+                </div>
+                <div class="f-group" style="margin:0;">
+                  <label class="f-label">Heure *</label>
+                  <input type="text" id="event-heure" placeholder="Ex : 14h00 – 17h00" />
+                </div>
+              </div>
+              <div class="input-row" style="margin-bottom:10px;">
+                <div class="f-group" style="margin:0;">
+                  <label class="f-label">Lieu *</label>
+                  <input type="text" id="event-lieu" placeholder="Ex : Paris 15e / En ligne" />
+                </div>
+                <div class="f-group" style="margin:0;">
+                  <label class="f-label">Contenu / Programme *</label>
+                  <input type="text" id="event-contenu" placeholder="Ex : Visite des locaux, rencontre profs, Q&A" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="f-group" style="margin:0;">
+            <label class="f-label">Contexte optionnel</label>
+            <input type="text" id="email-context" placeholder="Ex : insister sur les parents, J-30 inscriptions…" />
           </div>
         </div>
 
-        <div class="card">
+        <!-- CTA GÉNÉRIQUE -->
+        <div class="card" id="cta-generique">
           <div class="card-title">CTA à inclure (variés entre les emails)</div>
           <div class="cta-grid">
             <button class="cta-btn selected" data-cta="brochure" onclick="toggleCta(this)"><span class="cta-check">✓</span>📄 Brochure</button>
@@ -502,9 +591,20 @@ textarea { min-height:80px; }
           </div>
         </div>
 
+        <!-- CTA CONFIRMATION ÉVÉNEMENT -->
+        <div class="card" id="cta-confirmation" style="display:none;">
+          <div class="card-title">CTA de confirmation</div>
+          <div class="cta-grid">
+            <button class="cta-btn selected" data-cta="confirmer" onclick="toggleCta(this)"><span class="cta-check">✓</span>✅ Confirmer sa présence</button>
+            <button class="cta-btn" data-cta="ajouter-agenda" onclick="toggleCta(this)"><span class="cta-check">✓</span>📅 Ajouter à l'agenda</button>
+            <button class="cta-btn" data-cta="infos-event" onclick="toggleCta(this)"><span class="cta-check">✓</span>ℹ️ Infos pratiques</button>
+            <button class="cta-btn" data-cta="programme-event" onclick="toggleCta(this)"><span class="cta-check">✓</span>📋 Voir le programme</button>
+          </div>
+        </div>
+
         <div class="flex-row">
           <button class="btn btn-sec" onclick="navTo(0)">← Retour</button>
-          <button class="btn btn-primary" onclick="proposeAngles()">🔍 Proposer des angles →</button>
+          <button class="btn btn-primary" id="btn-propose" onclick="proposeAngles()">🔍 Proposer des angles →</button>
         </div>
       </div>
 
@@ -512,7 +612,7 @@ textarea { min-height:80px; }
       <div class="step-panel" id="p-1b">
         <span class="s-tag">Étape 03</span>
         <div class="s-title">Choisir les angles</div>
-        <div class="s-desc" id="angles-desc">L'IA a proposé 10 angles. Coche ceux que tu veux rédiger.</div>
+        <div class="s-desc" id="angles-desc">L'IA a proposé des angles. Coche exactement ceux que tu veux rédiger.</div>
 
         <div id="angles-loading" class="card" style="text-align:center;padding:40px 20px;">
           <div style="font-size:32px;margin-bottom:12px;">⚙️</div>
@@ -809,7 +909,40 @@ const BRANDS = {
 
 const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
 
-const ST = { brand:null, level:null, campaignType:'generique', brief:'', selectedAngles:[], count:5, duration:'3 semaines', context:'', ctas:[], kb:[], emails:[], currentStep:0 };
+const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], kb:[], emails:[], currentStep:0, eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'' };
+
+// ── HELPERS : J-COUNTDOWN ─────────────────────────────────────────────────
+function getJCadence(n) {
+  const MAP = { 1:['J-J'], 2:['J-3','J-J'], 3:['J-5','J-2','J-J'], 4:['J-5','J-3','J-2','J-1'], 5:['J-7','J-5','J-3','J-2','J-1'], 6:['J-14','J-7','J-5','J-3','J-2','J-1'], 7:['J-14','J-10','J-7','J-5','J-3','J-2','J-1'] };
+  if (MAP[n]) return MAP[n];
+  const r = []; for (let i = n; i >= 1; i--) r.push(i === 1 ? 'J-1' : `J-${i * 2}`);
+  return r;
+}
+function getJEmailRole(j) {
+  const roles = { 'J-J':'Jour J — présence confirmée, recap final', 'J-1':'Rappel final — "c\'est demain !"', 'J-2':'Lever les derniers freins / objections', 'J-3':'Programme & détails pratiques', 'J-5':'Entretenir l\'intérêt — "voici ce qui t\'attend"', 'J-7':'Annonce officielle — créer l\'excitation', 'J-10':'Teaser avancé — semer la curiosité', 'J-14':'Teaser mystère — première annonce' };
+  return roles[j] || 'Email de rappel événement';
+}
+function computeGeneriqueTotal() {
+  const freqNum = parseInt(document.getElementById('freq-num').value) || 2;
+  const freqUnit = document.getElementById('freq-unit').value;
+  const durNum = parseInt(document.getElementById('duration-num').value) || 4;
+  const durUnit = document.getElementById('duration-unit').value;
+  if (freqUnit === 'semaine' && durUnit === 'semaines') return freqNum * durNum;
+  if (freqUnit === 'semaine' && durUnit === 'mois') return freqNum * durNum * 4;
+  if (freqUnit === 'mois' && durUnit === 'semaines') return Math.max(1, Math.round(freqNum * durNum / 4));
+  return freqNum * durNum;
+}
+function updateFreqPreview() {
+  const total = computeGeneriqueTotal();
+  const el = document.getElementById('freq-preview');
+  if (el) el.textContent = `= ${total} email${total > 1 ? 's' : ''} au total · ${total * 2} angles proposés pour choisir`;
+}
+function updateCadencePreview() {
+  const n = parseInt(document.getElementById('confirm-count').value) || 4;
+  const cadence = getJCadence(n);
+  const el = document.getElementById('event-cadence');
+  if (el) el.innerHTML = cadence.map(j => `<span class="j-tag">${j}</span>`).join('');
+}
 
 // ========================
 // API KEY MANAGEMENT
@@ -842,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function launchBrand(id) {
-  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = []; ST.campaignType = 'generique'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = [];
+  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = ['brochure','rdv']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = '';
   const b = BRANDS[id];
   document.getElementById('brand-selector').style.display = 'none';
   const app = document.getElementById('app-wrapper');
@@ -913,6 +1046,32 @@ function selectCampaign(type) {
   document.getElementById('btn-generique').classList.toggle('selected', type === 'generique');
   document.getElementById('btn-evenement').classList.toggle('selected', type === 'evenement');
   document.getElementById('sb-type').textContent = type === 'generique' ? 'Générique' : 'Événement';
+  document.getElementById('row-generique').style.display = type === 'generique' ? '' : 'none';
+  document.getElementById('row-evenement').style.display = type === 'evenement' ? '' : 'none';
+  document.getElementById('cta-generique').style.display = type === 'generique' ? '' : 'none';
+  const isConfirm = type === 'evenement' && ST.eventSubType === 'confirmation';
+  document.getElementById('cta-confirmation').style.display = isConfirm ? '' : 'none';
+  const proposeBtn = document.getElementById('btn-propose');
+  if (type === 'generique') proposeBtn.textContent = '🔍 Proposer des angles →';
+  else if (ST.eventSubType === 'confirmation') proposeBtn.textContent = '🔔 Générer la séquence →';
+  else proposeBtn.textContent = '✉️ Rédiger l\'email d\'inscription →';
+  if (type === 'evenement') { updateCadencePreview(); }
+}
+
+function selectEventSubType(subtype) {
+  ST.eventSubType = subtype;
+  document.getElementById('btn-confirmation').classList.toggle('selected', subtype === 'confirmation');
+  document.getElementById('btn-inscription').classList.toggle('selected', subtype === 'inscription');
+  document.getElementById('row-confirmation').style.display = subtype === 'confirmation' ? '' : 'none';
+  document.getElementById('row-inscription').style.display = subtype === 'inscription' ? '' : 'none';
+  document.getElementById('cta-confirmation').style.display = subtype === 'confirmation' ? '' : 'none';
+  const proposeBtn = document.getElementById('btn-propose');
+  proposeBtn.textContent = subtype === 'confirmation' ? '🔔 Générer la séquence →' : '✉️ Rédiger l\'email d\'inscription →';
+  // Reset CTAs for confirmation sub-type
+  if (subtype === 'confirmation') {
+    ST.ctas = ['confirmer'];
+    document.querySelectorAll('#cta-confirmation .cta-btn').forEach(b => { b.classList.remove('selected'); if (b.dataset.cta === 'confirmer') b.classList.add('selected'); });
+  }
 }
 
 function toggleCta(btn) {
@@ -922,7 +1081,7 @@ function toggleCta(btn) {
   if (idx === -1) ST.ctas.push(val); else ST.ctas.splice(idx, 1);
 }
 
-// ── STEP 1 → 1b : proposer 10 angles ──────────────────────────────────────
+// ── STEP 1 → 1b : proposer les angles ─────────────────────────────────────
 async function proposeAngles() {
   if (!getApiKey().startsWith('sk-ant-')) {
     alert('⚠️ Entre ta clé API Anthropic dans le champ de saisie en haut.');
@@ -930,49 +1089,85 @@ async function proposeAngles() {
   }
   ST.brief = document.getElementById('brief-input').value.trim();
   if (!ST.brief) { document.getElementById('brief-input').focus(); return; }
-  ST.duration = `${document.getElementById('duration-num').value} ${document.getElementById('duration-unit').value}`;
   ST.context = document.getElementById('email-context').value.trim();
   document.getElementById('sb-type').textContent = ST.campaignType === 'generique' ? 'Générique' : 'Événement';
 
-  // Show step 1b with loading
+  // ── Cas 1 : GÉNÉRIQUE ──────────────────────────────────────────────
+  if (ST.campaignType === 'generique') {
+    const freqNum = parseInt(document.getElementById('freq-num').value) || 2;
+    const freqUnit = document.getElementById('freq-unit').value;
+    const durNum = parseInt(document.getElementById('duration-num').value) || 4;
+    const durUnit = document.getElementById('duration-unit').value;
+    ST.count = computeGeneriqueTotal();
+    ST.duration = `${durNum} ${durUnit}`;
+    ST.freq = `${freqNum} email${freqNum > 1 ? 's' : ''} par ${freqUnit}`;
+  }
+  // ── Cas 2 : ÉVÉNEMENT INSCRIPTION (email unique) ───────────────────
+  else if (ST.campaignType === 'evenement' && ST.eventSubType === 'inscription') {
+    const date = document.getElementById('event-date').value.trim();
+    const heure = document.getElementById('event-heure').value.trim();
+    const lieu = document.getElementById('event-lieu').value.trim();
+    const contenu = document.getElementById('event-contenu').value.trim();
+    if (!date || !heure || !lieu || !contenu) { alert('⚠️ Remplis tous les champs de l\'événement (date, heure, lieu, contenu).'); return; }
+    ST.eventDate = date; ST.eventHeure = heure; ST.eventLieu = lieu; ST.eventContenu = contenu;
+    ST.count = 1; ST.cadence = ['inscription'];
+    await generateInscriptionEmail();
+    return;
+  }
+  // ── Cas 3 : ÉVÉNEMENT CONFIRMATION (séquence J-countdown) ──────────
+  else {
+    ST.count = parseInt(document.getElementById('confirm-count').value) || 4;
+    ST.cadence = getJCadence(ST.count);
+    ST.duration = '';
+  }
+
+  // Afficher step 1b avec loading
   switchStep(2);
   document.getElementById('angles-loading').style.display = 'block';
   document.getElementById('angles-card').style.display = 'none';
   document.getElementById('angles-footer').style.display = 'none';
 
   const b = BRANDS[ST.brand];
-  const styleRef = EMAIL_EXAMPLES.diploma.slice(0,3).map(e => `Objet : ${e.objet}\nPréheader suggéré : ${e.corps.split('\n')[0].substring(0,80)}`).join('\n---\n');
+  const styleRef = EMAIL_EXAMPLES.diploma.slice(0,3).map(e => `Objet : ${e.objet}\nPréheader : ${e.corps.split('\n')[0].substring(0,80)}`).join('\n---\n');
 
-  const isEvent = ST.campaignType === 'evenement';
+  const isConfirmation = ST.campaignType === 'evenement';
+  let anglesGuidance, anglesCount, tagsList;
 
-  const anglesGuidance = isEvent
-    ? `Ta mission : proposer 10 angles d'emails TOUS centrés sur cet événement, couvrant l'arc narratif complet d'une campagne événementielle.
-Pense à varier : teaser mystère avant l'annonce, annonce officielle, "ce que tu vas y trouver", témoignage d'un ancien participant, levée des objections ("j'ai pas le temps"), urgence places limitées, programme détaillé, portrait d'un intervenant, FAQ événement, dernier rappel J-1…
-Chaque angle doit avoir un lien direct avec l'événement décrit dans le brief.`
-    : `Ta mission : proposer 10 angles d'emails VARIÉS et PERTINENTS pour promouvoir la marque de façon continue.
-Les angles peuvent s'inspirer des emails existants de la marque OU explorer de nouveaux sujets pertinents pour la cible.
+  if (ST.campaignType === 'generique') {
+    anglesCount = ST.count * 2;
+    tagsList = 'témoignage|pédagogique|résultats|erreur|urgence|comparatif|interview|FAQ|profil|autre';
+    anglesGuidance = `Ta mission : proposer ${anglesCount} angles d'emails VARIÉS et PERTINENTS pour promouvoir la marque de façon continue (${ST.freq} pendant ${ST.duration}).
 Pense à varier : témoignage élève, témoignage parent, résultats chiffrés, erreur à éviter, interview fondateur, comparatif prépas, profil d'élève, pédagogique (PASS vs LAS…), FAQ, coulisses de la prépa, urgence places, portrait d'un prof…
-Chaque angle doit apporter une valeur différente et complémentaire dans la séquence.`;
+L'utilisateur choisira ${ST.count} angles parmi les ${anglesCount} proposés — ils doivent donc être vraiment différents et complémentaires.`;
+  } else {
+    // Confirmation : exactement ST.count angles avec J-timing
+    anglesCount = ST.count;
+    tagsList = 'teaser|annonce|programme|témoignage|objection|urgence|rappel|FAQ|autre';
+    const cadenceDesc = ST.cadence.map((j, i) => `- Email ${i+1} (${j}) : ${getJEmailRole(j)}`).join('\n');
+    anglesGuidance = `Ta mission : générer EXACTEMENT ${ST.count} angles de rappels pour cette campagne confirmation d'événement, UN PAR TIMING :
+${cadenceDesc}
+Chaque angle doit être parfaitement adapté à son timing dans la séquence de rappels. Respecte l'arc narratif : éveil → intérêt → objections → urgence.`;
+  }
 
   const prompt = `Tu es stratège en email marketing pour ${b.name}, une prépa médicale en France.
 
-BRIEF DE CAMPAGNE : ${ST.brief}
+BRIEF : ${ST.brief}
 CIBLE : ${LEVEL_LABELS[ST.level]}
-TYPE : ${isEvent ? 'Événementielle (tous les emails doivent tourner autour de l\'événement)' : 'Générique (promouvoir la marque de façon continue)'}
+TYPE : ${isConfirmation ? 'Confirmation événement (séquence de rappels J-countdown)' : `Générique (${ST.freq} pendant ${ST.duration})`}
 ${ST.context ? `CONTEXTE : ${ST.context}` : ''}
 
-EXEMPLES D'OBJETS RÉELS DE LA MARQUE (pour calibrer le style des objets) :
+STYLE DE LA MARQUE (calibrer les objets) :
 ${styleRef}
 
 ${anglesGuidance}
 
 Réponds UNIQUEMENT en JSON valide sans markdown :
 {"angles":[{"id":1,"objet":"...","preheader":"...","angle":"...","tag":"..."}]}
-- "objet" : ligne d'objet email (max 50 caractères, percutant, dans le style de la marque)
-- "preheader" : complète l'objet sans le répéter (max 80 caractères)
-- "angle" : description de l'approche en 1 phrase claire (ex: "Témoignage d'un ancien participant aux PO qui explique ce qu'il y a découvert")
-- "tag" : ${isEvent ? 'type parmi teaser|annonce|programme|témoignage|objection|urgence|intervenant|FAQ|rappel|autre' : 'type parmi témoignage|pédagogique|résultats|erreur|urgence|comparatif|interview|FAQ|profil|autre'}
-Génère exactement 10 angles distincts et complémentaires.`;
+- "objet" : max 50 caractères, percutant, dans le style de la marque
+- "preheader" : max 80 caractères, complète l'objet sans le répéter
+- "angle" : approche en 1 phrase claire
+- "tag" : type parmi ${tagsList}
+Génère exactement ${anglesCount} angles distincts.`;
 
   try {
     const r = await fetch(API, {
@@ -995,28 +1190,40 @@ function renderAngles(angles) {
   document.getElementById('angles-loading').style.display = 'none';
   document.getElementById('angles-card').style.display = 'block';
   document.getElementById('angles-footer').style.display = 'flex';
-  ST.selectedAngles = [];
+
+  const isConfirmation = ST.campaignType === 'evenement';
+
+  if (isConfirmation) {
+    // Pré-sélectionner tous les angles pour la séquence confirmation
+    ST.selectedAngles = angles.map(a => a.id);
+    document.getElementById('angles-desc').innerHTML = `<strong>${angles.length} emails</strong> générés suivant la cadence ${ST.cadence.join(' → ')}. Tous pré-sélectionnés — tu peux en décocher.`;
+  } else {
+    ST.selectedAngles = [];
+    document.getElementById('angles-desc').innerHTML = `L'IA a proposé <strong>${angles.length} angles</strong>. Coche-en <strong>${ST.count}</strong> pour lancer la rédaction.`;
+  }
 
   const TAG_COLORS = {
-    // Générique
     témoignage:'#8b5cf6', pédagogique:'#3b82f6', résultats:'#10b981',
     erreur:'#ef4444', urgence:'#f59e0b', comparatif:'#06b6d4',
     interview:'#ec4899', FAQ:'#6366f1', profil:'#84cc16', autre:'#6b7280',
-    // Événement
     teaser:'#a855f7', annonce:'#3b82f6', programme:'#10b981',
     objection:'#ef4444', intervenant:'#ec4899', rappel:'#f59e0b'
   };
 
-  document.getElementById('angles-list').innerHTML = angles.map(a => `
-    <div class="angle-card" id="angle-${a.id}" onclick="toggleAngle(${a.id})">
+  document.getElementById('angles-list').innerHTML = angles.map((a, i) => {
+    const jBadge = isConfirmation && ST.cadence[i] ? `<span class="j-timing-tag">${ST.cadence[i]}</span>` : '';
+    const isSelected = isConfirmation;
+    return `
+    <div class="angle-card${isSelected ? ' selected' : ''}" id="angle-${a.id}" onclick="toggleAngle(${a.id})">
       <div class="angle-check">✓</div>
       <div class="angle-body">
+        ${jBadge}
         <span class="angle-tag" style="border-color:${TAG_COLORS[a.tag]||'#6b7280'};color:${TAG_COLORS[a.tag]||'#6b7280'};">${a.tag}</span>
         <div class="angle-subject">${a.objet}</div>
         <div class="angle-preview">${a.preheader} — <em>${a.angle}</em></div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   updateAngleCounter();
 }
@@ -1031,10 +1238,103 @@ function toggleAngle(id) {
 
 function updateAngleCounter() {
   const n = ST.selectedAngles.length;
-  document.getElementById('sel-count-label').textContent = `${n} sélectionné(s)`;
+  const target = ST.count || 5;
+  const label = document.getElementById('sel-count-label');
+  label.textContent = `${n} / ${target} sélectionné(s)`;
+  label.style.color = n === target ? 'var(--accent)' : n > target ? '#f59e0b' : 'var(--text-dim)';
   const btn = document.getElementById('btn-rediger');
   btn.disabled = n === 0;
   btn.textContent = n > 0 ? `✨ Rédiger ${n} email${n>1?'s':''} →` : '✨ Rédiger les emails →';
+}
+
+// ── EMAIL INSCRIPTION UNIQUE ─────────────────────────────────────────────────
+async function generateInscriptionEmail() {
+  ST.count = 1;
+  document.getElementById('sb-count').textContent = '1 email';
+  switchStep(3);
+
+  const log = document.getElementById('gen-log');
+  const status = document.getElementById('gen-status');
+  const steps = ['🎯 Analyse de l\'événement…','📚 Chargement de la base de style…','✍️ Rédaction de l\'email d\'inscription…','🎨 Adaptation au ton de la marque…','📋 Mise en forme HubSpot…'];
+
+  log.textContent = '';
+  for (let i = 0; i < steps.length - 1; i++) {
+    log.textContent += `✓ ${steps[i]}\n`;
+    status.textContent = steps[i];
+    await sleep(350);
+  }
+
+  const b = BRANDS[ST.brand];
+  const styleExamples = EMAIL_EXAMPLES.diploma.slice(0,3).map(e => `--- EXEMPLE ---\nObjet : ${e.objet}\n${e.corps}`).join('\n\n');
+  const kbText = ST.kb.length > 0 ? `\nDONNÉES ADDITIONNELLES :\n${ST.kb.map(e => '• ' + e).join('\n')}\n` : '';
+
+  const prompt = `Tu es un expert en email marketing pour ${b.name}, une prépa médicale en France.
+
+STYLE DE RÉFÉRENCE ABSOLU (imite exactement) :
+${styleExamples}
+
+RÈGLES DE STYLE IMPÉRATIVES :
+- Phrases courtes, paragraphes aérés, beaucoup de sauts de ligne
+- Ton rassurant, humain, jamais agressif ni commercial
+- CTA clair et unique : un bouton d'inscription bien visible
+- Créer de l'envie et de l'urgence sans être agressif
+
+MARQUE : ${b.name}
+CONTEXTE : ${b.context}
+TON : ${b.tone}
+CIBLE : ${LEVEL_LABELS[ST.level]}
+
+EMAIL D'INSCRIPTION À UN ÉVÉNEMENT :
+- Date : ${ST.eventDate}
+- Heure : ${ST.eventHeure}
+- Lieu : ${ST.eventLieu}
+- Programme / Contenu : ${ST.eventContenu}
+
+BRIEF COMPLÉMENTAIRE : ${ST.brief}
+${ST.context ? `CONTEXTE : ${ST.context}` : ''}
+${kbText}
+
+Rédige UN email percutant pour pousser les prospects à s'inscrire à cet événement.
+L'email doit donner envie de venir, présenter les infos clés et avoir un CTA fort vers l'inscription.
+
+RÈGLES TECHNIQUES :
+- Objet : max 50 caractères, percutant
+- Préheader : max 80 caractères
+- Corps : 200 à 280 mots, aéré, lisible
+- "hubspot" : HTML léger uniquement <strong><em><a href="#"><br><p> — JAMAIS <html><head><body>
+- Signature : "${b.sign}"
+
+Réponds UNIQUEMENT en JSON valide sans markdown :
+{"emails":[{"num":1,"objet":"...","preheader":"...","cta":"S'inscrire à l'événement","angle":"Email d'inscription","corps":"...","hubspot":"..."}]}`;
+
+  try {
+    log.textContent += `✓ ${steps[steps.length-1]}\n`;
+    status.textContent = 'Appel API Claude…';
+
+    const r = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'x-api-key':getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+      body: JSON.stringify({ model:MODEL, max_tokens:3000, messages:[{role:'user',content:prompt}] })
+    });
+
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+
+    let raw = d.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    ST.emails = parsed.emails;
+
+    log.textContent += `✅ Email d'inscription généré !\n`;
+    status.textContent = '✅ Terminé !';
+    await sleep(400);
+    renderEmails();
+    advance(4);
+
+  } catch (err) {
+    log.textContent += `❌ Erreur : ${err.message}\n`;
+    status.textContent = 'Erreur';
+    console.error(err);
+  }
 }
 
 // ── STEP 1b → 2 : rédiger les emails sélectionnés ──────────────────────────
@@ -1057,14 +1357,27 @@ async function startGeneration() {
     await sleep(350);
   }
 
-  const ctaLabels = { brochure:'télécharger la brochure', rdv:'prendre rendez-vous avec un conseiller', 'portes-ouvertes':"s'inscrire aux portes ouvertes", candidature:'déposer sa candidature', webinaire:'rejoindre un webinaire', essai:'essayer un cours gratuit' };
-  const ctaText = ST.ctas.length > 0 ? ST.ctas.map(c => ctaLabels[c]).join(', ') : 'télécharger la brochure, prendre rendez-vous';
+  const isConfirmation = ST.campaignType === 'evenement';
+  const ctaLabels = {
+    brochure:'télécharger la brochure', rdv:'prendre rendez-vous avec un conseiller',
+    'portes-ouvertes':"s'inscrire aux portes ouvertes", candidature:'déposer sa candidature',
+    webinaire:'rejoindre un webinaire', essai:'essayer un cours gratuit',
+    confirmer:'confirmer sa présence à l\'événement', 'ajouter-agenda':'ajouter à son agenda',
+    'infos-event':'consulter les infos pratiques', 'programme-event':'voir le programme de l\'événement'
+  };
+  const ctaText = ST.ctas.length > 0 ? ST.ctas.map(c => ctaLabels[c] || c).join(', ') : (isConfirmation ? 'confirmer sa présence' : 'télécharger la brochure, prendre rendez-vous');
   const kbText = ST.kb.length > 0 ? `\nDONNÉES À INTÉGRER :\n${ST.kb.map(e => '• ' + e).join('\n')}\n` : '';
   const b = BRANDS[ST.brand];
 
-  const anglesBlock = selectedData.map((a,i) => `EMAIL ${i+1} — Angle : ${a.angle}\nObjet proposé : ${a.objet}\nPréheader proposé : ${a.preheader}`).join('\n\n');
+  // Construire le bloc d'angles avec J-timing pour confirmation
+  const anglesBlock = selectedData.map((a, i) => {
+    const jInfo = isConfirmation && ST.cadence[i] ? `\nTiming : ${ST.cadence[i]} — ${getJEmailRole(ST.cadence[i])}` : '';
+    return `EMAIL ${i+1}${jInfo}\nAngle : ${a.angle}\nObjet proposé : ${a.objet}\nPréheader proposé : ${a.preheader}`;
+  }).join('\n\n');
 
   const styleExamples = EMAIL_EXAMPLES.diploma.slice(0,3).map(e => `--- EXEMPLE ---\nObjet : ${e.objet}\n${e.corps}`).join('\n\n');
+
+  const timingNote = isConfirmation ? `\nCHAQUE EMAIL doit refléter son timing dans la séquence de rappels : l'urgence croît vers le dernier email.\n` : '';
 
   const prompt = `Tu es un expert en email marketing pour ${b.name}, une prépa médicale en France.
 
@@ -1083,11 +1396,12 @@ MARQUE : ${b.name}
 CONTEXTE : ${b.context}
 TON : ${b.tone}
 CIBLE : ${LEVEL_LABELS[ST.level]} (peut être étudiant OU parent — adapte)
-BRIEF DE CAMPAGNE : ${ST.brief}
-DURÉE : ${ST.duration}
+BRIEF : ${ST.brief}
+${ST.duration ? `DURÉE : ${ST.duration}` : ''}
+${ST.freq ? `FRÉQUENCE : ${ST.freq}` : ''}
 CTA DISPONIBLES : ${ctaText}
 ${ST.context ? `CONTEXTE ADDITIONNEL : ${ST.context}` : ''}
-${kbText}
+${kbText}${timingNote}
 
 EMAILS À RÉDIGER (${selectedData.length} emails, dans cet ordre précis) :
 ${anglesBlock}
@@ -1095,7 +1409,7 @@ ${anglesBlock}
 RÈGLES TECHNIQUES :
 - Objet : max 50 caractères
 - Préheader : max 80 caractères (complète l'objet)
-- Corps : 120 à 200 mots, aéré, lisible
+- Corps : 200 à 250 mots, aéré, lisible — ni plus ni moins
 - "hubspot" : HTML léger uniquement <strong><em><a href="#"><br><p> — JAMAIS <html><head><body>
 - Signature : "${b.sign}"
 
@@ -1210,19 +1524,27 @@ function exportHubspot() {
 }
 
 function newSequence() {
-  ST.emails=[]; ST.ctas=[]; ST.campaignType='generique'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[];
+  ST.emails=[]; ST.ctas=['brochure','rdv']; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu='';
   const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
-  document.getElementById('email-count').value='5';
+  document.getElementById('freq-num').value='2';
+  document.getElementById('duration-num').value='4';
   document.querySelectorAll('.cta-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('#cta-generique .cta-btn[data-cta="brochure"], #cta-generique .cta-btn[data-cta="rdv"]').forEach(b=>b.classList.add('selected'));
   document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('btn-generique').classList.add('selected');
   document.getElementById('btn-evenement').classList.remove('selected');
+  document.getElementById('row-generique').style.display='';
+  document.getElementById('row-evenement').style.display='none';
+  document.getElementById('cta-generique').style.display='';
+  document.getElementById('cta-confirmation').style.display='none';
+  document.getElementById('btn-propose').textContent='🔍 Proposer des angles →';
   document.getElementById('sb-type').textContent='—';
   document.getElementById('sb-count').textContent='—';
   document.getElementById('sb-level').textContent='—';
   document.getElementById('results-sidebar').style.display='none';
   document.getElementById('btn-step0-next').disabled=true;
+  updateFreqPreview();
   ST.currentStep=-1; switchStep(0);
 }
 
@@ -1232,12 +1554,14 @@ function escHtml(str) { if(!str) return ''; return str.replace(/&/g,'&amp;').rep
 function resetUI() {
   document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('selected'));
   document.querySelectorAll('.cta-btn').forEach(b=>b.classList.remove('selected'));
+  document.querySelectorAll('#cta-generique .cta-btn[data-cta="brochure"], #cta-generique .cta-btn[data-cta="rdv"]').forEach(b=>b.classList.add('selected'));
   document.getElementById('kb-input').value='';
   document.getElementById('kb-list').innerHTML='';
   document.getElementById('kb-count-label').textContent='0 entrée(s)';
   const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
-  document.getElementById('email-count').value='5';
+  document.getElementById('freq-num').value='2';
+  document.getElementById('duration-num').value='4';
   document.getElementById('emails-list').innerHTML='';
   document.getElementById('sb-level').textContent='—';
   document.getElementById('sb-type').textContent='—';
@@ -1246,6 +1570,12 @@ function resetUI() {
   document.getElementById('results-sidebar').style.display='none';
   document.getElementById('btn-generique').classList.add('selected');
   document.getElementById('btn-evenement').classList.remove('selected');
+  document.getElementById('row-generique').style.display='';
+  document.getElementById('row-evenement').style.display='none';
+  document.getElementById('cta-generique').style.display='';
+  document.getElementById('cta-confirmation').style.display='none';
+  document.getElementById('btn-propose').textContent='🔍 Proposer des angles →';
+  updateFreqPreview();
 }
 </script>
 </body>
