@@ -287,6 +287,21 @@ textarea { min-height:80px; }
 .theme-edumove .wf-step.active { background:var(--surface2);color:var(--accent); }
 .wf-step.done { color:var(--text-dim); }
 
+/* EMAIL VALIDATOR */
+.email-progress-dots { display:flex;gap:8px;align-items:center;margin-bottom:20px;flex-wrap:wrap; }
+.email-dot { width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--surface2);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.2s;color:var(--text-muted); }
+.email-dot.current { border-color:var(--accent);color:var(--accent);background:var(--surface); }
+.email-dot.validated { background:var(--accent);border-color:var(--accent);color:#fff; }
+.current-email-meta { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:14px; }
+.current-email-subject { font-size:15px;font-weight:700;margin-bottom:4px;line-height:1.3; }
+.theme-diploma .current-email-subject { font-family:'Playfair Display',serif; }
+.current-email-preheader { font-size:12px;color:var(--text-dim); }
+.email-iframe-wrap { border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px;background:#f5f5f5; }
+.email-iframe-wrap iframe { width:100%;border:none;min-height:550px;display:block; }
+.modif-card textarea { min-height:72px;resize:vertical; }
+.modif-status { font-size:12px;color:var(--text-dim);margin-top:6px; }
+.validator-nav { display:flex;gap:10px;align-items:center;margin-top:20px;flex-wrap:wrap; }
+
 /* EMAIL ITEMS */
 .email-item { border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color 0.2s; }
 .email-item:hover { border-color:var(--accent); }
@@ -654,22 +669,68 @@ textarea { min-height:80px; }
         </div>
       </div>
 
-      <!-- STEP 3: EMAILS -->
+      <!-- STEP 3: VALIDATION EMAIL PAR EMAIL -->
       <div class="step-panel" id="p-3">
-        <span class="s-tag">Étape 04</span>
-        <div class="s-title">Ta séquence email</div>
-        <div class="s-desc">Clique sur un email pour voir son contenu. Bascule entre texte brut et code HubSpot.</div>
+        <span class="s-tag">Étape 05</span>
+        <div class="s-title" id="validator-title">Valider les emails</div>
+        <div class="s-desc">Vérifie chaque email, demande des modifications si besoin, puis exporte.</div>
         <div class="summary-bar" id="summary-bar">
           <div class="summary-item"><span class="summary-key">Marque</span><span class="summary-val" id="sum-brand">—</span></div>
           <div class="summary-item"><span class="summary-key">Cible</span><span class="summary-val" id="sum-level">—</span></div>
           <div class="summary-item"><span class="summary-key">Sujet</span><span class="summary-val" id="sum-subject" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">—</span></div>
           <div class="summary-item"><span class="summary-key">Emails</span><span class="summary-val" id="sum-count">—</span></div>
         </div>
-        <div id="emails-list"></div>
-        <div class="flex-row">
-          <button class="btn btn-sec" onclick="navTo(1)">← Régénérer</button>
-          <button class="btn btn-primary" onclick="advance(5)">Exporter →</button>
+
+        <!-- Dots de progression -->
+        <div class="email-progress-dots" id="email-progress-dots"></div>
+
+        <!-- Méta de l'email courant -->
+        <div class="current-email-meta" id="current-email-meta" style="display:none;">
+          <div class="current-email-subject" id="current-email-subject"></div>
+          <div class="current-email-preheader" id="current-email-preheader"></div>
         </div>
+
+        <!-- Tabs aperçu / HTML / texte -->
+        <div class="email-tabs" id="validator-tabs" style="margin-bottom:12px;">
+          <button class="email-tab-btn active" id="vtab-preview" onclick="switchValidatorTab('preview')">👁️ Aperçu</button>
+          <button class="email-tab-btn" id="vtab-html" onclick="switchValidatorTab('html')">🟠 HTML HubSpot</button>
+          <button class="email-tab-btn" id="vtab-text" onclick="switchValidatorTab('text')">📝 Texte brut</button>
+        </div>
+
+        <!-- Iframe preview -->
+        <div class="email-iframe-wrap" id="preview-wrap">
+          <iframe id="email-preview-iframe" sandbox="allow-same-origin" style="width:100%;border:none;min-height:550px;display:block;"></iframe>
+        </div>
+
+        <!-- Vue HTML -->
+        <div id="validator-html-view" style="display:none;" class="card">
+          <pre id="validator-html-content" style="font-size:11px;line-height:1.6;overflow:auto;max-height:400px;white-space:pre-wrap;word-break:break-all;margin:0 0 12px;"></pre>
+          <button class="copy-btn" onclick="copyCurrentEmailHtml()">📋 Copier HTML</button>
+        </div>
+
+        <!-- Vue texte brut -->
+        <div id="validator-text-view" style="display:none;" class="card">
+          <div id="validator-text-content" class="email-content" style="margin-bottom:12px;"></div>
+          <button class="copy-btn" onclick="copyCurrentEmailText()">📋 Copier texte</button>
+        </div>
+
+        <!-- Section modification -->
+        <div class="card modif-card" id="modif-section" style="margin-top:16px;">
+          <div class="card-title">💬 Demander une modification</div>
+          <textarea id="modif-input" placeholder="Ex : rendre le ton plus urgent, reformuler le titre, changer le CTA, ajouter un point sur les résultats…"></textarea>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap;">
+            <button class="btn btn-sec" id="btn-modif" onclick="applyEmailModification()">🔄 Appliquer</button>
+            <span id="modif-status" class="modif-status"></span>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="validator-nav">
+          <button class="btn btn-sec" id="btn-prev-email" onclick="prevEmail()" disabled>← Précédent</button>
+          <button class="btn btn-primary" id="btn-next-email" onclick="nextEmail()">Suivant →</button>
+          <button class="btn btn-primary" id="btn-to-export" onclick="advance(5)" style="display:none;">📦 Exporter →</button>
+        </div>
+        <div id="emails-list" style="display:none;"></div>
       </div>
 
       <!-- STEP 4: EXPORT -->
@@ -916,7 +977,7 @@ const BRANDS = {
 
 const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
 
-const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], kb:[], emails:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'' };
+const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], kb:[], emails:[], emailValidated:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'' };
 
 // ── HELPERS : J-COUNTDOWN ─────────────────────────────────────────────────
 function getJCadence(n) {
@@ -1344,9 +1405,8 @@ L'email doit donner envie de venir, présenter les infos clés et avoir un CTA f
 RÈGLES TECHNIQUES :
 - Objet : max 50 caractères, percutant
 - Préheader : max 80 caractères
-- Corps : 200 à 280 mots, aéré, lisible
-- "hubspot" : HTML léger uniquement <strong><em><a href="#"><br><p> — JAMAIS <html><head><body>
-- Signature : "${b.sign}"
+- Corps : 200 à 280 mots (texte brut)
+${ST.brand === 'diploma' ? `- "hubspot" : HTML COMPLET suivant la structure template Diploma Santé (hero navy #1C2436, body blanc, CTA final navy, couleur or #C2AB82, logo en haut). URL inscription dans tous les CTAs.` : `- "hubspot" : HTML léger <strong><em><a href="#"><br><p>. Signature : "${b.sign}"`}
 
 Réponds UNIQUEMENT en JSON valide sans markdown :
 {"emails":[{"num":1,"objet":"...","preheader":"...","cta":"S'inscrire à l'événement","angle":"Email d'inscription","corps":"...","hubspot":"..."}]}`;
@@ -1462,9 +1522,44 @@ ${anglesBlock}
 RÈGLES TECHNIQUES :
 - Objet : max 50 caractères
 - Préheader : max 80 caractères (complète l'objet)
-- Corps : 200 à 250 mots, aéré, lisible — ni plus ni moins
-- "hubspot" : HTML léger uniquement <strong><em><a href="#"><br><p> — JAMAIS <html><head><body>
-- Signature : "${b.sign}"
+- Corps : 200 à 250 mots, aéré, lisible (champ texte brut)
+${ST.brand === 'diploma' ? `- "hubspot" : génère le HTML COMPLET en suivant EXACTEMENT cette structure de template Diploma Santé :
+
+<style type="text/css">@media only screen and (max-width:600px){.email-container{width:100%!important}.hero{padding:20px 24px 36px!important}.hero-title{font-size:18px!important}.body-section{padding:28px 20px 44px!important}.cta-section{padding:36px 20px!important}}</style>
+<div style="text-align:center;padding:28px 0 20px;background-color:#FFFFFF;"><img src="https://26711031.fs1.hubspotusercontent-eu1.net/hubfs/26711031/logo-diploma-bleu.png" alt="Diploma Santé" width="260" style="display:block;margin:0 auto;width:260px;"></div>
+<table class="email-container" width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;max-width:640px;margin:0 auto;">
+  <tr><td><div class="hero" style="background-color:#1C2436;padding:20px 32px 36px;text-align:center;" bgcolor="#1C2436" align="center">
+    <h1 class="hero-title" style="font-family:'DM Serif Display',Georgia,serif;font-size:28px;line-height:1.15;color:#FFFFFF;margin-bottom:20px;">[TITRE HERO — peut contenir <em style="font-style:italic;color:#C2AB82;">texte doré en italique</em>]</h1>
+    <p style="font-size:16px;line-height:1.65;color:rgba(255,255,255,0.72);max-width:440px;margin:0 auto;">[SOUS-TITRE HERO]</p>
+    <div style="width:48px;height:2px;background:linear-gradient(90deg,#C2AB82,transparent);margin:28px auto 0;"></div>
+  </div></td></tr>
+  <tr><td><div class="body-section" style="background-color:#FFFFFF;padding:28px 20px 44px;" bgcolor="#FFFFFF">
+    <p style="font-size:18px;line-height:1.8;color:#3D4B5C;margin-bottom:28px;text-align:justify;">[PARAGRAPHE INTRO]</p>
+    <p style="font-size:16px;line-height:1.8;color:#3D4B5C;margin-bottom:36px;text-align:justify;">[PARAGRAPHE 2]</p>
+    <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;color:#1C2436;margin-bottom:16px;padding-bottom:14px;border-bottom:1.5px solid #EAE8E3;">[TITRE SECTION 1]</h2>
+    <p style="font-size:16px;line-height:1.8;color:#3D4B5C;margin-bottom:36px;text-align:justify;">[CONTENU SECTION 1]</p>
+    <div style="background-color:#F5F2EC;border-left:4px solid #C2AB82;border-radius:0 12px 12px 0;padding:24px 28px;margin-bottom:40px;">
+      <p style="font-family:'DM Serif Display',Georgia,serif;font-size:18px;color:#1C2436;margin-bottom:10px;">[TITRE CTA INTERMÉDIAIRE]</p>
+      <p style="font-size:16px;color:#5A6475;line-height:1.65;margin-bottom:18px;">[DESC CTA INTERMÉDIAIRE]</p>
+      <a href="[URL_CTA]" style="display:inline-block;background-color:#1C2436;color:#C2AB82 !important;font-family:'DM Sans',Arial,sans-serif;font-size:15px;font-weight:700;padding:13px 28px;border-radius:100px;text-decoration:none;">[LABEL BOUTON] →</a>
+    </div>
+    <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:22px;color:#1C2436;margin-bottom:16px;padding-bottom:14px;border-bottom:1.5px solid #EAE8E3;">[TITRE SECTION 2]</h2>
+    <p style="font-size:16px;line-height:1.8;color:#3D4B5C;margin-bottom:12px;">[INTRO LISTE]</p>
+    <ul style="margin:0 0 40px 0;padding:0 0 0 8px;list-style:none;">
+      <li style="font-size:16px;line-height:1.7;color:#3D4B5C;margin-bottom:10px;"><span style="color:#C2AB82;font-size:18px;display:inline-block;width:18px;vertical-align:top;margin-top:-2px;">•</span>[ITEM 1]</li>
+      <li style="font-size:16px;line-height:1.7;color:#3D4B5C;margin-bottom:10px;"><span style="color:#C2AB82;font-size:18px;display:inline-block;width:18px;vertical-align:top;margin-top:-2px;">•</span>[ITEM 2]</li>
+      <li style="font-size:16px;line-height:1.7;color:#3D4B5C;margin-bottom:10px;"><span style="color:#C2AB82;font-size:18px;display:inline-block;width:18px;vertical-align:top;margin-top:-2px;">•</span>[ITEM 3]</li>
+    </ul>
+  </div></td></tr>
+  <tr><td><div class="cta-section" style="background:#1C2436;padding:44px 20px;text-align:center;" bgcolor="#1C2436" align="center">
+    <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:26px;color:#FFFFFF;margin-bottom:14px;line-height:1.3;">[TITRE CTA FINAL]</h2>
+    <p style="font-size:16px;line-height:1.75;color:rgba(255,255,255,0.7);margin-bottom:28px;max-width:420px;margin-left:auto;margin-right:auto;">[DESC CTA FINAL]</p>
+    <a href="[URL_CTA]" style="display:inline-block;background-color:#C2AB82;color:#1C2436 !important;font-family:'DM Sans',Arial,sans-serif;font-size:15px;font-weight:700;padding:16px 36px;border-radius:100px;text-decoration:none;">[LABEL BOUTON FINAL] →</a>
+    <p style="margin-top:16px;font-size:12px;color:rgba(255,255,255,0.4);">Gratuit · Sans engagement · 30 minutes</p>
+  </div></td></tr>
+</table>
+
+Remplace TOUS les placeholders [XXX] par le vrai contenu de l'email. Adapte le nombre de sections/bullets selon le contenu. URL CTA = https://calendly.com/admissions-diploma-sante/reunion-de-30min-avec-diploma-sante` : `- "hubspot" : HTML léger <strong><em><a href="#"><br><p> — JAMAIS <html><head><body>. Signature : "${b.sign}"`}
 
 Réponds UNIQUEMENT en JSON valide sans markdown :
 {"emails":[{"num":1,"objet":"...","preheader":"...","cta":"...","angle":"...","corps":"...","hubspot":"..."}]}
@@ -1500,41 +1595,152 @@ Génère exactement ${selectedData.length} emails dans l'ordre des angles fourni
   }
 }
 
+// ── EMAIL VALIDATOR ──────────────────────────────────────────────────────────
+let _validatorIdx = 0;
+let _validatorTab = 'preview';
+
 function renderEmails() {
   document.getElementById('sum-brand').textContent = BRANDS[ST.brand].name;
   document.getElementById('sum-level').textContent = LEVEL_LABELS[ST.level];
   document.getElementById('sum-subject').textContent = ST.brief.substring(0,60) + (ST.brief.length > 60 ? '…' : '');
-  document.getElementById('sum-count').textContent = `${ST.emails.length} emails`;
+  document.getElementById('sum-count').textContent = `${ST.emails.length} email${ST.emails.length > 1 ? 's' : ''}`;
   document.getElementById('export-subject-ref').textContent = ST.brief.substring(0,50);
   document.getElementById('sb-email-count').textContent = ST.emails.length;
   document.getElementById('results-sidebar').style.display = 'block';
+  if (!ST.emailValidated || ST.emailValidated.length !== ST.emails.length) ST.emailValidated = new Array(ST.emails.length).fill(false);
+  _validatorIdx = 0;
+  _validatorTab = 'preview';
+  renderProgressDots();
+  showEmailAtIndex(0);
+}
 
-  document.getElementById('emails-list').innerHTML = ST.emails.map((email, i) => `
-    <div class="email-item" id="email-item-${i}">
-      <div class="email-header" onclick="toggleEmail(${i})">
-        <div class="email-num">E${String(email.num).padStart(2,'0')}</div>
-        <div style="flex:1;min-width:0;">
-          <div class="email-subject">${email.objet}</div>
-          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">${email.angle||''}</div>
-        </div>
-        <div class="badge b-blue" style="flex-shrink:0;">${email.cta}</div>
-        <div class="email-toggle">▼</div>
-      </div>
-      <div class="email-body">
-        <div class="email-tabs">
-          <button class="email-tab-btn active" id="tab-text-${i}" onclick="switchEmailTab(${i},'text',event)">Texte brut</button>
-          <button class="email-tab-btn" id="tab-hubspot-${i}" onclick="switchEmailTab(${i},'hubspot',event)">HubSpot HTML</button>
-        </div>
-        <div class="email-preheader"><strong>Préheader :</strong> ${email.preheader||'—'}</div>
-        <div class="email-content" id="email-text-${i}">${email.corps}</div>
-        <div class="email-hubspot" id="email-hubspot-${i}">${escHtml(email.hubspot)}</div>
-        <div>
-          <button class="copy-btn" id="copy-text-${i}" onclick="copyEmail(${i},'text')">📋 Copier texte</button>
-          <button class="copy-btn" id="copy-hubspot-${i}" onclick="copyEmail(${i},'hubspot')">🟠 Copier HubSpot</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
+function renderProgressDots() {
+  const dots = document.getElementById('email-progress-dots');
+  if (!dots) return;
+  const validated = (ST.emailValidated || []).filter(Boolean).length;
+  dots.innerHTML = ST.emails.map((e, i) => {
+    const cls = ST.emailValidated && ST.emailValidated[i] ? 'validated' : (i === _validatorIdx ? 'current' : '');
+    return `<div class="email-dot ${cls}" onclick="showEmailAtIndex(${i})" title="${e.objet}">${i+1}</div>`;
+  }).join('') + `<span style="font-size:12px;color:var(--text-dim);margin-left:6px;">${validated}/${ST.emails.length} relu${validated > 1 ? 's' : ''}</span>`;
+}
+
+function showEmailAtIndex(i) {
+  _validatorIdx = i;
+  const email = ST.emails[i];
+  const total = ST.emails.length;
+  document.getElementById('validator-title').textContent = `Email ${i+1} / ${total}`;
+  document.getElementById('current-email-meta').style.display = 'block';
+  document.getElementById('current-email-subject').textContent = email.objet;
+  document.getElementById('current-email-preheader').textContent = email.preheader ? `Préheader : ${email.preheader}` : '';
+
+  // Iframe preview
+  const html = email.hubspot || `<div style="padding:20px;font-family:sans-serif;white-space:pre-wrap;">${email.corps}</div>`;
+  const iframeDoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;padding:20px 0;background:#f0f0f0;}</style></head><body>${html}</body></html>`;
+  const iframe = document.getElementById('email-preview-iframe');
+  iframe.srcdoc = iframeDoc;
+
+  // HTML + text views
+  document.getElementById('validator-html-content').textContent = email.hubspot || '';
+  document.getElementById('validator-text-content').innerHTML = (email.corps || '').replace(/\n/g,'<br>');
+
+  // Reset modif
+  document.getElementById('modif-input').value = '';
+  document.getElementById('modif-status').textContent = '';
+  const modifBtn = document.getElementById('btn-modif');
+  modifBtn.disabled = false; modifBtn.textContent = '🔄 Appliquer';
+
+  // Nav buttons
+  document.getElementById('btn-prev-email').disabled = i === 0;
+  const isLast = i === total - 1;
+  document.getElementById('btn-next-email').style.display = isLast ? 'none' : '';
+  document.getElementById('btn-to-export').style.display = isLast ? '' : 'none';
+
+  // Switch to preview tab
+  switchValidatorTab(_validatorTab);
+  renderProgressDots();
+}
+
+function switchValidatorTab(tab) {
+  _validatorTab = tab;
+  document.getElementById('preview-wrap').style.display = tab === 'preview' ? '' : 'none';
+  document.getElementById('validator-html-view').style.display = tab === 'html' ? '' : 'none';
+  document.getElementById('validator-text-view').style.display = tab === 'text' ? '' : 'none';
+  ['preview','html','text'].forEach(t => {
+    const el = document.getElementById(`vtab-${t}`);
+    if (el) el.classList.toggle('active', t === tab);
+  });
+}
+
+function prevEmail() { if (_validatorIdx > 0) showEmailAtIndex(_validatorIdx - 1); }
+function nextEmail() {
+  // Mark current as read when moving forward
+  if (ST.emailValidated) ST.emailValidated[_validatorIdx] = true;
+  if (_validatorIdx < ST.emails.length - 1) showEmailAtIndex(_validatorIdx + 1);
+}
+
+function copyCurrentEmailHtml() {
+  const html = ST.emails[_validatorIdx]?.hubspot || '';
+  navigator.clipboard.writeText(html).then(() => {
+    const btn = document.querySelector('#validator-html-view .copy-btn');
+    if (!btn) return;
+    const orig = btn.textContent; btn.textContent='✓ Copié !'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent=orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyCurrentEmailText() {
+  const text = ST.emails[_validatorIdx]?.corps || '';
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('#validator-text-view .copy-btn');
+    if (!btn) return;
+    const orig = btn.textContent; btn.textContent='✓ Copié !'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent=orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+async function applyEmailModification() {
+  const modif = document.getElementById('modif-input').value.trim();
+  if (!modif) return;
+  const btn = document.getElementById('btn-modif');
+  const status = document.getElementById('modif-status');
+  btn.disabled = true; btn.textContent = '⏳ Modification…';
+  status.textContent = '';
+  const email = ST.emails[_validatorIdx];
+  const b = BRANDS[ST.brand];
+  const templateNote = ST.brand === 'diploma' ? `\nConserve la structure HTML Diploma Santé complète (hero navy #1C2436, body blanc, CTA final navy, logo en haut, couleur or #C2AB82).` : '';
+  const prompt = `Tu es expert email marketing pour ${b.name}.
+Modifie l'email ci-dessous selon les instructions données.
+
+OBJET ACTUEL : ${email.objet}
+PRÉHEADER : ${email.preheader}
+CORPS ACTUEL :
+${email.corps}
+
+HTML ACTUEL :
+${email.hubspot}
+
+INSTRUCTIONS : ${modif}
+${templateNote}
+
+Réponds UNIQUEMENT en JSON valide sans markdown :
+{"objet":"...","preheader":"...","corps":"...","hubspot":"..."}`;
+
+  try {
+    const r = await fetch(API, { method:'POST', headers:{'Content-Type':'application/json','x-api-key':getApiKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'}, body:JSON.stringify({model:MODEL, max_tokens:6000, messages:[{role:'user',content:prompt}]}) });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    let raw = d.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const updated = JSON.parse(raw);
+    ST.emails[_validatorIdx] = { ...email, ...updated };
+    ST.emailValidated[_validatorIdx] = false;
+    status.textContent = '✅ Modification appliquée !';
+    btn.disabled = false; btn.textContent = '🔄 Appliquer';
+    document.getElementById('modif-input').value = '';
+    showEmailAtIndex(_validatorIdx);
+  } catch(err) {
+    status.textContent = `❌ ${err.message}`;
+    btn.disabled = false; btn.textContent = '🔄 Appliquer';
+  }
 }
 
 function toggleEmail(i) { document.getElementById(`email-item-${i}`).classList.toggle('open'); }
