@@ -532,7 +532,34 @@ textarea { min-height:80px; }
               <button class="event-sub-btn" id="btn-inscription" onclick="selectEventSubType('inscription')">📝 Inscription<small>Email unique pour s'inscrire</small></button>
             </div>
 
-            <!-- Confirmation sub-fields -->
+            <!-- Champs communs aux deux sous-types -->
+            <div class="input-row" style="margin-bottom:10px;">
+              <div class="f-group" style="margin:0;">
+                <label class="f-label">Nom de l'événement *</label>
+                <input type="text" id="event-nom" placeholder="Ex : Forum Médecine, Portes Ouvertes…" />
+              </div>
+              <div class="f-group" style="margin:0;">
+                <label class="f-label">Date *</label>
+                <input type="text" id="event-date" placeholder="Ex : 08/03/2026 ou 8 mars 2026" oninput="updateEventDayDisplay()" />
+              </div>
+            </div>
+            <div class="input-row" style="margin-bottom:10px;">
+              <div class="f-group" style="margin:0;">
+                <label class="f-label">Horaire *</label>
+                <input type="text" id="event-heure" placeholder="Ex : 14h00 – 17h00" />
+              </div>
+              <div class="f-group" style="margin:0;">
+                <label class="f-label">Lieu *</label>
+                <input type="text" id="event-lieu" placeholder="Ex : Paris 15e / En ligne" />
+              </div>
+            </div>
+            <div class="f-group" style="margin-bottom:10px;">
+              <label class="f-label">Ce qui est prévu pendant l'événement *</label>
+              <input type="text" id="event-contenu" placeholder="Ex : Visite des locaux, rencontre profs, conférences, Q&A…" />
+            </div>
+            <div id="event-day-display" style="display:none;font-size:12px;font-weight:600;padding:6px 10px;border-radius:var(--radius);background:var(--surface2);border:1px solid var(--border);margin-bottom:10px;color:var(--accent);"></div>
+
+            <!-- Confirmation : nombre de rappels + cadence -->
             <div id="row-confirmation">
               <div class="input-row" style="margin-bottom:8px;">
                 <div class="f-group" style="margin:0;">
@@ -546,29 +573,9 @@ textarea { min-height:80px; }
               </div>
             </div>
 
-            <!-- Inscription sub-fields -->
+            <!-- Inscription : note email unique -->
             <div id="row-inscription" style="display:none;">
               <p class="inscription-note">Un seul email percutant sera rédigé pour pousser à l'inscription.</p>
-              <div class="input-row" style="margin-bottom:10px;">
-                <div class="f-group" style="margin:0;">
-                  <label class="f-label">Date de l'événement *</label>
-                  <input type="text" id="event-date" placeholder="Ex : 15 mars 2025" />
-                </div>
-                <div class="f-group" style="margin:0;">
-                  <label class="f-label">Heure *</label>
-                  <input type="text" id="event-heure" placeholder="Ex : 14h00 – 17h00" />
-                </div>
-              </div>
-              <div class="input-row" style="margin-bottom:10px;">
-                <div class="f-group" style="margin:0;">
-                  <label class="f-label">Lieu *</label>
-                  <input type="text" id="event-lieu" placeholder="Ex : Paris 15e / En ligne" />
-                </div>
-                <div class="f-group" style="margin:0;">
-                  <label class="f-label">Contenu / Programme *</label>
-                  <input type="text" id="event-contenu" placeholder="Ex : Visite des locaux, rencontre profs, Q&A" />
-                </div>
-              </div>
             </div>
           </div>
 
@@ -909,7 +916,7 @@ const BRANDS = {
 
 const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
 
-const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], kb:[], emails:[], currentStep:0, eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'' };
+const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], kb:[], emails:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'' };
 
 // ── HELPERS : J-COUNTDOWN ─────────────────────────────────────────────────
 function getJCadence(n) {
@@ -943,6 +950,27 @@ function updateCadencePreview() {
   const el = document.getElementById('event-cadence');
   if (el) el.innerHTML = cadence.map(j => `<span class="j-tag">${j}</span>`).join('');
 }
+function getDayOfWeek(dateStr) {
+  if (!dateStr) return null;
+  const MONTHS = { 'janvier':0,'février':1,'fevrier':1,'mars':2,'avril':3,'mai':4,'juin':5,'juillet':6,'août':7,'aout':7,'septembre':8,'octobre':9,'novembre':10,'décembre':11,'decembre':11 };
+  const DAYS = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+  let d = null;
+  const slash = dateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (slash) d = new Date(parseInt(slash[3]), parseInt(slash[2])-1, parseInt(slash[1]));
+  else {
+    const nat = dateStr.toLowerCase().match(/^(\d{1,2})\s+(\w+)\s+(\d{4})$/);
+    if (nat && MONTHS[nat[2]] !== undefined) d = new Date(parseInt(nat[3]), MONTHS[nat[2]], parseInt(nat[1]));
+  }
+  return (d && !isNaN(d.getTime())) ? DAYS[d.getDay()] : null;
+}
+function updateEventDayDisplay() {
+  const dateStr = document.getElementById('event-date').value.trim();
+  const day = getDayOfWeek(dateStr);
+  const el = document.getElementById('event-day-display');
+  if (!el) return;
+  if (day) { el.style.display='block'; el.textContent=`📅 Le ${dateStr} est un ${day}`; }
+  else { el.style.display='none'; }
+}
 
 // ========================
 // API KEY MANAGEMENT
@@ -975,7 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function launchBrand(id) {
-  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = ['brochure','rdv']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = '';
+  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = ['brochure','rdv']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventNom = ''; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = ''; ST.eventDay = '';
   const b = BRANDS[id];
   document.getElementById('brand-selector').style.display = 'none';
   const app = document.getElementById('app-wrapper');
@@ -1102,20 +1130,26 @@ async function proposeAngles() {
     ST.duration = `${durNum} ${durUnit}`;
     ST.freq = `${freqNum} email${freqNum > 1 ? 's' : ''} par ${freqUnit}`;
   }
-  // ── Cas 2 : ÉVÉNEMENT INSCRIPTION (email unique) ───────────────────
-  else if (ST.campaignType === 'evenement' && ST.eventSubType === 'inscription') {
+  // ── Lire champs communs événement ─────────────────────────────────
+  if (ST.campaignType === 'evenement') {
+    const nom = document.getElementById('event-nom').value.trim();
     const date = document.getElementById('event-date').value.trim();
     const heure = document.getElementById('event-heure').value.trim();
     const lieu = document.getElementById('event-lieu').value.trim();
     const contenu = document.getElementById('event-contenu').value.trim();
-    if (!date || !heure || !lieu || !contenu) { alert('⚠️ Remplis tous les champs de l\'événement (date, heure, lieu, contenu).'); return; }
-    ST.eventDate = date; ST.eventHeure = heure; ST.eventLieu = lieu; ST.eventContenu = contenu;
+    if (!nom || !date || !heure || !lieu || !contenu) { alert('⚠️ Remplis tous les champs de l\'événement (nom, date, horaire, lieu, contenu).'); return; }
+    ST.eventNom = nom; ST.eventDate = date; ST.eventHeure = heure; ST.eventLieu = lieu; ST.eventContenu = contenu;
+    ST.eventDay = getDayOfWeek(date);
+  }
+
+  // ── Cas 2 : ÉVÉNEMENT INSCRIPTION (email unique) ───────────────────
+  if (ST.campaignType === 'evenement' && ST.eventSubType === 'inscription') {
     ST.count = 1; ST.cadence = ['inscription'];
     await generateInscriptionEmail();
     return;
   }
   // ── Cas 3 : ÉVÉNEMENT CONFIRMATION (séquence J-countdown) ──────────
-  else {
+  else if (ST.campaignType === 'evenement') {
     ST.count = parseInt(document.getElementById('confirm-count').value) || 4;
     ST.cadence = getJCadence(ST.count);
     ST.duration = '';
@@ -1133,6 +1167,14 @@ async function proposeAngles() {
   const isConfirmation = ST.campaignType === 'evenement';
   let anglesGuidance, anglesCount, tagsList;
 
+  const eventBlock = ST.campaignType === 'evenement' ? `
+DÉTAILS DE L'ÉVÉNEMENT :
+- Nom : ${ST.eventNom}
+- Date : ${ST.eventDate}${ST.eventDay ? ` (${ST.eventDay})` : ''}
+- Horaire : ${ST.eventHeure}
+- Lieu : ${ST.eventLieu}
+- Programme / Contenu : ${ST.eventContenu}` : '';
+
   if (ST.campaignType === 'generique') {
     anglesCount = ST.count * 2;
     tagsList = 'témoignage|pédagogique|résultats|erreur|urgence|comparatif|interview|FAQ|profil|autre';
@@ -1140,13 +1182,13 @@ async function proposeAngles() {
 Pense à varier : témoignage élève, témoignage parent, résultats chiffrés, erreur à éviter, interview fondateur, comparatif prépas, profil d'élève, pédagogique (PASS vs LAS…), FAQ, coulisses de la prépa, urgence places, portrait d'un prof…
 L'utilisateur choisira ${ST.count} angles parmi les ${anglesCount} proposés — ils doivent donc être vraiment différents et complémentaires.`;
   } else {
-    // Confirmation : exactement ST.count angles avec J-timing
     anglesCount = ST.count;
     tagsList = 'teaser|annonce|programme|témoignage|objection|urgence|rappel|FAQ|autre';
     const cadenceDesc = ST.cadence.map((j, i) => `- Email ${i+1} (${j}) : ${getJEmailRole(j)}`).join('\n');
-    anglesGuidance = `Ta mission : générer EXACTEMENT ${ST.count} angles de rappels pour cette campagne confirmation d'événement, UN PAR TIMING :
+    anglesGuidance = `Ta mission : générer EXACTEMENT ${ST.count} angles de rappels pour la séquence de confirmation, UN PAR TIMING :
 ${cadenceDesc}
-Chaque angle doit être parfaitement adapté à son timing dans la séquence de rappels. Respecte l'arc narratif : éveil → intérêt → objections → urgence.`;
+IMPORTANT : utilise le bon jour de la semaine (${ST.eventDay || 'voir date'}) et les vrais détails de l'événement dans chaque objet/préheader.
+Chaque angle doit être adapté à son timing. Arc narratif : anticipation → programme → objections → urgence finale.`;
   }
 
   const prompt = `Tu es stratège en email marketing pour ${b.name}, une prépa médicale en France.
@@ -1154,6 +1196,7 @@ Chaque angle doit être parfaitement adapté à son timing dans la séquence de 
 BRIEF : ${ST.brief}
 CIBLE : ${LEVEL_LABELS[ST.level]}
 TYPE : ${isConfirmation ? 'Confirmation événement (séquence de rappels J-countdown)' : `Générique (${ST.freq} pendant ${ST.duration})`}
+${eventBlock}
 ${ST.context ? `CONTEXTE : ${ST.context}` : ''}
 
 STYLE DE LA MARQUE (calibrer les objets) :
@@ -1285,8 +1328,9 @@ TON : ${b.tone}
 CIBLE : ${LEVEL_LABELS[ST.level]}
 
 EMAIL D'INSCRIPTION À UN ÉVÉNEMENT :
-- Date : ${ST.eventDate}
-- Heure : ${ST.eventHeure}
+- Nom : ${ST.eventNom}
+- Date : ${ST.eventDate}${ST.eventDay ? ` (${ST.eventDay})` : ''}
+- Horaire : ${ST.eventHeure}
 - Lieu : ${ST.eventLieu}
 - Programme / Contenu : ${ST.eventContenu}
 
@@ -1377,7 +1421,16 @@ async function startGeneration() {
 
   const styleExamples = EMAIL_EXAMPLES.diploma.slice(0,3).map(e => `--- EXEMPLE ---\nObjet : ${e.objet}\n${e.corps}`).join('\n\n');
 
-  const timingNote = isConfirmation ? `\nCHAQUE EMAIL doit refléter son timing dans la séquence de rappels : l'urgence croît vers le dernier email.\n` : '';
+  const eventDetails = isConfirmation && ST.eventNom ? `
+DÉTAILS DE L'ÉVÉNEMENT (à utiliser précisément dans chaque email) :
+- Nom : ${ST.eventNom}
+- Date : ${ST.eventDate}${ST.eventDay ? ` (${ST.eventDay})` : ''}
+- Horaire : ${ST.eventHeure}
+- Lieu : ${ST.eventLieu}
+- Programme : ${ST.eventContenu}
+IMPORTANT : utilise le bon jour "${ST.eventDay || ''}" — jamais un autre jour de la semaine.
+` : '';
+  const timingNote = isConfirmation ? `\nCHAQUE EMAIL doit refléter son timing (urgence croissante vers le dernier rappel).\n` : '';
 
   const prompt = `Tu es un expert en email marketing pour ${b.name}, une prépa médicale en France.
 
@@ -1401,7 +1454,7 @@ ${ST.duration ? `DURÉE : ${ST.duration}` : ''}
 ${ST.freq ? `FRÉQUENCE : ${ST.freq}` : ''}
 CTA DISPONIBLES : ${ctaText}
 ${ST.context ? `CONTEXTE ADDITIONNEL : ${ST.context}` : ''}
-${kbText}${timingNote}
+${kbText}${eventDetails}${timingNote}
 
 EMAILS À RÉDIGER (${selectedData.length} emails, dans cet ordre précis) :
 ${anglesBlock}
@@ -1524,7 +1577,7 @@ function exportHubspot() {
 }
 
 function newSequence() {
-  ST.emails=[]; ST.ctas=['brochure','rdv']; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu='';
+  ST.emails=[]; ST.ctas=['brochure','rdv']; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventNom=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu=''; ST.eventDay='';
   const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
   document.getElementById('freq-num').value='2';
