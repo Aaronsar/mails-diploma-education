@@ -904,21 +904,44 @@ async function createHubSpotEmail(email) {
   const token = getHsToken();
   if (!token) throw new Error('Token HubSpot non configuré — saisis-le sur l\'écran d\'accueil');
   const b = BRANDS[ST.brand];
-  const res = await fetch('https://api.hubapi.com/marketing/v3/emails', {
+  const htmlBody = email.hubspot || `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px">${(email.corps||'').replace(/\n/g,'<br>')}</div>`;
+  // Try v1 API first (scope: content) — more widely available with Marketing Hub Pro
+  const resV1 = await fetch('https://api.hubapi.com/email/public/v1/emails', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       name: `[${b.name}] ${email.objet}`,
       subject: email.objet,
-      content: { body: email.hubspot || `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px">${(email.corps||'').replace(/\n/g,'<br>')}</div>` }
+      fromName: b.name,
+      htmlBody: htmlBody,
+      isLocalTimezoneSend: false
     })
   });
-  if (!res.ok) {
-    let msg = `HTTP ${res.status}`;
-    try { const j = await res.json(); msg = j.message || j.error || msg; } catch(e) {}
-    throw new Error(msg);
+  if (resV1.ok) {
+    const d = await resV1.json();
+    // v1 returns { id, portalId, ... } — build link
+    const link = d.portalId ? `https://app-eu1.hubspot.com/email/${d.portalId}/details/${d.id}/performance` : null;
+    return { id: d.id, portalId: d.portalId, hsLink: link };
   }
-  return await res.json();
+  // Fallback: v3 API (scope: marketing-email)
+  const resV3 = await fetch('https://api.hubapi.com/marketing/v3/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: `[${b.name}] ${email.objet}`,
+      subject: email.objet,
+      content: { body: htmlBody }
+    })
+  });
+  if (resV3.ok) {
+    const d = await resV3.json();
+    const link = d.portalId ? `https://app-eu1.hubspot.com/email/${d.portalId}/edit/${d.id}` : null;
+    return { id: d.id, portalId: d.portalId, hsLink: link };
+  }
+  // Both failed — surface the v1 error
+  let msg = `HTTP ${resV1.status}`;
+  try { const j = await resV1.json(); msg = j.message || j.error || msg; } catch(e) {}
+  throw new Error(msg);
 }
 async function pushCurrentEmailToHubSpot() {
   const email = ST.emails[_validatorIdx];
@@ -933,7 +956,7 @@ async function pushCurrentEmailToHubSpot() {
     const data = await createHubSpotEmail(email);
     email.hsId = data.id;
     email.hsPortalId = data.portalId;
-    email.hsLink = data.portalId ? `https://app.hubspot.com/email/${data.portalId}/edit/${data.id}` : null;
+    email.hsLink = data.hsLink || (data.portalId ? `https://app-eu1.hubspot.com/email/${data.portalId}/edit/${data.id}` : null);
     btn.textContent = '✅ Brouillon créé';
     btn.classList.add('hs-success');
     if (email.hsLink) {
