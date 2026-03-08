@@ -1,4 +1,10 @@
 {
+  "functions": {
+    "api/hs-proxy.js": {
+      "memory": 128,
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     { "source": "/", "destination": "/email-generator.html" }
   ]
