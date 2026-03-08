@@ -321,6 +321,26 @@ textarea { min-height:80px; }
 .export-icon { font-size:28px;margin-bottom:10px; }
 .export-title { font-weight:700;font-size:14px;margin-bottom:6px; }
 .theme-diploma .export-title { font-family:'Playfair Display',serif; }
+
+/* HUBSPOT PUSH */
+.hs-push-section { margin-top:14px;padding:14px;border-radius:var(--radius);border:1px solid rgba(255,121,0,0.2);background:rgba(255,121,0,0.04);display:flex;flex-direction:column;gap:8px; }
+.hs-push-row { display:flex;align-items:center;gap:10px; }
+.btn-hs { padding:8px 18px;border-radius:100px;border:1px solid #ff7900;background:rgba(255,121,0,0.1);color:#ff7900;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit; }
+.btn-hs:hover:not(:disabled) { background:#ff7900;color:#fff; }
+.btn-hs:disabled { opacity:0.6;cursor:default; }
+.btn-hs.hs-success { border-color:#22c55e;background:rgba(34,197,94,0.1);color:#22c55e; }
+.hs-push-status { font-size:12px;color:var(--text-dim);min-height:14px; }
+.hs-push-status a { color:#ff7900;text-decoration:underline; }
+.hs-push-label { font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#ff7900;opacity:0.7; }
+
+/* VOICE BRIEF */
+.brief-voice-row { display:flex;align-items:flex-start;gap:10px; }
+.brief-voice-row textarea { flex:1; }
+.btn-voice { width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:18px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;padding:0; }
+.btn-voice:hover { border-color:var(--accent);color:var(--accent); }
+.btn-voice.recording { border-color:#ef4444;background:rgba(239,68,68,0.08);color:#ef4444;animation:pulse-mic 1s infinite; }
+.voice-status { font-size:11px;color:var(--text-muted);font-style:italic;margin-top:4px;min-height:14px;max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+@keyframes pulse-mic { 0%,100%{opacity:1} 50%{opacity:0.45} }
 .theme-edumove .export-title { font-family:'Fraunces',serif; }
 .export-desc { font-size:12px;color:var(--text-dim);line-height:1.5; }
 
@@ -378,11 +398,19 @@ textarea { min-height:80px; }
   <div class="selector-sub">Sélectionne ta marque pour commencer</div>
 
   <!-- API KEY BAR -->
-  <div id="api-key-bar" style="display:flex;align-items:center;gap:10px;margin-bottom:32px;padding:10px 18px;border-radius:100px;max-width:520px;width:100%;transition:all 0.2s;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);">
+  <div id="api-key-bar" style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px 18px;border-radius:100px;max-width:520px;width:100%;transition:all 0.2s;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);">
     <span id="api-key-dot" style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:#ef4444;"></span>
     <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#555;flex-shrink:0;">API KEY</span>
     <input type="password" id="api-key-input" placeholder="sk-ant-api03-…" oninput="onApiKeyChange(this.value)" style="flex:1;background:transparent;border:none;outline:none;font-family:'DM Mono',monospace;font-size:12px;color:#ccc;padding:0;" autocomplete="off" spellcheck="false" />
     <span id="api-key-status" style="font-size:10px;flex-shrink:0;font-family:'Outfit',sans-serif;color:#555;"></span>
+  </div>
+
+  <!-- HUBSPOT TOKEN BAR -->
+  <div id="hs-token-bar" style="display:flex;align-items:center;gap:10px;margin-bottom:32px;padding:10px 18px;border-radius:100px;max-width:520px;width:100%;transition:all 0.2s;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);">
+    <span id="hs-token-dot" style="width:7px;height:7px;border-radius:50%;flex-shrink:0;background:#888;"></span>
+    <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#555;flex-shrink:0;">HS TOKEN</span>
+    <input type="password" id="hs-token-input" placeholder="pat-na1-…  (optionnel)" oninput="onHsTokenChange(this.value)" style="flex:1;background:transparent;border:none;outline:none;font-family:'DM Mono',monospace;font-size:12px;color:#ccc;padding:0;" autocomplete="off" spellcheck="false" />
+    <span id="hs-token-status" style="font-size:10px;flex-shrink:0;font-family:'Outfit',sans-serif;color:#555;"></span>
   </div>
 
   <div class="brand-grid">
@@ -524,8 +552,14 @@ textarea { min-height:80px; }
         <div class="card">
           <div class="card-title">Brief de campagne</div>
           <div class="f-group">
-            <label class="f-label">Ce que tu veux promouvoir *</label>
-            <textarea id="brief-input" rows="4" placeholder="Ex : Promouvoir Diploma Santé auprès des Terminales. Mettre en avant les résultats, le coaching perso, les 3 campus Paris.&#10;&#10;Ou pour un événement : Portes ouvertes du 15 mars — salle de cours, rencontre avec les profs, Q&amp;A."></textarea>
+            <label class="f-label" style="display:flex;align-items:center;justify-content:space-between;">
+              <span>Ce que tu veux promouvoir *</span>
+              <span id="voice-brief-status" class="voice-status"></span>
+            </label>
+            <div class="brief-voice-row">
+              <textarea id="brief-input" rows="4" placeholder="Ex : Promouvoir Diploma Santé auprès des Terminales. Mettre en avant les résultats, le coaching perso, les 3 campus Paris.&#10;&#10;Ou pour un événement : Portes ouvertes du 15 mars — salle de cours, rencontre avec les profs, Q&amp;A."></textarea>
+              <button class="btn-voice" id="btn-voice-brief" onclick="toggleVoiceBrief()" title="Dicter le brief (Chrome requis)">🎙️</button>
+            </div>
           </div>
 
           <!-- GÉNÉRIQUE FIELDS -->
@@ -770,6 +804,16 @@ textarea { min-height:80px; }
           <button class="btn btn-primary" id="btn-next-email" onclick="nextEmail()">Suivant →</button>
           <button class="btn btn-primary" id="btn-to-export" onclick="advance(5)" style="display:none;">📦 Exporter →</button>
         </div>
+
+        <!-- HUBSPOT PUSH (affiché si token HS configuré) -->
+        <div class="hs-push-section" id="hs-push-section" style="display:none;">
+          <div class="hs-push-label">🟠 HubSpot</div>
+          <div class="hs-push-row">
+            <button class="btn-hs" id="btn-hs-push" onclick="pushCurrentEmailToHubSpot()">Créer comme brouillon HubSpot</button>
+          </div>
+          <div class="hs-push-status" id="hs-push-status"></div>
+        </div>
+
         <div id="emails-list" style="display:none;"></div>
       </div>
 
@@ -782,7 +826,7 @@ textarea { min-height:80px; }
           <div class="export-card" onclick="exportAllCopy()"><div class="export-icon">📋</div><div class="export-title">Tout copier</div><div class="export-desc">Tous les emails dans le presse-papier</div></div>
           <div class="export-card" onclick="exportTxt()"><div class="export-icon">📄</div><div class="export-title">Fichier .txt</div><div class="export-desc">Télécharger la séquence complète</div></div>
           <div class="export-card" onclick="exportHubspot()"><div class="export-icon">🟠</div><div class="export-title">Format HubSpot</div><div class="export-desc">HTML inline compatible HubSpot</div></div>
-          <div class="export-card disabled"><div class="export-icon">🔗</div><div class="export-title">Sync HubSpot</div><div class="export-desc">Connexion API directe (bientôt)</div></div>
+          <div class="export-card" onclick="exportPushAllHubSpot()" id="export-card-hs"><div class="export-icon">🟠</div><div class="export-title">Sync HubSpot</div><div class="export-desc" id="export-hs-desc">Pousser tous les emails comme brouillons</div></div>
         </div>
         <div class="card">
           <div class="card-title">🔗 Communication inter-outils</div>
@@ -838,6 +882,156 @@ const API = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-20250514';
 function getApiKey() { return localStorage.getItem('diploma_api_key') || ''; }
 function setApiKey(k) { localStorage.setItem('diploma_api_key', k); }
+
+// ── HUBSPOT TOKEN ──────────────────────────────────────────────────────────
+function getHsToken() { return localStorage.getItem('diploma_hs_token') || ''; }
+function setHsToken(k) { localStorage.setItem('diploma_hs_token', k); }
+function onHsTokenChange(val) { setHsToken(val.trim()); updateHsTokenBar(); }
+function updateHsTokenBar() {
+  const token = getHsToken();
+  const bar = document.getElementById('hs-token-bar');
+  const dot = document.getElementById('hs-token-dot');
+  const status = document.getElementById('hs-token-status');
+  if (!bar) return;
+  const ok = token.startsWith('pat-');
+  dot.style.background = ok ? '#22c55e' : '#888';
+  bar.style.borderColor = ok ? 'rgba(34,197,94,0.3)' : 'rgba(255,255,255,0.1)';
+  bar.style.background = ok ? 'rgba(34,197,94,0.05)' : 'rgba(255,255,255,0.04)';
+  status.textContent = ok ? '✓ Connecté' : '';
+  status.style.color = ok ? '#22c55e' : '#888';
+}
+async function createHubSpotEmail(email) {
+  const token = getHsToken();
+  if (!token) throw new Error('Token HubSpot non configuré — saisis-le sur l\'écran d\'accueil');
+  const b = BRANDS[ST.brand];
+  const res = await fetch('https://api.hubapi.com/marketing/v3/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: `[${b.name}] ${email.objet}`,
+      subject: email.objet,
+      content: { body: email.hubspot || `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px">${(email.corps||'').replace(/\n/g,'<br>')}</div>` }
+    })
+  });
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`;
+    try { const j = await res.json(); msg = j.message || j.error || msg; } catch(e) {}
+    throw new Error(msg);
+  }
+  return await res.json();
+}
+async function pushCurrentEmailToHubSpot() {
+  const email = ST.emails[_validatorIdx];
+  if (!email) return;
+  const btn = document.getElementById('btn-hs-push');
+  const statusEl = document.getElementById('hs-push-status');
+  btn.disabled = true;
+  btn.textContent = '⏳ Envoi en cours…';
+  statusEl.textContent = '';
+  statusEl.style.color = '';
+  try {
+    const data = await createHubSpotEmail(email);
+    email.hsId = data.id;
+    email.hsPortalId = data.portalId;
+    email.hsLink = data.portalId ? `https://app.hubspot.com/email/${data.portalId}/edit/${data.id}` : null;
+    btn.textContent = '✅ Brouillon créé';
+    btn.classList.add('hs-success');
+    if (email.hsLink) {
+      statusEl.innerHTML = `<a href="${email.hsLink}" target="_blank" rel="noopener">Ouvrir dans HubSpot →</a>`;
+    } else {
+      statusEl.textContent = `Créé — ID : ${data.id}`;
+    }
+    renderProgressDots(); // refresh dots with HS badge if wanted
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = 'Créer comme brouillon HubSpot';
+    statusEl.textContent = `❌ ${err.message}`;
+    statusEl.style.color = '#ef4444';
+  }
+}
+async function exportPushAllHubSpot() {
+  const token = getHsToken();
+  if (!token) {
+    alert('⚠️ Configure d\'abord ton token HubSpot (pat-…) dans l\'écran d\'accueil.');
+    return;
+  }
+  const card = document.getElementById('export-card-hs');
+  const desc = document.getElementById('export-hs-desc');
+  const remaining = ST.emails.filter(e => !e.hsId);
+  if (remaining.length === 0) { alert('✅ Tous les emails ont déjà été poussés sur HubSpot.'); return; }
+  if (!confirm(`Pousser ${remaining.length} email(s) non encore envoyé(s) sur HubSpot ?`)) return;
+  card.style.pointerEvents = 'none'; card.style.opacity = '0.6';
+  desc.textContent = `⏳ 0 / ${remaining.length}…`;
+  let ok = 0, fail = 0;
+  for (const email of remaining) {
+    try {
+      const data = await createHubSpotEmail(email);
+      email.hsId = data.id;
+      email.hsPortalId = data.portalId;
+      email.hsLink = data.portalId ? `https://app.hubspot.com/email/${data.portalId}/edit/${data.id}` : null;
+      ok++;
+    } catch(e) { fail++; }
+    desc.textContent = `⏳ ${ok + fail} / ${remaining.length}…`;
+  }
+  card.style.pointerEvents = ''; card.style.opacity = '';
+  desc.textContent = fail === 0
+    ? `✅ ${ok} email(s) créés sur HubSpot`
+    : `✅ ${ok} créés — ❌ ${fail} erreur(s)`;
+}
+
+// ── VOICE BRIEF ───────────────────────────────────────────────────────────
+let _voiceRecognition = null;
+let _voiceActive = false;
+let _voiceBaseText = '';
+function toggleVoiceBrief() {
+  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const statusEl = document.getElementById('voice-brief-status');
+  const btn = document.getElementById('btn-voice-brief');
+  if (!SpeechRec) {
+    if(statusEl) statusEl.textContent = '⚠️ Non supporté — utilise Chrome';
+    return;
+  }
+  if (_voiceActive) {
+    _voiceRecognition && _voiceRecognition.stop();
+    return;
+  }
+  const briefEl = document.getElementById('brief-input');
+  _voiceBaseText = briefEl.value;
+  const recognition = new SpeechRec();
+  recognition.lang = 'fr-FR';
+  recognition.continuous = true;
+  recognition.interimResults = true;
+  recognition.onresult = (e) => {
+    let finalNew = '';
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) finalNew += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    if (finalNew) {
+      _voiceBaseText = (_voiceBaseText + ' ' + finalNew).trim();
+      briefEl.value = _voiceBaseText;
+    }
+    if (statusEl) statusEl.textContent = interim ? `🎙 « ${interim} »` : '';
+  };
+  recognition.onend = () => { _voiceActive = false; _voiceRecognition = null; updateVoiceBtn(); if(statusEl) statusEl.textContent = ''; };
+  recognition.onerror = (e) => {
+    _voiceActive = false; _voiceRecognition = null; updateVoiceBtn();
+    if(statusEl) statusEl.textContent = `❌ ${e.error === 'not-allowed' ? 'Micro non autorisé' : e.error}`;
+  };
+  _voiceRecognition = recognition;
+  _voiceActive = true;
+  recognition.start();
+  updateVoiceBtn();
+  if(statusEl) statusEl.textContent = '🎙 Écoute…';
+}
+function updateVoiceBtn() {
+  const btn = document.getElementById('btn-voice-brief');
+  if (!btn) return;
+  btn.textContent = _voiceActive ? '🔴' : '🎙️';
+  btn.classList.toggle('recording', _voiceActive);
+  btn.title = _voiceActive ? 'Cliquer pour arrêter' : 'Dicter le brief (Chrome requis)';
+}
 
 
 // ============================================================
@@ -1164,6 +1358,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const input = document.getElementById('api-key-input');
   if (saved && input) input.value = saved;
   updateApiKeyBar();
+
+  const savedHs = getHsToken();
+  const hsInput = document.getElementById('hs-token-input');
+  if (savedHs && hsInput) hsInput.value = savedHs;
+  updateHsTokenBar();
 });
 
 function launchBrand(id) {
@@ -1972,6 +2171,31 @@ function showEmailAtIndex(i) {
   const isLast = i === total - 1;
   document.getElementById('btn-next-email').style.display = isLast ? 'none' : '';
   document.getElementById('btn-to-export').style.display = isLast ? '' : 'none';
+
+  // HubSpot push section
+  const hsSect = document.getElementById('hs-push-section');
+  const hsBtn = document.getElementById('btn-hs-push');
+  const hsStatusEl = document.getElementById('hs-push-status');
+  if (hsSect) {
+    const hasToken = getHsToken().startsWith('pat-');
+    hsSect.style.display = hasToken ? '' : 'none';
+    if (hasToken && hsBtn && hsStatusEl) {
+      if (email.hsId) {
+        hsBtn.textContent = '✅ Déjà envoyé sur HubSpot';
+        hsBtn.classList.add('hs-success');
+        hsBtn.disabled = false;
+        hsStatusEl.innerHTML = email.hsLink
+          ? `<a href="${email.hsLink}" target="_blank" rel="noopener">Ouvrir dans HubSpot →</a>`
+          : `ID : ${email.hsId}`;
+      } else {
+        hsBtn.textContent = 'Créer comme brouillon HubSpot';
+        hsBtn.classList.remove('hs-success');
+        hsBtn.disabled = false;
+        hsStatusEl.textContent = '';
+        hsStatusEl.style.color = '';
+      }
+    }
+  }
 
   // Switch to preview tab
   switchValidatorTab(_validatorTab);
