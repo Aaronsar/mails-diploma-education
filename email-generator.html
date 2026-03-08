@@ -32,8 +32,9 @@ html { scroll-behavior: smooth; }
 }
 .selector-title { font-family: 'Syne', sans-serif; font-size: clamp(20px, 3vw, 32px); font-weight: 800; color: #fff; text-align: center; margin-bottom: 8px; letter-spacing: -0.5px; }
 .selector-sub { font-family: 'Outfit', sans-serif; font-size: 14px; color: #666; text-align: center; margin-bottom: 48px; }
-.brand-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 900px; width: 100%; }
-@media (max-width: 600px) { .brand-grid { grid-template-columns: 1fr; } }
+.brand-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1100px; width: 100%; }
+@media (max-width: 860px) { .brand-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .brand-grid { grid-template-columns: 1fr; } }
 
 .brand-card {
   border-radius: 20px; padding: 32px; cursor: pointer;
@@ -47,66 +48,54 @@ html { scroll-behavior: smooth; }
 .brand-diploma::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #d4af55, transparent); }
 .brand-diploma:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(212,175,85,0.12); }
 
-.brand-hermione { background: linear-gradient(135deg, #1a0530 0%, #2d0a4e 40%, #1f0638 100%); border: 1px solid rgba(232,68,196,0.2); box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
-.brand-hermione::after { content: ''; position: absolute; bottom: -30px; right: -30px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, rgba(232,68,196,0.3), transparent 70%); }
-.brand-hermione:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 50px rgba(232,68,196,0.15); }
-
-.brand-medibox { background: linear-gradient(135deg, #020817 0%, #0a1628 50%, #040d1f 100%); border: 1px solid rgba(37,139,255,0.2); box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
-.brand-medibox::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(37,139,255,0.02) 30px, rgba(37,139,255,0.02) 31px), repeating-linear-gradient(90deg, transparent, transparent 30px, rgba(37,139,255,0.02) 30px, rgba(37,139,255,0.02) 31px); }
-.brand-medibox:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 50px rgba(37,139,255,0.1); }
-
 .brand-edumove { background: linear-gradient(135deg, #0d1f0f 0%, #162b18 50%, #0d1f0f 100%); border: 1px solid rgba(74,222,128,0.2); box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
 .brand-edumove::before { content: ''; position: absolute; top: -40px; left: -40px; width: 150px; height: 150px; border-radius: 50%; background: radial-gradient(circle, rgba(74,222,128,0.12), transparent 70%); }
+
+.brand-prepamedecine { background: linear-gradient(135deg, #0f1a2e 0%, #1a2d4a 50%, #0f1a2e 100%); border: 1px solid rgba(8,145,178,0.25); box-shadow: 0 8px 40px rgba(0,0,0,0.5); }
+.brand-prepamedecine::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, #0891b2, transparent); }
+.brand-prepamedecine:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(8,145,178,0.15); }
 .brand-edumove:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 50px rgba(74,222,128,0.12); }
 
 .brand-logo { font-weight: 700; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; position: relative; z-index: 1; }
 .brand-diploma .brand-logo { font-family: 'Cormorant Garamond', serif; font-size: 15px; color: #d4af55; letter-spacing: 3px; }
-.brand-hermione .brand-logo { font-family: 'Bricolage Grotesque', sans-serif; font-size: 16px; color: #e844c4; letter-spacing: 0; font-weight: 800; }
-.brand-medibox .brand-logo { font-family: 'DM Mono', monospace; font-size: 13px; color: #258bff; letter-spacing: 1px; font-weight: 500; }
 .brand-edumove .brand-logo { font-family: 'Fraunces', serif; font-size: 16px; color: #4ade80; letter-spacing: 1px; font-style: italic; }
+.brand-prepamedecine .brand-logo { font-family: 'Syne', sans-serif; font-size: 13px; color: #38bdf8; letter-spacing: 1px; font-weight: 700; }
 
 .brand-title { font-size: clamp(18px, 2.5vw, 26px); font-weight: 700; line-height: 1.2; color: #fff; margin-bottom: 10px; position: relative; z-index: 1; }
 .brand-diploma .brand-title { font-family: 'Playfair Display', serif; font-weight: 600; }
-.brand-hermione .brand-title { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; }
-.brand-medibox .brand-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; }
 .brand-edumove .brand-title { font-family: 'Fraunces', serif; font-weight: 400; }
+.brand-prepamedecine .brand-title { font-family: 'Syne', sans-serif; font-weight: 700; }
 
 .brand-desc { font-size: 12px; line-height: 1.5; position: relative; z-index: 1; margin-bottom: 20px; }
 .brand-diploma .brand-desc { font-family: 'Cormorant Garamond', serif; font-size: 14px; color: rgba(212,175,85,0.7); }
-.brand-hermione .brand-desc { font-family: 'Outfit', sans-serif; color: rgba(255,255,255,0.5); }
-.brand-medibox .brand-desc { font-family: 'Plus Jakarta Sans', sans-serif; color: rgba(255,255,255,0.45); font-weight: 300; }
 .brand-edumove .brand-desc { font-family: 'Outfit', sans-serif; color: rgba(255,255,255,0.5); }
+.brand-prepamedecine .brand-desc { font-family: 'Outfit', sans-serif; color: rgba(200,230,240,0.55); }
 
 .brand-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 100px; border: none; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; width: fit-content; position: relative; z-index: 1; }
 .brand-diploma .brand-btn { background: rgba(212,175,85,0.15); color: #d4af55; border: 1px solid rgba(212,175,85,0.3); font-family: 'Cormorant Garamond', serif; font-size: 14px; }
-.brand-hermione .brand-btn { background: linear-gradient(135deg, #e844c4, #9b34ef); color: #fff; font-family: 'Bricolage Grotesque', sans-serif; }
-.brand-medibox .brand-btn { background: rgba(37,139,255,0.15); color: #258bff; border: 1px solid rgba(37,139,255,0.3); font-family: 'Plus Jakarta Sans', sans-serif; }
 .brand-edumove .brand-btn { background: rgba(74,222,128,0.12); color: #4ade80; border: 1px solid rgba(74,222,128,0.3); font-family: 'Outfit', sans-serif; }
+.brand-prepamedecine .brand-btn { background: rgba(8,145,178,0.12); color: #38bdf8; border: 1px solid rgba(8,145,178,0.3); font-family: 'Syne', sans-serif; }
 
 /* ======================== THEMES ======================== */
 .theme-diploma { --bg:#f8f6f0;--bg2:#fff;--surface:#fff;--surface2:#f2ede4;--border:#e2d9c8;--accent:#0f1c3a;--accent2:#d4af55;--accent3:#8b0000;--text:#1a1208;--text-dim:#6b5e45;--text-muted:#b8a98a;--radius:4px; background:var(--bg);color:var(--text);font-family:'Cormorant Garamond',serif; }
-.theme-hermione { --bg:#09030f;--bg2:#120720;--surface:#160924;--surface2:#1f0d30;--border:rgba(232,68,196,0.15);--accent:#e844c4;--accent2:#9b34ef;--accent3:#ff6b6b;--text:#f5f0ff;--text-dim:rgba(245,240,255,0.55);--text-muted:rgba(245,240,255,0.25);--radius:16px; background:var(--bg);color:var(--text);font-family:'Bricolage Grotesque',sans-serif; }
-.theme-medibox { --bg:#020817;--bg2:#040d1f;--surface:#071020;--surface2:#0a1628;--border:rgba(37,139,255,0.12);--accent:#258bff;--accent2:#00d4ff;--accent3:#ff6060;--text:#e8f4ff;--text-dim:rgba(232,244,255,0.5);--text-muted:rgba(232,244,255,0.2);--radius:8px; background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif; }
 .theme-edumove { --bg:#faf9f7;--bg2:#fff;--surface:#fff;--surface2:#f0f5f1;--border:#d4e8d8;--accent:#1a5c2e;--accent2:#4ade80;--accent3:#c2622a;--text:#0f1f12;--text-dim:#4a6b52;--text-muted:#a3bea8;--radius:12px; background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif; }
+.theme-prepamedecine { --bg:#f4f8fb;--bg2:#fff;--surface:#fff;--surface2:#e8f4f8;--border:#c8e0ea;--accent:#0891b2;--accent2:#0e7490;--accent3:#1a3a7a;--text:#0c1f2a;--text-dim:#3a6070;--text-muted:#8ab0be;--radius:8px; background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif; }
 
 /* ======================== APP LAYOUT ======================== */
 #app-wrapper { display: none; min-height: 100vh; }
 
 .app-header { display:flex;align-items:center;justify-content:space-between;padding:0 36px;height:64px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;backdrop-filter:blur(16px); }
 .theme-diploma .app-header { background:rgba(248,246,240,0.95); }
-.theme-hermione .app-header { background:rgba(9,3,15,0.92); }
-.theme-medibox .app-header { background:rgba(2,8,23,0.95); }
 .theme-edumove .app-header { background:rgba(250,249,247,0.95); }
+.theme-prepamedecine .app-header { background:rgba(244,248,251,0.95); }
 
 .app-logo { display:flex;align-items:center;gap:10px;font-weight:700; }
 .theme-diploma .app-logo { font-family:'Playfair Display',serif;font-size:17px;color:var(--accent); }
 .theme-diploma .app-logo span { color:var(--accent2); }
-.theme-hermione .app-logo { font-family:'Bricolage Grotesque',sans-serif;font-size:18px;font-weight:800;color:var(--accent); }
-.theme-hermione .app-logo span { color:var(--text-dim); }
-.theme-medibox .app-logo { font-family:'DM Mono',monospace;font-size:14px;color:var(--accent);font-weight:500; }
-.theme-medibox .app-logo span { color:var(--text-muted); }
 .theme-edumove .app-logo { font-family:'Fraunces',serif;font-size:18px;font-style:italic;color:var(--accent); }
 .theme-edumove .app-logo span { color:var(--accent3); }
+.theme-prepamedecine .app-logo { font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:var(--accent); }
+.theme-prepamedecine .app-logo span { color:var(--accent2); }
 
 .back-btn { display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--text-dim);cursor:pointer;font-size:12px;font-family:inherit;transition:all 0.2s; }
 .back-btn:hover { color:var(--text);border-color:var(--accent); }
@@ -114,9 +103,8 @@ html { scroll-behavior: smooth; }
 .ai-pill { display:flex;align-items:center;gap:6px;font-size:11px;padding:5px 12px;border-radius:100px;border:1px solid var(--border);color:var(--text-dim);background:var(--surface2); }
 .ai-dot { width:6px;height:6px;border-radius:50%;animation:pulse 2s infinite; }
 .theme-diploma .ai-dot { background:var(--accent2); }
-.theme-hermione .ai-dot { background:var(--accent); }
-.theme-medibox .ai-dot { background:var(--accent2); }
 .theme-edumove .ai-dot { background:var(--accent2); }
+.theme-prepamedecine .ai-dot { background:var(--accent); }
 @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
 
 .stepper-bar { display:flex;align-items:center;padding:0 36px;height:52px;border-bottom:1px solid var(--border);gap:4px;overflow-x:auto;scrollbar-width:none; }
@@ -133,7 +121,7 @@ html { scroll-behavior: smooth; }
 
 .app-content { padding:36px 40px;overflow-y:auto;border-right:1px solid var(--border); }
 .app-sidebar { padding:24px;overflow-y:auto;position:sticky;top:116px;max-height:calc(100vh - 116px); }
-.theme-hermione .app-sidebar,.theme-medibox .app-sidebar { background:var(--surface); }
+.theme-prepamedecine .app-sidebar { background:var(--surface); }
 
 .step-panel { display:none; }
 .step-panel.active { display:block; }
@@ -141,19 +129,17 @@ html { scroll-behavior: smooth; }
 /* TYPOGRAPHY */
 .s-tag { font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:block; }
 .theme-diploma .s-tag { font-family:'Cormorant Garamond',serif;font-size:12px;letter-spacing:3px;color:var(--accent2); }
-.theme-hermione .s-tag { color:var(--accent); }
-.theme-medibox .s-tag { font-family:'DM Mono',monospace;color:var(--accent); }
 .theme-edumove .s-tag { color:var(--accent); }
+.theme-prepamedecine .s-tag { color:var(--accent); }
 
 .s-title { margin-bottom:8px;line-height:1.2; }
 .theme-diploma .s-title { font-family:'Playfair Display',serif;font-size:32px;color:var(--accent);font-weight:600; }
-.theme-hermione .s-title { font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:800; }
-.theme-medibox .s-title { font-family:'Plus Jakarta Sans',sans-serif;font-size:26px;font-weight:700; }
 .theme-edumove .s-title { font-family:'Fraunces',serif;font-size:30px;font-weight:400;color:var(--accent); }
+.theme-prepamedecine .s-title { font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent); }
 
 .s-desc { font-size:14px;line-height:1.6;margin-bottom:28px; }
 .theme-diploma .s-desc { font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--text-dim); }
-.theme-hermione .s-desc,.theme-medibox .s-desc,.theme-edumove .s-desc { color:var(--text-dim); }
+.theme-edumove .s-desc,.theme-prepamedecine .s-desc { color:var(--text-dim); }
 
 /* INPUTS */
 .f-group { margin-bottom:20px; }
@@ -173,18 +159,16 @@ textarea { min-height:80px; }
 .btn:disabled { opacity:0.4;cursor:not-allowed; }
 .theme-diploma .btn-primary { background:var(--accent);color:var(--accent2);font-family:'Cormorant Garamond',serif;font-size:15px;border-radius:2px;letter-spacing:0.5px; }
 .theme-diploma .btn-primary:hover:not(:disabled) { background:#1a2d5a; }
-.theme-hermione .btn-primary { background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-radius:100px; }
-.theme-hermione .btn-primary:hover:not(:disabled) { opacity:0.88;transform:translateY(-1px); }
-.theme-medibox .btn-primary { background:var(--accent);color:#fff;border-radius:6px; }
-.theme-medibox .btn-primary:hover:not(:disabled) { background:#1a7cf0;transform:translateY(-1px); }
 .theme-edumove .btn-primary { background:var(--accent);color:#fff;border-radius:100px; }
 .theme-edumove .btn-primary:hover:not(:disabled) { background:#234d2e;transform:translateY(-1px); }
+.theme-prepamedecine .btn-primary { background:var(--accent);color:#fff;border-radius:8px; }
+.theme-prepamedecine .btn-primary:hover:not(:disabled) { background:#0e7490;transform:translateY(-1px); }
 .btn-sec { background:var(--surface2);color:var(--text-dim);border:1px solid var(--border); }
 .btn-sec:hover { border-color:var(--accent);color:var(--text); }
 
 /* CARDS */
 .card { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px; }
-.theme-diploma .card,.theme-edumove .card { background:#fff; }
+.theme-diploma .card,.theme-edumove .card,.theme-prepamedecine .card { background:#fff; }
 .card-title { font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px; }
 .theme-diploma .card-title { font-family:'Cormorant Garamond',serif;font-size:12px; }
 
@@ -194,9 +178,8 @@ textarea { min-height:80px; }
 .level-btn:hover { border-color:var(--accent);color:var(--text); }
 .level-btn.selected { border-color:var(--accent);color:var(--text); }
 .theme-diploma .level-btn.selected { background:rgba(15,28,58,0.04); }
-.theme-hermione .level-btn.selected { background:rgba(232,68,196,0.06); }
-.theme-medibox .level-btn.selected { background:rgba(37,139,255,0.07); }
 .theme-edumove .level-btn.selected { background:rgba(26,92,46,0.06); }
+.theme-prepamedecine .level-btn.selected { background:rgba(8,145,178,0.07); }
 .level-btn small { display:block;font-size:10px;color:var(--text-muted);margin-top:2px; }
 
 /* CTA & CAMPAIGN */
@@ -205,9 +188,8 @@ textarea { min-height:80px; }
 .angle-card:hover { border-color:var(--accent); }
 .angle-card.selected { border-color:var(--accent); }
 .theme-diploma .angle-card.selected { background:rgba(15,28,58,0.04); }
-.theme-hermione .angle-card.selected { background:rgba(232,68,196,0.06); }
-.theme-medibox .angle-card.selected { background:rgba(37,139,255,0.06); }
 .theme-edumove .angle-card.selected { background:rgba(26,92,46,0.05); }
+.theme-prepamedecine .angle-card.selected { background:rgba(8,145,178,0.06); }
 .angle-check { width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:transparent;transition:all 0.15s;margin-top:1px; }
 .angle-card.selected .angle-check { background:var(--accent);border-color:var(--accent);color:#fff; }
 .angle-body { flex:1; }
@@ -219,9 +201,8 @@ textarea { min-height:80px; }
 .cta-btn:hover { border-color:var(--accent);color:var(--text); }
 .cta-btn.selected { border-color:var(--accent);color:var(--text); }
 .theme-diploma .cta-btn.selected { background:rgba(15,28,58,0.04); }
-.theme-hermione .cta-btn.selected { background:rgba(232,68,196,0.06); }
-.theme-medibox .cta-btn.selected { background:rgba(37,139,255,0.07); }
 .theme-edumove .cta-btn.selected { background:rgba(26,92,46,0.06); }
+.theme-prepamedecine .cta-btn.selected { background:rgba(8,145,178,0.07); }
 .cta-check { width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent;transition:all 0.15s; }
 .cta-btn.selected .cta-check { background:var(--accent);border-color:var(--accent);color:#fff; }
 .cta-links-list { display:flex;flex-direction:column;gap:10px; }
@@ -236,9 +217,8 @@ textarea { min-height:80px; }
 .campaign-btn:hover { border-color:var(--accent);color:var(--text); }
 .campaign-btn.selected { border-color:var(--accent);color:var(--text); }
 .theme-diploma .campaign-btn.selected { background:rgba(15,28,58,0.04); }
-.theme-hermione .campaign-btn.selected { background:rgba(232,68,196,0.06); }
-.theme-medibox .campaign-btn.selected { background:rgba(37,139,255,0.07); }
 .theme-edumove .campaign-btn.selected { background:rgba(26,92,46,0.06); }
+.theme-prepamedecine .campaign-btn.selected { background:rgba(8,145,178,0.07); }
 .campaign-btn small { display:block;font-size:11px;color:var(--text-muted);margin-top:3px; }
 
 /* FREQ PREVIEW BADGE */
@@ -251,9 +231,8 @@ textarea { min-height:80px; }
 .event-sub-btn:hover { border-color:var(--accent);color:var(--text); }
 .event-sub-btn.selected { border-color:var(--accent);color:var(--text); }
 .theme-diploma .event-sub-btn.selected { background:rgba(15,28,58,0.04); }
-.theme-hermione .event-sub-btn.selected { background:rgba(232,68,196,0.06); }
-.theme-medibox .event-sub-btn.selected { background:rgba(37,139,255,0.07); }
 .theme-edumove .event-sub-btn.selected { background:rgba(26,92,46,0.06); }
+.theme-prepamedecine .event-sub-btn.selected { background:rgba(8,145,178,0.07); }
 .event-sub-btn small { display:block;font-size:11px;color:var(--text-muted);margin-top:3px; }
 
 /* CADENCE TAGS */
@@ -271,9 +250,8 @@ textarea { min-height:80px; }
 .lbar { height:2px;border-radius:1px;overflow:hidden;margin:12px 0;background:var(--surface2); }
 .lbar-fill { height:100%;animation:lbarAnim 1.5s ease-in-out infinite;border-radius:1px; }
 .theme-diploma .lbar-fill { background:linear-gradient(90deg,var(--accent2),var(--accent)); }
-.theme-hermione .lbar-fill { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
-.theme-medibox .lbar-fill { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
 .theme-edumove .lbar-fill { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+.theme-prepamedecine .lbar-fill { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
 @keyframes lbarAnim { 0%{width:0;margin-left:0}50%{width:65%;margin-left:18%}100%{width:0;margin-left:100%} }
 .lbar-txt { font-size:12px;color:var(--text-dim);margin-top:6px; }
 
@@ -288,9 +266,8 @@ textarea { min-height:80px; }
 .wf-step { display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius);font-size:12px;transition:all 0.2s;color:var(--text-muted); }
 .wf-step.active { color:var(--text); }
 .theme-diploma .wf-step.active { background:rgba(212,175,85,0.08);color:var(--accent); }
-.theme-hermione .wf-step.active { background:var(--surface2);color:var(--accent); }
-.theme-medibox .wf-step.active { background:rgba(37,139,255,0.07);color:var(--accent); }
 .theme-edumove .wf-step.active { background:var(--surface2);color:var(--accent); }
+.theme-prepamedecine .wf-step.active { background:rgba(8,145,178,0.08);color:var(--accent); }
 .wf-step.done { color:var(--text-dim); }
 
 /* EMAIL VALIDATOR */
@@ -312,7 +289,7 @@ textarea { min-height:80px; }
 .email-item { border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden;transition:border-color 0.2s; }
 .email-item:hover { border-color:var(--accent); }
 .email-header { display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;background:var(--surface); }
-.theme-diploma .email-header,.theme-edumove .email-header { background:#fff; }
+.theme-diploma .email-header,.theme-edumove .email-header,.theme-prepamedecine .email-header { background:#fff; }
 .email-num { font-size:11px;font-weight:700;letter-spacing:1px;color:var(--accent);flex-shrink:0;min-width:30px; }
 .theme-diploma .email-num { font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--accent2); }
 .email-subject { font-weight:600;font-size:14px;flex:1;line-height:1.3; }
@@ -358,9 +335,8 @@ textarea { min-height:80px; }
 .score-box { border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;margin-bottom:16px; }
 .score-num { font-size:44px;font-weight:700;line-height:1;margin-bottom:4px; }
 .theme-diploma .score-num { font-family:'Playfair Display',serif;color:var(--accent2); }
-.theme-hermione .score-num { font-family:'Bricolage Grotesque',sans-serif;color:var(--accent); }
-.theme-medibox .score-num { font-family:'Plus Jakarta Sans',sans-serif;color:var(--accent); }
 .theme-edumove .score-num { font-family:'Fraunces',serif;color:var(--accent); }
+.theme-prepamedecine .score-num { font-family:'Syne',sans-serif;color:var(--accent); }
 .score-lbl { font-size:11px;color:var(--text-dim); }
 
 .badge { display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:100px;border:1px solid;font-weight:500;margin-right:4px;margin-top:4px; }
@@ -417,29 +393,20 @@ textarea { min-height:80px; }
       <button class="brand-btn">Lancer →</button>
     </div>
 
-    <div class="brand-card brand-hermione" onclick="launchBrand('hermione')">
-      <div>
-        <div class="brand-logo">Hermione Médecine</div>
-        <div class="brand-title">Emails Gen-Z<br>cash et percutants 🔥</div>
-        <div class="brand-desc">Séquences ton direct pour étudiants PASS/LAS — honnête, concret, sans langue de bois.</div>
-      </div>
-      <button class="brand-btn">Lancer →</button>
-    </div>
-
-    <div class="brand-card brand-medibox" onclick="launchBrand('medibox')">
-      <div>
-        <div class="brand-logo">Medibox</div>
-        <div class="brand-title">Emails data-driven<br>100% en ligne</div>
-        <div class="brand-desc">Campagnes ciblant toute la France — distanciel, flexibilité, accessibilité.</div>
-      </div>
-      <button class="brand-btn">Lancer →</button>
-    </div>
-
     <div class="brand-card brand-edumove" onclick="launchBrand('edumove')">
       <div>
         <div class="brand-logo">Edumove</div>
         <div class="brand-title">Emails positifs<br>vers l'Europe</div>
-        <div class="brand-desc">Séquences empathiques après PASS — rebond valorisant, études en Europe.</div>
+        <div class="brand-desc">Séquences empathiques — accompagnement études de santé en Europe, financement LCL.</div>
+      </div>
+      <button class="brand-btn">Lancer →</button>
+    </div>
+
+    <div class="brand-card brand-prepamedecine" onclick="launchBrand('prepamedecine')">
+      <div>
+        <div class="brand-logo">Prépamedecine.fr</div>
+        <div class="brand-title">Emails informatifs<br>sur les études de médecine</div>
+        <div class="brand-desc">Contenu éditorial pédagogique — guider lycéens et étudiants PASS/LAS vers la réussite.</div>
       </div>
       <button class="brand-btn">Lancer →</button>
     </div>
@@ -650,7 +617,7 @@ textarea { min-height:80px; }
           </div>
         </div>
 
-        <!-- CTA GÉNÉRIQUE -->
+        <!-- CTA GÉNÉRIQUE (Diploma Santé) -->
         <div class="card" id="cta-generique">
           <div class="card-title">CTA à inclure (variés entre les emails)</div>
           <div class="cta-links-list">
@@ -669,6 +636,17 @@ textarea { min-height:80px; }
             <div class="cta-link-row">
               <button class="cta-btn" data-cta="candidature" onclick="toggleCta(this)"><span class="cta-check">✓</span>🎓 Candidature</button>
               <input type="url" id="url-candidature" class="cta-url-input" placeholder="https://…" oninput="saveCTALinks()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA EDUMOVE -->
+        <div class="card" id="cta-edumove" style="display:none;">
+          <div class="card-title">CTA à inclure</div>
+          <div class="cta-links-list">
+            <div class="cta-link-row">
+              <button class="cta-btn selected" data-cta="dossier" onclick="toggleCta(this)"><span class="cta-check">✓</span>📋 Déposer mon dossier</button>
+              <input type="url" id="url-dossier" class="cta-url-input" placeholder="https://…" oninput="saveCTALinks()" />
             </div>
           </div>
         </div>
@@ -1029,10 +1007,9 @@ IMPÉRATIF STYLISTIQUE : Imite exactement ce style —
 }
 
 const BRANDS = {
-  diploma: { name:'Diploma Santé', logoHtml:'Diploma <span>Santé</span>', theme:'theme-diploma', tone:"Ton premium, rassurant, orienté excellence et résultats. Données chiffrées. S'adresse aux parents autant qu'aux étudiants. Phrases soignées. Jamais de familiarités ni d'emojis.", context:"Diploma Santé — prépa médecine d'excellence à Paris, fondée par Benjamin Haddad, ancien major de PACES. 204h de cours PASS (vs 56h chez Medisup). 25 élèves/classe max. 79% de réussite en médecine vs 29,6% nationale. 3 campus Paris 12e/16e ouverts 7j/7. Seule prépa fondée par un major du concours.", sign:"L'équipe Diploma Santé" },
-  hermione: { name:'Hermione Médecine', logoHtml:'Hermione <span>Médecine</span>', theme:'theme-hermione', tone:"Ton Gen-Z, direct, cash. Phrases courtes. Emojis OK. Tutoiement naturel. S'adresse aux étudiants PASS/LAS. Pas de langue de bois, honnête et transparent.", context:"Hermione Médecine — média #1 PASS/LAS suivi sur Instagram et TikTok. Contenu viral entre étudiants en santé.", sign:"L'équipe Hermione 👋" },
-  medibox: { name:'Medibox', logoHtml:'Medi<span>box</span>', theme:'theme-medibox', tone:"Ton pragmatique, tech, centré sur la flexibilité et l'accessibilité. Digital-first. Efficace et direct. Pas de pression géographique.", context:"Medibox — prépa médecine 100% en ligne en France. Cours replay, QCM interactifs, planning personnalisé. Cible toutes les villes de France.", sign:"L'équipe Medibox" },
-  edumove: { name:'Edumove', logoHtml:'<span>Edu</span>move', theme:'theme-edumove', tone:"Ton empathique, positif, tourné vers l'espoir et le rebond après un échec. Alternative valorisante. Jamais dévalorisante ou 'plan B'. Rassurant et ouvert.", context:"Edumove — accompagnement pour études de médecine en Europe (Roumanie, Espagne, Belgique, Hongrie). Après échec PASS/LAS ou pour choisir une voie différente.", sign:"L'équipe Edumove" }
+  diploma: { name:'Diploma Santé', logoHtml:'Diploma <span>Santé</span>', theme:'theme-diploma', tone:"Ton premium, rassurant, orienté excellence et résultats. Données chiffrées. S'adresse aux parents autant qu'aux étudiants. Phrases soignées, denses et sans familiarité. Jamais d'emojis. Valoriser l'expertise pédagogique, le petit comité et la disponibilité.", context:"Diploma Santé — prépa médecine d'excellence à Paris, fondée par Benjamin Haddad, ancien major de PACES. Plus grand nombre d'heures de cours en Île-de-France. Professeurs exclusivement experts, agrégés et/ou universitaires. Classes limitées à 25 élèves max. Direction et professeurs disponibles. 3 campus : 105 quai de la Rapée (Paris 12e), 85 avenue Ledru-Rollin (Paris 12e), 29 rue Lorrissant (Paris 16e). Ouverts 7j/7. Programmes : Première Élite (3 semaines de stage sur l'année, renforcement scientifique, consolidation dossier Parcoursup), Terminale Santé (cours 3 dimanches sur 4, coaching individuel, suivi Parcoursup, stage de révision bac en avril, week-end prépa grand oral en mai), Prépas PASS/LAS/LSPS (accompagnement intensif sur un an, suivi personnalisé, petit comité). Brochure : https://eu1.hubs.ly/H0sqGxp0. Prise de RDV et candidature : https://calendly.com/admissions-diploma-sante/reunion-de-30min-avec-diploma-sante", sign:"L'équipe Diploma Santé" },
+  edumove: { name:'Edumove', logoHtml:'<span>Edu</span>move', theme:'theme-edumove', tone:"Ton empathique, positif, tourné vers l'espoir et le rebond. Alternative valorisante, jamais un 'plan B'. Rassurant, ouvert, encourageant. Valoriser l'accompagnement complet, la sécurité financière et les opportunités en Europe.", context:"Edumove — organisme d'accompagnement pour études de santé en Europe (médecine, dentaire, kinésithérapie, pharmacie et autres). Partenariats avec des universités en Espagne, Portugal, Roumanie et Italie. Accompagnement complet : constitution du dossier, démarches d'admission, installation sur place. Partenariat avec la banque LCL pour financement des études jusqu'à 150 000€ selon profil. Accompagnement de A à Z pour garantir l'acceptation dans une université partenaire. S'adresse aux étudiants après PASS/LAS ou souhaitant étudier directement en Europe.", sign:"L'équipe Edumove" },
+  prepamedecine: { name:'Prépamedecine.fr', logoHtml:'Prépamédecine<span>.fr</span>', theme:'theme-prepamedecine', tone:"Ton informatif, pédagogique et accessible. Style éditorial de qualité, clair et structuré. Objectif : informer sur les études de médecine, guider et rassurer. Mettre subtilement en avant l'expertise de Diploma Santé. Ni commercial ni promotionnel — apporter de la valeur avant tout.", context:"Prépamedecine.fr — site blog et informatif sur les études de médecine (PASS, LAS, LSPS). Contenu éditorial pour guider lycéens, étudiants et parents. Vitrine pédagogique pour mettre en avant Diploma Santé comme référence. Sujets couverts : orientation médicale, méthodes de travail, réforme PASS/LAS, résultats, témoignages, actualités des concours. Les emails ont vocation à éduquer et à créer de la confiance avant de convertir vers Diploma Santé.", sign:"La rédaction Prépamedecine.fr" }
 };
 
 const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
@@ -1125,8 +1102,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function launchBrand(id) {
-  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.kbMeta = []; ST.kbFiles = []; ST.webSearch = false; ST.ctas = ['rdv','brochure']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventNom = ''; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = ''; ST.eventDay = ''; ST.eventLienInscription = '';
-  setTimeout(loadCTALinks, 50);
+  const defaultCtas = id === 'diploma' ? ['rdv','brochure'] : id === 'edumove' ? ['dossier'] : [];
+  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.kbMeta = []; ST.kbFiles = []; ST.webSearch = false; ST.ctas = defaultCtas; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventNom = ''; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = ''; ST.eventDay = ''; ST.eventLienInscription = '';
+  setTimeout(() => { loadCTALinks(); updateCtaVisibility(); }, 50);
   const b = BRANDS[id];
   document.getElementById('brand-selector').style.display = 'none';
   const app = document.getElementById('app-wrapper');
@@ -1327,6 +1305,19 @@ async function callApiJson(prompt, maxTokens = 8000) {
   throw new Error('Trop de tours d\'outils');
 }
 
+function updateCtaVisibility() {
+  const type = ST.campaignType;
+  const brand = ST.brand;
+  const isGenerique = type === 'generique';
+  const isEvenement = type === 'evenement';
+  // Diploma: show generique block; EduMove: show edumove block; Prépamedecine: hide all
+  document.getElementById('cta-generique').style.display = (brand === 'diploma' && isGenerique) ? '' : 'none';
+  document.getElementById('cta-edumove').style.display = (brand === 'edumove' && isGenerique) ? '' : 'none';
+  document.getElementById('cta-row-inscription-event').style.display = isEvenement ? '' : 'none';
+  const isConfirm = isEvenement && ST.eventSubType === 'confirmation';
+  document.getElementById('cta-confirmation').style.display = isConfirm ? '' : 'none';
+}
+
 function selectCampaign(type) {
   ST.campaignType = type;
   document.getElementById('btn-generique').classList.toggle('selected', type === 'generique');
@@ -1334,10 +1325,7 @@ function selectCampaign(type) {
   document.getElementById('sb-type').textContent = type === 'generique' ? 'Générique' : 'Événement';
   document.getElementById('row-generique').style.display = type === 'generique' ? '' : 'none';
   document.getElementById('row-evenement').style.display = type === 'evenement' ? '' : 'none';
-  document.getElementById('cta-generique').style.display = type === 'generique' ? '' : 'none';
-  document.getElementById('cta-row-inscription-event').style.display = type === 'evenement' ? '' : 'none';
-  const isConfirm = type === 'evenement' && ST.eventSubType === 'confirmation';
-  document.getElementById('cta-confirmation').style.display = isConfirm ? '' : 'none';
+  updateCtaVisibility();
   const proposeBtn = document.getElementById('btn-propose');
   if (type === 'generique') proposeBtn.textContent = '🔍 Proposer des angles →';
   else if (ST.eventSubType === 'confirmation') proposeBtn.textContent = '🔔 Générer la séquence →';
@@ -1368,29 +1356,45 @@ function toggleCta(btn) {
   if (idx === -1) ST.ctas.push(val); else ST.ctas.splice(idx, 1);
 }
 
+const BRAND_CTA_DEFAULTS = {
+  diploma: {
+    rdv: 'https://calendly.com/admissions-diploma-sante/reunion-de-30min-avec-diploma-sante',
+    brochure: 'https://eu1.hubs.ly/H0sqGxp0',
+    'inscription-event': '',
+    candidature: 'https://calendly.com/admissions-diploma-sante/reunion-de-30min-avec-diploma-sante'
+  }
+};
+
+function getBrandCtaKey() { return `diploma_cta_urls_${ST.brand || 'diploma'}`; }
+
 function saveCTALinks() {
   const urls = {
     rdv: document.getElementById('url-rdv')?.value || '',
     brochure: document.getElementById('url-brochure')?.value || '',
     'inscription-event': document.getElementById('url-inscription-event')?.value || '',
-    candidature: document.getElementById('url-candidature')?.value || ''
+    candidature: document.getElementById('url-candidature')?.value || '',
+    dossier: document.getElementById('url-dossier')?.value || ''
   };
-  localStorage.setItem(CTA_URL_STORAGE_KEY, JSON.stringify(urls));
+  localStorage.setItem(getBrandCtaKey(), JSON.stringify(urls));
   ST.ctaUrls = urls;
 }
 
 function loadCTALinks() {
   try {
-    const stored = JSON.parse(localStorage.getItem(CTA_URL_STORAGE_KEY) || '{}');
-    ST.ctaUrls = stored;
+    const defaults = BRAND_CTA_DEFAULTS[ST.brand] || {};
+    const stored = JSON.parse(localStorage.getItem(getBrandCtaKey()) || 'null');
+    const urls = stored || defaults;
+    ST.ctaUrls = urls;
     const rdvEl = document.getElementById('url-rdv');
     const brochureEl = document.getElementById('url-brochure');
     const inscEl = document.getElementById('url-inscription-event');
     const candidEl = document.getElementById('url-candidature');
-    if (rdvEl && stored.rdv) rdvEl.value = stored.rdv;
-    if (brochureEl && stored.brochure) brochureEl.value = stored.brochure;
-    if (inscEl && stored['inscription-event']) inscEl.value = stored['inscription-event'];
-    if (candidEl && stored.candidature) candidEl.value = stored.candidature;
+    const dossierEl = document.getElementById('url-dossier');
+    if (rdvEl) rdvEl.value = urls.rdv || '';
+    if (brochureEl) brochureEl.value = urls.brochure || '';
+    if (inscEl) inscEl.value = urls['inscription-event'] || '';
+    if (candidEl) candidEl.value = urls.candidature || '';
+    if (dossierEl) dossierEl.value = urls.dossier || '';
   } catch(e) {}
 }
 
@@ -1688,11 +1692,12 @@ async function startGeneration() {
     brochure: `télécharger la brochure${u.brochure ? ` — URL : ${u.brochure}` : ''}`,
     'inscription-event': `s'inscrire à l'événement${u['inscription-event'] ? ` — URL : ${u['inscription-event']}` : ''}`,
     candidature: `déposer sa candidature${u.candidature ? ` — URL : ${u.candidature}` : ''}`,
+    dossier: `déposer son dossier de candidature${u.dossier ? ` — URL : ${u.dossier}` : ''}`,
     confirmer:'confirmer sa présence à l\'événement', 'ajouter-agenda':'ajouter à son agenda',
     'infos-event':'consulter les infos pratiques', 'programme-event':'voir le programme de l\'événement'
   };
-  const ctaText = ST.ctas.length > 0 ? ST.ctas.map(c => ctaLabels[c] || c).join(', ') : (isConfirmation ? 'confirmer sa présence' : 'télécharger la brochure, prendre rendez-vous');
-  const primaryUrl = u.rdv || u['inscription-event'] || u.brochure || u.candidature || 'https://calendly.com/admissions-diploma-sante/reunion-de-30min-avec-diploma-sante';
+  const ctaText = ST.ctas.length > 0 ? ST.ctas.map(c => ctaLabels[c] || c).join(', ') : (isConfirmation ? 'confirmer sa présence' : '');
+  const primaryUrl = u.rdv || u['inscription-event'] || u.brochure || u.candidature || u.dossier || '';
   const kbText = ST.kb.length > 0 ? `\nDONNÉES À INTÉGRER :\n${ST.kb.map(e => '• ' + e).join('\n')}\n` : '';
   const b = BRANDS[ST.brand];
 
@@ -1997,20 +2002,24 @@ function exportHubspot() {
 }
 
 function newSequence() {
-  ST.emails=[]; ST.ctas=['rdv','brochure']; ST.kb=[]; ST.kbMeta=[]; ST.kbFiles=[]; ST.webSearch=false; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventNom=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu=''; ST.eventDay=''; ST.eventLienInscription='';
+  const defaultCtas = ST.brand === 'diploma' ? ['rdv','brochure'] : ST.brand === 'edumove' ? ['dossier'] : [];
+  ST.emails=[]; ST.ctas=defaultCtas; ST.kb=[]; ST.kbMeta=[]; ST.kbFiles=[]; ST.webSearch=false; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventNom=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu=''; ST.eventDay=''; ST.eventLienInscription='';
   const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
   document.getElementById('freq-num').value='2';
   document.getElementById('duration-num').value='4';
   document.querySelectorAll('.cta-btn').forEach(b=>b.classList.remove('selected'));
-  document.querySelectorAll('#cta-generique .cta-btn[data-cta="rdv"], #cta-generique .cta-btn[data-cta="brochure"]').forEach(b=>b.classList.add('selected'));
+  if (ST.brand === 'diploma') {
+    document.querySelectorAll('#cta-generique .cta-btn[data-cta="rdv"], #cta-generique .cta-btn[data-cta="brochure"]').forEach(b=>b.classList.add('selected'));
+  } else if (ST.brand === 'edumove') {
+    document.querySelectorAll('#cta-edumove .cta-btn[data-cta="dossier"]').forEach(b=>b.classList.add('selected'));
+  }
   document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('btn-generique').classList.add('selected');
   document.getElementById('btn-evenement').classList.remove('selected');
   document.getElementById('row-generique').style.display='';
   document.getElementById('row-evenement').style.display='none';
-  document.getElementById('cta-generique').style.display='';
-  document.getElementById('cta-confirmation').style.display='none';
+  updateCtaVisibility();
   document.getElementById('btn-propose').textContent='🔍 Proposer des angles →';
   document.getElementById('sb-type').textContent='—';
   document.getElementById('sb-count').textContent='—';
@@ -2027,7 +2036,11 @@ function escHtml(str) { if(!str) return ''; return str.replace(/&/g,'&amp;').rep
 function resetUI() {
   document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('selected'));
   document.querySelectorAll('.cta-btn').forEach(b=>b.classList.remove('selected'));
-  document.querySelectorAll('#cta-generique .cta-btn[data-cta="brochure"], #cta-generique .cta-btn[data-cta="rdv"]').forEach(b=>b.classList.add('selected'));
+  if (ST.brand === 'diploma') {
+    document.querySelectorAll('#cta-generique .cta-btn[data-cta="rdv"], #cta-generique .cta-btn[data-cta="brochure"]').forEach(b=>b.classList.add('selected'));
+  } else if (ST.brand === 'edumove') {
+    document.querySelectorAll('#cta-edumove .cta-btn[data-cta="dossier"]').forEach(b=>b.classList.add('selected'));
+  }
   document.getElementById('kb-input').value='';
   document.getElementById('kb-url-input').value='';
   document.getElementById('kb-url-status').textContent='';
@@ -2051,8 +2064,7 @@ function resetUI() {
   document.getElementById('btn-evenement').classList.remove('selected');
   document.getElementById('row-generique').style.display='';
   document.getElementById('row-evenement').style.display='none';
-  document.getElementById('cta-generique').style.display='';
-  document.getElementById('cta-confirmation').style.display='none';
+  updateCtaVisibility();
   document.getElementById('btn-propose').textContent='🔍 Proposer des angles →';
   updateFreqPreview();
 }
