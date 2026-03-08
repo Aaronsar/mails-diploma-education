@@ -901,13 +901,17 @@ function updateHsTokenBar() {
   status.style.color = ok ? '#22c55e' : '#888';
 }
 async function hsProxyCall(method, endpoint, body) {
-  // Passe par /api/hs-proxy (Vercel serverless) pour éviter le CORS
-  const res = await fetch('/api/hs-proxy', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: getHsToken(), method, endpoint, body })
-  });
-  return { ok: res.ok, status: res.status, data: await res.json() };
+  // corsproxy.io : proxy CORS public, supporte tous les headers dont Authorization
+  const url = `https://corsproxy.io/?${encodeURIComponent(endpoint)}`;
+  const httpMethod = (method || 'POST').toUpperCase();
+  const opts = {
+    method: httpMethod,
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getHsToken()}` }
+  };
+  if (!['GET', 'HEAD', 'DELETE'].includes(httpMethod) && body != null) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  let data; try { data = await res.json(); } catch(e) { data = {}; }
+  return { ok: res.ok, status: res.status, data };
 }
 async function createHubSpotEmail(email) {
   if (!getHsToken()) throw new Error('Token HubSpot non configuré — saisis-le sur l\'écran d\'accueil');
