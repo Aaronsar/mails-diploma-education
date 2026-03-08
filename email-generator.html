@@ -372,6 +372,14 @@ textarea { min-height:80px; }
 .kb-entry-text { font-size:12px;color:var(--text-dim);flex:1;line-height:1.5; }
 .kb-del { background:transparent;border:none;color:var(--text-muted);cursor:pointer;font-size:13px;flex-shrink:0; }
 .kb-del:hover { color:#f87171; }
+.kb-badge { font-size:10px;padding:2px 7px;border-radius:100px;font-weight:600;flex-shrink:0;margin-top:1px; }
+.kb-badge-text { background:rgba(100,100,100,0.1);color:var(--text-muted);border:1px solid var(--border); }
+.kb-badge-url { background:rgba(59,130,246,0.1);color:#60a5fa;border:1px solid rgba(59,130,246,0.25); }
+.kb-url-row { display:flex;gap:8px;margin-top:10px; }
+.kb-search-toggle { display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);cursor:pointer;user-select:none; }
+.kb-search-toggle input { flex-shrink:0;margin-top:2px; }
+.kb-search-toggle.active { border-color:var(--accent);background:rgba(99,102,241,0.04); }
+.kb-fetching { font-size:11px;color:var(--text-muted);font-style:italic;margin-top:6px; }
 
 /* GEN LOG */
 .gen-log { background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:12px;color:var(--text-dim);line-height:2;min-height:100px;font-family:'DM Mono',monospace;white-space:pre-wrap; }
@@ -484,12 +492,31 @@ textarea { min-height:80px; }
 
         <div class="card">
           <div class="card-title">Base de connaissances 🧠</div>
-          <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px;line-height:1.6;">Ajoute des données à injecter dans les emails : chiffres clés, offres du moment, événements, arguments différenciants…</div>
-          <textarea id="kb-input" placeholder="Ex: Portes ouvertes le 15 mars, -10% sur la brochure, 92% de réussite en kiné, 25 élèves max par classe…" style="margin-bottom:10px;"></textarea>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <button class="btn btn-sec" onclick="addKbEntry()" style="padding:8px 16px;font-size:12px;">+ Ajouter</button>
+          <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px;line-height:1.6;">Donne à l'IA du contexte : colle du texte, des chiffres clés, ou des liens web qu'elle analysera pour rédiger des emails plus pertinents.</div>
+
+          <!-- Texte libre -->
+          <textarea id="kb-input" placeholder="Ex: 92% de réussite en kiné, 25 élèves max par classe, campus Paris 15e…" style="margin-bottom:8px;"></textarea>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="btn btn-sec" onclick="addKbEntry()" style="padding:8px 16px;font-size:12px;">+ Ajouter texte</button>
             <span style="font-size:11px;color:var(--text-muted);" id="kb-count-label">0 entrée(s)</span>
           </div>
+
+          <!-- URL à analyser -->
+          <div class="kb-url-row">
+            <input type="url" id="kb-url-input" class="cta-url-input" placeholder="https://… page web ou fiche produit à analyser" style="flex:1;" />
+            <button class="btn btn-sec" onclick="addKbUrl()" id="kb-url-btn" style="padding:8px 14px;font-size:12px;flex-shrink:0;">🔗 Analyser URL</button>
+          </div>
+          <div id="kb-url-status" class="kb-fetching"></div>
+
+          <!-- Recherche web -->
+          <label class="kb-search-toggle" id="kb-search-label" onclick="toggleWebSearch()">
+            <input type="checkbox" id="kb-web-search" style="pointer-events:none;" />
+            <span>
+              <strong>🔍 Recherche web en temps réel</strong><br>
+              <span style="font-size:12px;color:var(--text-dim);">L'IA fera des recherches sur internet pour enrichir les emails avec des sources actuelles (stats, actualités, tendances…)</span>
+            </span>
+          </label>
+
           <div id="kb-list" style="margin-top:12px;"></div>
         </div>
 
@@ -997,7 +1024,7 @@ const BRANDS = {
 
 const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
 
-const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], ctaUrls:{}, kb:[], emails:[], emailValidated:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'', eventLienInscription:'' };
+const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], ctaUrls:{}, kb:[], kbMeta:[], webSearch:false, emails:[], emailValidated:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'', eventLienInscription:'' };
 const CTA_URL_STORAGE_KEY = 'diploma_cta_urls';
 
 // ── HELPERS : J-COUNTDOWN ─────────────────────────────────────────────────
@@ -1085,7 +1112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function launchBrand(id) {
-  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = ['rdv','brochure']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventNom = ''; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = ''; ST.eventDay = ''; ST.eventLienInscription = '';
+  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.kbMeta = []; ST.webSearch = false; ST.ctas = ['rdv','brochure']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventNom = ''; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = ''; ST.eventDay = ''; ST.eventLienInscription = '';
   setTimeout(loadCTALinks, 50);
   const b = BRANDS[id];
   document.getElementById('brand-selector').style.display = 'none';
@@ -1136,20 +1163,93 @@ function addKbEntry() {
   const val = document.getElementById('kb-input').value.trim();
   if (!val) return;
   ST.kb.push(val);
+  ST.kbMeta.push({ type:'text' });
   document.getElementById('kb-input').value = '';
   renderKb();
 }
 
-function removeKbEntry(i) { ST.kb.splice(i, 1); renderKb(); }
+async function addKbUrl() {
+  const urlVal = document.getElementById('kb-url-input').value.trim();
+  if (!urlVal) return;
+  const btn = document.getElementById('kb-url-btn');
+  const status = document.getElementById('kb-url-status');
+  btn.disabled = true; btn.textContent = '⏳ Analyse…';
+  status.textContent = 'Récupération du contenu…';
+  try {
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(urlVal)}`;
+    const r = await fetch(proxy);
+    const d = await r.json();
+    const text = d.contents
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s{3,}/g, '\n')
+      .trim()
+      .substring(0, 3000);
+    if (!text) throw new Error('Contenu vide');
+    ST.kb.push(`[Source : ${urlVal}]\n${text}`);
+    ST.kbMeta.push({ type:'url', label: urlVal });
+    document.getElementById('kb-url-input').value = '';
+    status.textContent = '✓ Page analysée et ajoutée à la base de connaissances';
+    renderKb();
+  } catch(e) {
+    status.textContent = `❌ Impossible de récupérer l'URL : ${e.message}`;
+  } finally {
+    btn.disabled = false; btn.textContent = '🔗 Analyser URL';
+  }
+}
+
+function toggleWebSearch() {
+  const cb = document.getElementById('kb-web-search');
+  const label = document.getElementById('kb-search-label');
+  cb.checked = !cb.checked;
+  ST.webSearch = cb.checked;
+  label.classList.toggle('active', cb.checked);
+}
+
+function removeKbEntry(i) { ST.kb.splice(i, 1); ST.kbMeta.splice(i, 1); renderKb(); }
 
 function renderKb() {
   document.getElementById('kb-count-label').textContent = `${ST.kb.length} entrée(s)`;
-  document.getElementById('kb-list').innerHTML = ST.kb.map((e, i) => `
-    <div class="kb-entry">
-      <span class="kb-entry-text">${e}</span>
-      <button class="kb-del" onclick="removeKbEntry(${i})">✕</button>
-    </div>
-  `).join('');
+  document.getElementById('kb-list').innerHTML = ST.kb.map((e, i) => {
+    const meta = ST.kbMeta[i] || { type:'text' };
+    const badge = meta.type === 'url'
+      ? `<span class="kb-badge kb-badge-url">🔗 URL</span>`
+      : `<span class="kb-badge kb-badge-text">📝 Texte</span>`;
+    const display = meta.type === 'url' ? meta.label : e;
+    return `<div class="kb-entry">${badge}<span class="kb-entry-text">${escHtml(display)}</span><button class="kb-del" onclick="removeKbEntry(${i})">✕</button></div>`;
+  }).join('');
+}
+
+// ── API helper with optional web search (multi-turn) ─────────────────────────
+async function callApiJson(prompt, maxTokens = 8000) {
+  const headers = {
+    'Content-Type': 'application/json',
+    'x-api-key': getApiKey(),
+    'anthropic-version': '2023-06-01',
+    'anthropic-dangerous-direct-browser-access': 'true'
+  };
+  const baseBody = { model: MODEL, max_tokens: maxTokens };
+  if (ST.webSearch) {
+    headers['anthropic-beta'] = 'web-search-2025-03-05';
+    baseBody.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+  }
+  let messages = [{ role: 'user', content: prompt }];
+  for (let turn = 0; turn < 8; turn++) {
+    const r = await fetch(API, { method:'POST', headers, body: JSON.stringify({ ...baseBody, messages }) });
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    if (d.stop_reason !== 'tool_use') {
+      return d.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    }
+    messages.push({ role: 'assistant', content: d.content });
+    const results = d.content.filter(b => b.type === 'tool_use').map(b => ({
+      type: 'tool_result', tool_use_id: b.id,
+      content: [{ type: 'text', text: 'Recherche effectuée.' }]
+    }));
+    messages.push({ role: 'user', content: results });
+  }
+  throw new Error('Trop de tours d\'outils');
 }
 
 function selectCampaign(type) {
@@ -1334,14 +1434,7 @@ Réponds UNIQUEMENT en JSON valide sans markdown :
 Génère exactement ${anglesCount} angles distincts.`;
 
   try {
-    const r = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key':getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-      body: JSON.stringify({ model:MODEL, max_tokens:2000, messages:[{role:'user',content:prompt}] })
-    });
-    const d = await r.json();
-    if (d.error) throw new Error(d.error.message);
-    let raw = d.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const raw = (await callApiJson(prompt, 2000)).trim().replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(raw);
     ST.proposedAngles = parsed.angles;
     renderAngles(parsed.angles);
@@ -1474,18 +1567,9 @@ Réponds UNIQUEMENT en JSON valide sans markdown :
 
   try {
     log.textContent += `✓ ${steps[steps.length-1]}\n`;
-    status.textContent = 'Appel API Claude…';
+    status.textContent = ST.webSearch ? 'Recherche web + rédaction…' : 'Appel API Claude…';
 
-    const r = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key':getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-      body: JSON.stringify({ model:MODEL, max_tokens:3000, messages:[{role:'user',content:prompt}] })
-    });
-
-    const d = await r.json();
-    if (d.error) throw new Error(d.error.message);
-
-    let raw = d.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const raw = (await callApiJson(prompt, 3000)).trim().replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(raw);
     ST.emails = parsed.emails;
 
@@ -1631,18 +1715,9 @@ Génère exactement ${selectedData.length} emails dans l'ordre des angles fourni
 
   try {
     log.textContent += `✓ ${steps[steps.length-1]}\n`;
-    status.textContent = 'Appel API Claude…';
+    status.textContent = ST.webSearch ? 'Recherche web + rédaction…' : 'Appel API Claude…';
 
-    const r = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key':getApiKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-      body: JSON.stringify({ model:MODEL, max_tokens:8000, messages:[{role:'user',content:prompt}] })
-    });
-
-    const d = await r.json();
-    if (d.error) throw new Error(d.error.message);
-
-    let raw = d.content[0].text.trim().replace(/```json|```/g,'').trim();
+    const raw = (await callApiJson(prompt, 8000)).trim().replace(/```json|```/g,'').trim();
     const parsed = JSON.parse(raw);
     ST.emails = parsed.emails;
 
@@ -1847,7 +1922,7 @@ function exportHubspot() {
 }
 
 function newSequence() {
-  ST.emails=[]; ST.ctas=['rdv','brochure']; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventNom=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu=''; ST.eventDay=''; ST.eventLienInscription='';
+  ST.emails=[]; ST.ctas=['rdv','brochure']; ST.kb=[]; ST.kbMeta=[]; ST.webSearch=false; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventNom=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu=''; ST.eventDay=''; ST.eventLienInscription='';
   const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
   document.getElementById('freq-num').value='2';
@@ -1879,8 +1954,12 @@ function resetUI() {
   document.querySelectorAll('.cta-btn').forEach(b=>b.classList.remove('selected'));
   document.querySelectorAll('#cta-generique .cta-btn[data-cta="brochure"], #cta-generique .cta-btn[data-cta="rdv"]').forEach(b=>b.classList.add('selected'));
   document.getElementById('kb-input').value='';
+  document.getElementById('kb-url-input').value='';
+  document.getElementById('kb-url-status').textContent='';
   document.getElementById('kb-list').innerHTML='';
   document.getElementById('kb-count-label').textContent='0 entrée(s)';
+  const wsCb = document.getElementById('kb-web-search'); if(wsCb) { wsCb.checked=false; document.getElementById('kb-search-label').classList.remove('active'); }
+  ST.kbMeta = []; ST.webSearch = false;
   const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
   document.getElementById('freq-num').value='2';
