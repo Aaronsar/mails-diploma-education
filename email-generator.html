@@ -1260,6 +1260,34 @@ function renderKb() {
   }).join('');
 }
 
+// ── JSON repair : récupère les emails partiellement générés en cas de troncature ─
+function repairJson(raw) {
+  // Try as-is first
+  try { JSON.parse(raw); return raw; } catch(e) {}
+  // Try to rescue partial array: find all complete email objects
+  const emailRegex = /\{[^{}]*"num"\s*:\s*\d+[^{}]*(?:\{[^{}]*\}[^{}]*)*/g;
+  // More robust: find opening of emails array and close it
+  const arrStart = raw.indexOf('"emails"');
+  if (arrStart === -1) throw new SyntaxError('No emails array found');
+  const bracketStart = raw.indexOf('[', arrStart);
+  if (bracketStart === -1) throw new SyntaxError('No emails array found');
+  // Collect complete objects by counting braces
+  let depth = 0, inStr = false, escape = false, objStart = -1;
+  const objects = [];
+  for (let i = bracketStart + 1; i < raw.length; i++) {
+    const c = raw[i];
+    if (escape) { escape = false; continue; }
+    if (c === '\\' && inStr) { escape = true; continue; }
+    if (c === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (c === '{') { if (depth === 0) objStart = i; depth++; }
+    else if (c === '}') { depth--; if (depth === 0 && objStart !== -1) { objects.push(raw.slice(objStart, i + 1)); objStart = -1; } }
+    else if (c === ']' && depth === 0) break;
+  }
+  if (objects.length === 0) throw new SyntaxError('No complete email objects found');
+  return `{"emails":[${objects.join(',')}]}`;
+}
+
 // ── API helper with optional web search + files (multi-turn) ─────────────────
 async function callApiJson(prompt, maxTokens = 8000) {
   const headers = {
@@ -1648,8 +1676,8 @@ Réponds UNIQUEMENT en JSON valide sans markdown :
     log.textContent += `✓ ${steps[steps.length-1]}\n`;
     status.textContent = ST.webSearch ? 'Recherche web + rédaction…' : 'Appel API Claude…';
 
-    const raw = (await callApiJson(prompt, 3000)).trim().replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(raw);
+    const raw = (await callApiJson(prompt, 8000)).trim().replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(repairJson(raw));
     ST.emails = parsed.emails;
 
     log.textContent += `✅ Email d'inscription généré !\n`;
@@ -1797,8 +1825,8 @@ Génère exactement ${selectedData.length} emails dans l'ordre des angles fourni
     log.textContent += `✓ ${steps[steps.length-1]}\n`;
     status.textContent = ST.webSearch ? 'Recherche web + rédaction…' : 'Appel API Claude…';
 
-    const raw = (await callApiJson(prompt, 8000)).trim().replace(/```json|```/g,'').trim();
-    const parsed = JSON.parse(raw);
+    const raw = (await callApiJson(prompt, 20000)).trim().replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(repairJson(raw));
     ST.emails = parsed.emails;
 
     log.textContent += `✅ ${ST.emails.length} emails générés avec succès !\n`;
