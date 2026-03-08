@@ -375,7 +375,12 @@ textarea { min-height:80px; }
 .kb-badge { font-size:10px;padding:2px 7px;border-radius:100px;font-weight:600;flex-shrink:0;margin-top:1px; }
 .kb-badge-text { background:rgba(100,100,100,0.1);color:var(--text-muted);border:1px solid var(--border); }
 .kb-badge-url { background:rgba(59,130,246,0.1);color:#60a5fa;border:1px solid rgba(59,130,246,0.25); }
+.kb-badge-pdf { background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.25); }
+.kb-badge-img { background:rgba(168,85,247,0.1);color:#c084fc;border:1px solid rgba(168,85,247,0.25); }
 .kb-url-row { display:flex;gap:8px;margin-top:10px; }
+.kb-url-row textarea { flex:1;resize:vertical;min-height:60px;font-size:12px; }
+.kb-file-btn { display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--radius);border:1px dashed var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;cursor:pointer;transition:all 0.15s;width:100%; }
+.kb-file-btn:hover { border-color:var(--accent);color:var(--text); }
 .kb-search-toggle { display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface2);cursor:pointer;user-select:none; }
 .kb-search-toggle input { flex-shrink:0;margin-top:2px; }
 .kb-search-toggle.active { border-color:var(--accent);background:rgba(99,102,241,0.04); }
@@ -501,12 +506,20 @@ textarea { min-height:80px; }
             <span style="font-size:11px;color:var(--text-muted);" id="kb-count-label">0 entrée(s)</span>
           </div>
 
-          <!-- URL à analyser -->
+          <!-- URLs à analyser (plusieurs possibles) -->
           <div class="kb-url-row">
-            <input type="url" id="kb-url-input" class="cta-url-input" placeholder="https://… page web ou fiche produit à analyser" style="flex:1;" />
-            <button class="btn btn-sec" onclick="addKbUrl()" id="kb-url-btn" style="padding:8px 14px;font-size:12px;flex-shrink:0;">🔗 Analyser URL</button>
+            <textarea id="kb-url-input" placeholder="https://…&#10;https://…&#10;Un lien par ligne — autant que tu veux"></textarea>
+            <button class="btn btn-sec" onclick="addKbUrls()" id="kb-url-btn" style="padding:8px 14px;font-size:12px;flex-shrink:0;align-self:flex-start;">🔗 Analyser</button>
           </div>
           <div id="kb-url-status" class="kb-fetching"></div>
+
+          <!-- Fichiers PDF / image -->
+          <label class="kb-file-btn" style="margin-top:10px;">
+            <span>📎</span>
+            <span>Charger un fichier — PDF, JPG, PNG… <span style="font-size:10px;opacity:0.6;">(plusieurs possibles)</span></span>
+            <input type="file" id="kb-file-input" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp" multiple style="display:none;" onchange="addKbFiles(this)" />
+          </label>
+          <div id="kb-file-status" class="kb-fetching"></div>
 
           <!-- Recherche web -->
           <label class="kb-search-toggle" id="kb-search-label" onclick="toggleWebSearch()">
@@ -1024,7 +1037,7 @@ const BRANDS = {
 
 const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
 
-const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], ctaUrls:{}, kb:[], kbMeta:[], webSearch:false, emails:[], emailValidated:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'', eventLienInscription:'' };
+const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], ctaUrls:{}, kb:[], kbMeta:[], kbFiles:[], webSearch:false, emails:[], emailValidated:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'', eventLienInscription:'' };
 const CTA_URL_STORAGE_KEY = 'diploma_cta_urls';
 
 // ── HELPERS : J-COUNTDOWN ─────────────────────────────────────────────────
@@ -1112,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function launchBrand(id) {
-  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.kbMeta = []; ST.webSearch = false; ST.ctas = ['rdv','brochure']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventNom = ''; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = ''; ST.eventDay = ''; ST.eventLienInscription = '';
+  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.kbMeta = []; ST.kbFiles = []; ST.webSearch = false; ST.ctas = ['rdv','brochure']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventNom = ''; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = ''; ST.eventDay = ''; ST.eventLienInscription = '';
   setTimeout(loadCTALinks, 50);
   const b = BRANDS[id];
   document.getElementById('brand-selector').style.display = 'none';
@@ -1168,35 +1181,69 @@ function addKbEntry() {
   renderKb();
 }
 
-async function addKbUrl() {
-  const urlVal = document.getElementById('kb-url-input').value.trim();
-  if (!urlVal) return;
+async function addKbUrls() {
+  const raw = document.getElementById('kb-url-input').value.trim();
+  const urls = raw.split('\n').map(u => u.trim()).filter(u => u.startsWith('http'));
+  if (!urls.length) return;
   const btn = document.getElementById('kb-url-btn');
   const status = document.getElementById('kb-url-status');
-  btn.disabled = true; btn.textContent = '⏳ Analyse…';
-  status.textContent = 'Récupération du contenu…';
-  try {
-    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(urlVal)}`;
-    const r = await fetch(proxy);
-    const d = await r.json();
-    const text = d.contents
-      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s{3,}/g, '\n')
-      .trim()
-      .substring(0, 3000);
-    if (!text) throw new Error('Contenu vide');
-    ST.kb.push(`[Source : ${urlVal}]\n${text}`);
-    ST.kbMeta.push({ type:'url', label: urlVal });
-    document.getElementById('kb-url-input').value = '';
-    status.textContent = '✓ Page analysée et ajoutée à la base de connaissances';
-    renderKb();
-  } catch(e) {
-    status.textContent = `❌ Impossible de récupérer l'URL : ${e.message}`;
-  } finally {
-    btn.disabled = false; btn.textContent = '🔗 Analyser URL';
+  btn.disabled = true;
+  let ok = 0, fail = 0;
+  for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
+    btn.textContent = `⏳ ${i+1}/${urls.length}…`;
+    status.textContent = `Analyse de ${url.substring(0,60)}…`;
+    try {
+      const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const r = await fetch(proxy);
+      const d = await r.json();
+      const text = d.contents
+        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/\s{3,}/g, '\n')
+        .trim()
+        .substring(0, 3000);
+      if (!text) throw new Error('Contenu vide');
+      ST.kb.push(`[Source : ${url}]\n${text}`);
+      ST.kbMeta.push({ type:'url', label: url });
+      ok++;
+    } catch(e) { fail++; }
   }
+  document.getElementById('kb-url-input').value = '';
+  status.textContent = ok > 0 ? `✓ ${ok} URL(s) analysée(s)${fail ? ` · ${fail} échec(s)` : ''}` : `❌ Aucune URL récupérée`;
+  btn.disabled = false; btn.textContent = '🔗 Analyser';
+  renderKb();
+}
+
+async function addKbFiles(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const status = document.getElementById('kb-file-status');
+  status.textContent = `Lecture de ${files.length} fichier(s)…`;
+  let ok = 0;
+  for (const file of files) {
+    try {
+      const data = await new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload = e => res(e.target.result.split(',')[1]);
+        reader.onerror = rej;
+        reader.readAsDataURL(file);
+      });
+      const mt = file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
+      const type = mt === 'application/pdf' ? 'pdf' : 'image';
+      ST.kbFiles.push({ name: file.name, mediaType: mt, data, type });
+      ST.kbMeta.push({ type, label: file.name });
+      ok++;
+    } catch(e) { /* skip */ }
+  }
+  input.value = '';
+  status.textContent = ok > 0 ? `✓ ${ok} fichier(s) chargé(s)` : '❌ Erreur de lecture';
+  renderKb();
+}
+
+function removeKbFile(idx) {
+  ST.kbFiles.splice(idx, 1);
 }
 
 function toggleWebSearch() {
@@ -1207,21 +1254,35 @@ function toggleWebSearch() {
   label.classList.toggle('active', cb.checked);
 }
 
-function removeKbEntry(i) { ST.kb.splice(i, 1); ST.kbMeta.splice(i, 1); renderKb(); }
+function removeKbEntry(i) {
+  // If this meta entry is a file, also remove from kbFiles
+  const meta = ST.kbMeta[i];
+  if (meta && (meta.type === 'pdf' || meta.type === 'image')) {
+    const fileIdx = ST.kbMeta.slice(0, i).filter(m => m.type === 'pdf' || m.type === 'image').length;
+    ST.kbFiles.splice(fileIdx, 1);
+  } else {
+    const textIdx = ST.kbMeta.slice(0, i).filter(m => m.type !== 'pdf' && m.type !== 'image').length;
+    ST.kb.splice(textIdx, 1);
+  }
+  ST.kbMeta.splice(i, 1);
+  renderKb();
+}
 
 function renderKb() {
-  document.getElementById('kb-count-label').textContent = `${ST.kb.length} entrée(s)`;
-  document.getElementById('kb-list').innerHTML = ST.kb.map((e, i) => {
-    const meta = ST.kbMeta[i] || { type:'text' };
-    const badge = meta.type === 'url'
-      ? `<span class="kb-badge kb-badge-url">🔗 URL</span>`
-      : `<span class="kb-badge kb-badge-text">📝 Texte</span>`;
-    const display = meta.type === 'url' ? meta.label : e;
+  const total = ST.kbMeta.length;
+  document.getElementById('kb-count-label').textContent = `${total} entrée(s)`;
+  let textIdx = 0, fileIdx = 0;
+  document.getElementById('kb-list').innerHTML = ST.kbMeta.map((meta, i) => {
+    let badge, display;
+    if (meta.type === 'text') { badge = `<span class="kb-badge kb-badge-text">📝 Texte</span>`; display = ST.kb[textIdx++] || ''; }
+    else if (meta.type === 'url') { badge = `<span class="kb-badge kb-badge-url">🔗 URL</span>`; display = meta.label; textIdx++; }
+    else if (meta.type === 'pdf') { badge = `<span class="kb-badge kb-badge-pdf">📄 PDF</span>`; display = meta.label; fileIdx++; }
+    else { badge = `<span class="kb-badge kb-badge-img">🖼 Image</span>`; display = meta.label; fileIdx++; }
     return `<div class="kb-entry">${badge}<span class="kb-entry-text">${escHtml(display)}</span><button class="kb-del" onclick="removeKbEntry(${i})">✕</button></div>`;
   }).join('');
 }
 
-// ── API helper with optional web search (multi-turn) ─────────────────────────
+// ── API helper with optional web search + files (multi-turn) ─────────────────
 async function callApiJson(prompt, maxTokens = 8000) {
   const headers = {
     'Content-Type': 'application/json',
@@ -1230,11 +1291,25 @@ async function callApiJson(prompt, maxTokens = 8000) {
     'anthropic-dangerous-direct-browser-access': 'true'
   };
   const baseBody = { model: MODEL, max_tokens: maxTokens };
-  if (ST.webSearch) {
-    headers['anthropic-beta'] = 'web-search-2025-03-05';
-    baseBody.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+  const betaParts = [];
+  if (ST.webSearch) { betaParts.push('web-search-2025-03-05'); baseBody.tools = [{ type: 'web_search_20250305', name: 'web_search' }]; }
+  if (ST.kbFiles && ST.kbFiles.some(f => f.type === 'pdf')) betaParts.push('pdfs-2024-09-25');
+  if (betaParts.length) headers['anthropic-beta'] = betaParts.join(',');
+
+  // Build initial user content (text + files if any)
+  let userContent;
+  if (ST.kbFiles && ST.kbFiles.length > 0) {
+    userContent = [];
+    for (const f of ST.kbFiles) {
+      if (f.type === 'pdf') userContent.push({ type:'document', source:{ type:'base64', media_type: f.mediaType, data: f.data } });
+      else userContent.push({ type:'image', source:{ type:'base64', media_type: f.mediaType, data: f.data } });
+    }
+    userContent.push({ type:'text', text: prompt });
+  } else {
+    userContent = prompt;
   }
-  let messages = [{ role: 'user', content: prompt }];
+
+  let messages = [{ role: 'user', content: userContent }];
   for (let turn = 0; turn < 8; turn++) {
     const r = await fetch(API, { method:'POST', headers, body: JSON.stringify({ ...baseBody, messages }) });
     const d = await r.json();
@@ -1922,7 +1997,7 @@ function exportHubspot() {
 }
 
 function newSequence() {
-  ST.emails=[]; ST.ctas=['rdv','brochure']; ST.kb=[]; ST.kbMeta=[]; ST.webSearch=false; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventNom=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu=''; ST.eventDay=''; ST.eventLienInscription='';
+  ST.emails=[]; ST.ctas=['rdv','brochure']; ST.kb=[]; ST.kbMeta=[]; ST.kbFiles=[]; ST.webSearch=false; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventNom=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu=''; ST.eventDay=''; ST.eventLienInscription='';
   const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
   document.getElementById('freq-num').value='2';
@@ -1959,7 +2034,9 @@ function resetUI() {
   document.getElementById('kb-list').innerHTML='';
   document.getElementById('kb-count-label').textContent='0 entrée(s)';
   const wsCb = document.getElementById('kb-web-search'); if(wsCb) { wsCb.checked=false; document.getElementById('kb-search-label').classList.remove('active'); }
-  ST.kbMeta = []; ST.webSearch = false;
+  document.getElementById('kb-url-status').textContent='';
+  document.getElementById('kb-file-status').textContent='';
+  ST.kbMeta = []; ST.kbFiles = []; ST.webSearch = false;
   const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
   document.getElementById('freq-num').value='2';
