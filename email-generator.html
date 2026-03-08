@@ -900,48 +900,46 @@ function updateHsTokenBar() {
   status.textContent = ok ? '✓ Connecté' : '';
   status.style.color = ok ? '#22c55e' : '#888';
 }
+async function hsProxyCall(endpoint, body) {
+  // Passe par /api/hs-proxy (Vercel serverless) pour éviter le CORS
+  const res = await fetch('/api/hs-proxy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: getHsToken(), endpoint, body })
+  });
+  return { ok: res.ok, status: res.status, data: await res.json() };
+}
 async function createHubSpotEmail(email) {
-  const token = getHsToken();
-  if (!token) throw new Error('Token HubSpot non configuré — saisis-le sur l\'écran d\'accueil');
+  if (!getHsToken()) throw new Error('Token HubSpot non configuré — saisis-le sur l\'écran d\'accueil');
   const b = BRANDS[ST.brand];
   const htmlBody = email.hubspot || `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px">${(email.corps||'').replace(/\n/g,'<br>')}</div>`;
-  // Try v1 API first (scope: content) — more widely available with Marketing Hub Pro
-  const resV1 = await fetch('https://api.hubapi.com/email/public/v1/emails', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: `[${b.name}] ${email.objet}`,
-      subject: email.objet,
-      fromName: b.name,
-      htmlBody: htmlBody,
-      isLocalTimezoneSend: false
-    })
+
+  // Tentative 1 : API v1 (scope: content)
+  const r1 = await hsProxyCall('https://api.hubapi.com/email/public/v1/emails', {
+    name: `[${b.name}] ${email.objet}`,
+    subject: email.objet,
+    fromName: b.name,
+    htmlBody: htmlBody,
+    isLocalTimezoneSend: false
   });
-  if (resV1.ok) {
-    const d = await resV1.json();
-    // v1 returns { id, portalId, ... } — build link
-    const link = d.portalId ? `https://app-eu1.hubspot.com/email/${d.portalId}/details/${d.id}/performance` : null;
-    return { id: d.id, portalId: d.portalId, hsLink: link };
+  if (r1.ok) {
+    const d = r1.data;
+    return { id: d.id, portalId: d.portalId, hsLink: d.portalId ? `https://app-eu1.hubspot.com/email/${d.portalId}/details/${d.id}/performance` : null };
   }
-  // Fallback: v3 API (scope: marketing-email)
-  const resV3 = await fetch('https://api.hubapi.com/marketing/v3/emails', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      name: `[${b.name}] ${email.objet}`,
-      subject: email.objet,
-      content: { body: htmlBody }
-    })
+
+  // Tentative 2 : API v3 (scope: marketing-email)
+  const r3 = await hsProxyCall('https://api.hubapi.com/marketing/v3/emails', {
+    name: `[${b.name}] ${email.objet}`,
+    subject: email.objet,
+    content: { body: htmlBody }
   });
-  if (resV3.ok) {
-    const d = await resV3.json();
-    const link = d.portalId ? `https://app-eu1.hubspot.com/email/${d.portalId}/edit/${d.id}` : null;
-    return { id: d.id, portalId: d.portalId, hsLink: link };
+  if (r3.ok) {
+    const d = r3.data;
+    return { id: d.id, portalId: d.portalId, hsLink: d.portalId ? `https://app-eu1.hubspot.com/email/${d.portalId}/edit/${d.id}` : null };
   }
-  // Both failed — surface the v1 error
-  let msg = `HTTP ${resV1.status}`;
-  try { const j = await resV1.json(); msg = j.message || j.error || msg; } catch(e) {}
-  throw new Error(msg);
+
+  // Les deux ont échoué — affiche l'erreur v1
+  throw new Error(r1.data?.message || r1.data?.error || `HTTP ${r1.status}`);
 }
 async function pushCurrentEmailToHubSpot() {
   const email = ST.emails[_validatorIdx];
