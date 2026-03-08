@@ -900,46 +900,57 @@ function updateHsTokenBar() {
   status.textContent = ok ? '✓ Connecté' : '';
   status.style.color = ok ? '#22c55e' : '#888';
 }
-async function hsProxyCall(endpoint, body) {
+async function hsProxyCall(method, endpoint, body) {
   // Passe par /api/hs-proxy (Vercel serverless) pour éviter le CORS
   const res = await fetch('/api/hs-proxy', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: getHsToken(), endpoint, body })
+    body: JSON.stringify({ token: getHsToken(), method, endpoint, body })
   });
   return { ok: res.ok, status: res.status, data: await res.json() };
 }
 async function createHubSpotEmail(email) {
   if (!getHsToken()) throw new Error('Token HubSpot non configuré — saisis-le sur l\'écran d\'accueil');
   const b = BRANDS[ST.brand];
-  const htmlBody = email.hubspot || `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px">${(email.corps||'').replace(/\n/g,'<br>')}</div>`;
+  const rawHtml = email.hubspot || `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px">${(email.corps||'').replace(/\n/g,'<br>')}</div>`;
+  // Encapsule dans un document complet pour forcer le mode "custom HTML" dans HubSpot
+  const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head><body style="margin:0;padding:0;">${rawHtml}</body></html>`;
 
-  // Tentative 1 : API v1 (scope: content)
-  const r1 = await hsProxyCall('https://api.hubapi.com/email/public/v1/emails', {
+  // Étape 1 : créer l'email (champs minimaux) → obtenir l'ID
+  const rCreate = await hsProxyCall('POST', 'https://api.hubapi.com/email/public/v1/emails', {
     name: `[${b.name}] ${email.objet}`,
     subject: email.objet,
     fromName: b.name,
-    htmlBody: htmlBody,
     isLocalTimezoneSend: false
   });
-  if (r1.ok) {
-    const d = r1.data;
-    return { id: d.id, portalId: d.portalId, hsLink: d.portalId ? `https://app-eu1.hubspot.com/email/${d.portalId}/details/${d.id}/performance` : null };
+  if (!rCreate.ok) {
+    // Fallback v3 si v1 création échoue
+    const r3 = await hsProxyCall('POST', 'https://api.hubapi.com/marketing/v3/emails', {
+      name: `[${b.name}] ${email.objet}`,
+      subject: email.objet,
+      content: { body: rawHtml }
+    });
+    if (r3.ok) {
+      const d = r3.data;
+      return { id: d.id, portalId: d.portalId, hsLink: d.portalId ? `https://app-eu1.hubspot.com/email/${d.portalId}/edit/${d.id}` : null };
+    }
+    throw new Error(rCreate.data?.message || rCreate.data?.error || `HTTP ${rCreate.status}`);
   }
 
-  // Tentative 2 : API v3 (scope: marketing-email)
-  const r3 = await hsProxyCall('https://api.hubapi.com/marketing/v3/emails', {
-    name: `[${b.name}] ${email.objet}`,
-    subject: email.objet,
-    content: { body: htmlBody }
+  const emailId = rCreate.data.id;
+  const portalId = rCreate.data.portalId;
+
+  // Étape 2 : mettre à jour avec le bloc HTML (PUT)
+  await hsProxyCall('PUT', `https://api.hubapi.com/email/public/v1/emails/${emailId}`, {
+    htmlBody: fullHtml,
+    richTextBody: fullHtml
   });
-  if (r3.ok) {
-    const d = r3.data;
-    return { id: d.id, portalId: d.portalId, hsLink: d.portalId ? `https://app-eu1.hubspot.com/email/${d.portalId}/edit/${d.id}` : null };
-  }
 
-  // Les deux ont échoué — affiche l'erreur v1
-  throw new Error(r1.data?.message || r1.data?.error || `HTTP ${r1.status}`);
+  return {
+    id: emailId,
+    portalId,
+    hsLink: portalId ? `https://app-eu1.hubspot.com/email/${portalId}/edit/${emailId}/content` : null
+  };
 }
 async function pushCurrentEmailToHubSpot() {
   const email = ST.emails[_validatorIdx];
