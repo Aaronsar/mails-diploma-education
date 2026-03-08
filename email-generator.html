@@ -913,18 +913,23 @@ async function createHubSpotEmail(email) {
   if (!getHsToken()) throw new Error('Token HubSpot non configuré — saisis-le sur l\'écran d\'accueil');
   const b = BRANDS[ST.brand];
   const rawHtml = email.hubspot || `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px">${(email.corps||'').replace(/\n/g,'<br>')}</div>`;
-  // Encapsule dans un document complet pour forcer le mode "custom HTML" dans HubSpot
+  // Document HTML complet — forçage du mode Custom HTML dans HubSpot
   const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head><body style="margin:0;padding:0;">${rawHtml}</body></html>`;
 
-  // Étape 1 : créer l'email (champs minimaux) → obtenir l'ID
-  const rCreate = await hsProxyCall('POST', 'https://api.hubapi.com/email/public/v1/emails', {
+  // Payload complet avec htmlBody dès la création (mode Custom HTML dès le départ)
+  const emailPayload = {
     name: `[${b.name}] ${email.objet}`,
     subject: email.objet,
     fromName: b.name,
-    isLocalTimezoneSend: false
-  });
+    isLocalTimezoneSend: false,
+    htmlBody: fullHtml   // ← injecté dès le POST pour éviter le mode template par défaut
+  };
+
+  // Étape 1 : créer l'email avec le HTML dedans d'emblée
+  const rCreate = await hsProxyCall('POST', 'https://api.hubapi.com/email/public/v1/emails', emailPayload);
+
   if (!rCreate.ok) {
-    // Fallback v3 si v1 création échoue
+    // Fallback v3 si le scope marketing-email est disponible
     const r3 = await hsProxyCall('POST', 'https://api.hubapi.com/marketing/v3/emails', {
       name: `[${b.name}] ${email.objet}`,
       subject: email.objet,
@@ -940,11 +945,13 @@ async function createHubSpotEmail(email) {
   const emailId = rCreate.data.id;
   const portalId = rCreate.data.portalId;
 
-  // Étape 2 : mettre à jour avec le bloc HTML (PUT)
-  await hsProxyCall('PUT', `https://api.hubapi.com/email/public/v1/emails/${emailId}`, {
-    htmlBody: fullHtml,
-    richTextBody: fullHtml
-  });
+  // Étape 2 : PUT avec le payload complet (tout le contexte + htmlBody)
+  // Un PUT partiel peut réinitialiser des champs → on renvoie tout le payload
+  const rUpdate = await hsProxyCall('PUT', `https://api.hubapi.com/email/public/v1/emails/${emailId}`, emailPayload);
+  if (!rUpdate.ok) {
+    console.warn('[HubSpot] PUT htmlBody échoué :', rUpdate.status, rUpdate.data);
+    // L'email existe quand même — on retourne le lien sans planter
+  }
 
   return {
     id: emailId,
