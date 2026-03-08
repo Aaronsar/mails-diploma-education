@@ -224,6 +224,12 @@ textarea { min-height:80px; }
 .theme-edumove .cta-btn.selected { background:rgba(26,92,46,0.06); }
 .cta-check { width:14px;height:14px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent;transition:all 0.15s; }
 .cta-btn.selected .cta-check { background:var(--accent);border-color:var(--accent);color:#fff; }
+.cta-links-list { display:flex;flex-direction:column;gap:10px; }
+.cta-link-row { display:flex;align-items:center;gap:8px; }
+.cta-link-row .cta-btn { flex-shrink:0;min-width:210px; }
+.cta-url-input { flex:1;padding:8px 12px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-family:inherit;transition:border-color 0.15s; }
+.cta-url-input:focus { outline:none;border-color:var(--accent); }
+.cta-url-input::placeholder { color:var(--text-muted);font-style:italic; }
 
 .campaign-toggle { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
 .campaign-btn { padding:12px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.15s;text-align:left;line-height:1.4; }
@@ -588,8 +594,12 @@ textarea { min-height:80px; }
               </div>
             </div>
 
-            <!-- Inscription : note email unique -->
+            <!-- Inscription : lien + note -->
             <div id="row-inscription" style="display:none;">
+              <div class="f-group" style="margin-bottom:10px;">
+                <label class="f-label">Lien d'inscription à l'événement *</label>
+                <input type="url" id="event-lien-inscription" placeholder="https://…" oninput="syncInscriptionUrl()" />
+              </div>
               <p class="inscription-note">Un seul email percutant sera rédigé pour pousser à l'inscription.</p>
             </div>
           </div>
@@ -603,13 +613,23 @@ textarea { min-height:80px; }
         <!-- CTA GÉNÉRIQUE -->
         <div class="card" id="cta-generique">
           <div class="card-title">CTA à inclure (variés entre les emails)</div>
-          <div class="cta-grid">
-            <button class="cta-btn selected" data-cta="brochure" onclick="toggleCta(this)"><span class="cta-check">✓</span>📄 Brochure</button>
-            <button class="cta-btn selected" data-cta="rdv" onclick="toggleCta(this)"><span class="cta-check">✓</span>📅 RDV orientation</button>
-            <button class="cta-btn" data-cta="portes-ouvertes" onclick="toggleCta(this)"><span class="cta-check">✓</span>🏫 Portes ouvertes</button>
-            <button class="cta-btn" data-cta="candidature" onclick="toggleCta(this)"><span class="cta-check">✓</span>📝 Candidature</button>
-            <button class="cta-btn" data-cta="webinaire" onclick="toggleCta(this)"><span class="cta-check">✓</span>🎥 Webinaire</button>
-            <button class="cta-btn" data-cta="essai" onclick="toggleCta(this)"><span class="cta-check">✓</span>✨ Cours d'essai</button>
+          <div class="cta-links-list">
+            <div class="cta-link-row">
+              <button class="cta-btn selected" data-cta="rdv" onclick="toggleCta(this)"><span class="cta-check">✓</span>📅 Prise de RDV</button>
+              <input type="url" id="url-rdv" class="cta-url-input" placeholder="https://calendly.com/…" oninput="saveCTALinks()" />
+            </div>
+            <div class="cta-link-row">
+              <button class="cta-btn selected" data-cta="brochure" onclick="toggleCta(this)"><span class="cta-check">✓</span>📄 Téléchargement brochure</button>
+              <input type="url" id="url-brochure" class="cta-url-input" placeholder="https://…" oninput="saveCTALinks()" />
+            </div>
+            <div class="cta-link-row">
+              <button class="cta-btn" data-cta="inscription-event" onclick="toggleCta(this)"><span class="cta-check">✓</span>🎫 Inscription événement</button>
+              <input type="url" id="url-inscription-event" class="cta-url-input" placeholder="https://…" oninput="saveCTALinks()" />
+            </div>
+            <div class="cta-link-row">
+              <button class="cta-btn" data-cta="candidature" onclick="toggleCta(this)"><span class="cta-check">✓</span>🎓 Candidature</button>
+              <input type="url" id="url-candidature" class="cta-url-input" placeholder="https://…" oninput="saveCTALinks()" />
+            </div>
           </div>
         </div>
 
@@ -977,7 +997,8 @@ const BRANDS = {
 
 const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17 ans)', terminale:'Terminale (17-18 ans)', postbac:'Post-bac / PASS', reorientation:'Réorientation', all:'Toutes cibles' };
 
-const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], kb:[], emails:[], emailValidated:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'' };
+const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], ctaUrls:{}, kb:[], emails:[], emailValidated:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'', eventLienInscription:'' };
+const CTA_URL_STORAGE_KEY = 'diploma_cta_urls';
 
 // ── HELPERS : J-COUNTDOWN ─────────────────────────────────────────────────
 function getJCadence(n) {
@@ -1064,7 +1085,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function launchBrand(id) {
-  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = ['brochure','rdv']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventNom = ''; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = ''; ST.eventDay = '';
+  ST.brand = id; ST.level = null; ST.emails = []; ST.kb = []; ST.ctas = ['rdv','brochure']; ST.campaignType = 'generique'; ST.eventSubType = 'confirmation'; ST.currentStep = 0; ST.brief = ''; ST.selectedAngles = []; ST.proposedAngles = []; ST.cadence = []; ST.freq = ''; ST.duration = '4 semaines'; ST.eventNom = ''; ST.eventDate = ''; ST.eventHeure = ''; ST.eventLieu = ''; ST.eventContenu = ''; ST.eventDay = ''; ST.eventLienInscription = '';
+  setTimeout(loadCTALinks, 50);
   const b = BRANDS[id];
   document.getElementById('brand-selector').style.display = 'none';
   const app = document.getElementById('app-wrapper');
@@ -1170,6 +1192,38 @@ function toggleCta(btn) {
   if (idx === -1) ST.ctas.push(val); else ST.ctas.splice(idx, 1);
 }
 
+function saveCTALinks() {
+  const urls = {
+    rdv: document.getElementById('url-rdv')?.value || '',
+    brochure: document.getElementById('url-brochure')?.value || '',
+    'inscription-event': document.getElementById('url-inscription-event')?.value || '',
+    candidature: document.getElementById('url-candidature')?.value || ''
+  };
+  localStorage.setItem(CTA_URL_STORAGE_KEY, JSON.stringify(urls));
+  ST.ctaUrls = urls;
+}
+
+function loadCTALinks() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(CTA_URL_STORAGE_KEY) || '{}');
+    ST.ctaUrls = stored;
+    const rdvEl = document.getElementById('url-rdv');
+    const brochureEl = document.getElementById('url-brochure');
+    const inscEl = document.getElementById('url-inscription-event');
+    const candidEl = document.getElementById('url-candidature');
+    if (rdvEl && stored.rdv) rdvEl.value = stored.rdv;
+    if (brochureEl && stored.brochure) brochureEl.value = stored.brochure;
+    if (inscEl && stored['inscription-event']) inscEl.value = stored['inscription-event'];
+    if (candidEl && stored.candidature) candidEl.value = stored.candidature;
+  } catch(e) {}
+}
+
+function syncInscriptionUrl() {
+  const val = document.getElementById('event-lien-inscription')?.value || '';
+  const urlInput = document.getElementById('url-inscription-event');
+  if (urlInput) { urlInput.value = val; saveCTALinks(); }
+}
+
 // ── STEP 1 → 1b : proposer les angles ─────────────────────────────────────
 async function proposeAngles() {
   if (!getApiKey().startsWith('sk-ant-')) {
@@ -1201,6 +1255,11 @@ async function proposeAngles() {
     if (!nom || !date || !heure || !lieu || !contenu) { alert('⚠️ Remplis tous les champs de l\'événement (nom, date, horaire, lieu, contenu).'); return; }
     ST.eventNom = nom; ST.eventDate = date; ST.eventHeure = heure; ST.eventLieu = lieu; ST.eventContenu = contenu;
     ST.eventDay = getDayOfWeek(date);
+    if (ST.eventSubType === 'inscription') {
+      const lien = document.getElementById('event-lien-inscription')?.value.trim() || '';
+      ST.eventLienInscription = lien;
+      if (!lien) { alert('⚠️ Renseigne le lien d\'inscription à l\'événement.'); return; }
+    }
   }
 
   // ── Cas 2 : ÉVÉNEMENT INSCRIPTION (email unique) ───────────────────
@@ -1394,6 +1453,7 @@ EMAIL D'INSCRIPTION À UN ÉVÉNEMENT :
 - Horaire : ${ST.eventHeure}
 - Lieu : ${ST.eventLieu}
 - Programme / Contenu : ${ST.eventContenu}
+${ST.eventLienInscription ? `- Lien d'inscription (utilise cette URL dans le CTA) : ${ST.eventLienInscription}` : ''}
 
 BRIEF COMPLÉMENTAIRE : ${ST.brief}
 ${ST.context ? `CONTEXTE : ${ST.context}` : ''}
@@ -1406,7 +1466,7 @@ RÈGLES TECHNIQUES :
 - Objet : max 50 caractères, percutant
 - Préheader : max 80 caractères
 - Corps : 200 à 280 mots (texte brut)
-${ST.brand === 'diploma' ? `- "hubspot" : HTML COMPLET suivant la structure template Diploma Santé (hero navy #1C2436, body blanc, CTA final navy, couleur or #C2AB82, logo en haut). URL inscription dans tous les CTAs.` : `- "hubspot" : HTML léger <strong><em><a href="#"><br><p>. Signature : "${b.sign}"`}
+${ST.brand === 'diploma' ? `- "hubspot" : HTML COMPLET suivant la structure template Diploma Santé (hero navy #1C2436, body blanc, CTA final navy, couleur or #C2AB82, logo en haut). URL inscription dans tous les CTAs${ST.eventLienInscription ? ` = ${ST.eventLienInscription}` : ''}.` : `- "hubspot" : HTML léger <strong><em><a href="#"><br><p>. Signature : "${b.sign}"`}
 
 Réponds UNIQUEMENT en JSON valide sans markdown :
 {"emails":[{"num":1,"objet":"...","preheader":"...","cta":"S'inscrire à l'événement","angle":"Email d'inscription","corps":"...","hubspot":"..."}]}`;
@@ -1462,14 +1522,17 @@ async function startGeneration() {
   }
 
   const isConfirmation = ST.campaignType === 'evenement';
+  const u = ST.ctaUrls || {};
   const ctaLabels = {
-    brochure:'télécharger la brochure', rdv:'prendre rendez-vous avec un conseiller',
-    'portes-ouvertes':"s'inscrire aux portes ouvertes", candidature:'déposer sa candidature',
-    webinaire:'rejoindre un webinaire', essai:'essayer un cours gratuit',
+    rdv: `prendre rendez-vous${u.rdv ? ` — URL : ${u.rdv}` : ''}`,
+    brochure: `télécharger la brochure${u.brochure ? ` — URL : ${u.brochure}` : ''}`,
+    'inscription-event': `s'inscrire à l'événement${u['inscription-event'] ? ` — URL : ${u['inscription-event']}` : ''}`,
+    candidature: `déposer sa candidature${u.candidature ? ` — URL : ${u.candidature}` : ''}`,
     confirmer:'confirmer sa présence à l\'événement', 'ajouter-agenda':'ajouter à son agenda',
     'infos-event':'consulter les infos pratiques', 'programme-event':'voir le programme de l\'événement'
   };
   const ctaText = ST.ctas.length > 0 ? ST.ctas.map(c => ctaLabels[c] || c).join(', ') : (isConfirmation ? 'confirmer sa présence' : 'télécharger la brochure, prendre rendez-vous');
+  const primaryUrl = u.rdv || u['inscription-event'] || u.brochure || u.candidature || 'https://calendly.com/admissions-diploma-sante/reunion-de-30min-avec-diploma-sante';
   const kbText = ST.kb.length > 0 ? `\nDONNÉES À INTÉGRER :\n${ST.kb.map(e => '• ' + e).join('\n')}\n` : '';
   const b = BRANDS[ST.brand];
 
@@ -1559,7 +1622,7 @@ ${ST.brand === 'diploma' ? `- "hubspot" : génère le HTML COMPLET en suivant EX
   </div></td></tr>
 </table>
 
-Remplace TOUS les placeholders [XXX] par le vrai contenu de l'email. Adapte le nombre de sections/bullets selon le contenu. URL CTA = https://calendly.com/admissions-diploma-sante/reunion-de-30min-avec-diploma-sante` : `- "hubspot" : HTML léger <strong><em><a href="#"><br><p> — JAMAIS <html><head><body>. Signature : "${b.sign}"`}
+Remplace TOUS les placeholders [XXX] par le vrai contenu de l'email. Adapte le nombre de sections/bullets selon le contenu. URL CTA = ${primaryUrl}` : `- "hubspot" : HTML léger <strong><em><a href="#"><br><p> — JAMAIS <html><head><body>. Signature : "${b.sign}"`}
 
 Réponds UNIQUEMENT en JSON valide sans markdown :
 {"emails":[{"num":1,"objet":"...","preheader":"...","cta":"...","angle":"...","corps":"...","hubspot":"..."}]}
@@ -1783,13 +1846,13 @@ function exportHubspot() {
 }
 
 function newSequence() {
-  ST.emails=[]; ST.ctas=['brochure','rdv']; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventNom=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu=''; ST.eventDay='';
+  ST.emails=[]; ST.ctas=['rdv','brochure']; ST.campaignType='generique'; ST.eventSubType='confirmation'; ST.level=null; ST.brief=''; ST.selectedAngles=[]; ST.proposedAngles=[]; ST.cadence=[]; ST.freq=''; ST.eventNom=''; ST.eventDate=''; ST.eventHeure=''; ST.eventLieu=''; ST.eventContenu=''; ST.eventDay=''; ST.eventLienInscription='';
   const bi = document.getElementById('brief-input'); if(bi) bi.value='';
   document.getElementById('email-context').value='';
   document.getElementById('freq-num').value='2';
   document.getElementById('duration-num').value='4';
   document.querySelectorAll('.cta-btn').forEach(b=>b.classList.remove('selected'));
-  document.querySelectorAll('#cta-generique .cta-btn[data-cta="brochure"], #cta-generique .cta-btn[data-cta="rdv"]').forEach(b=>b.classList.add('selected'));
+  document.querySelectorAll('#cta-generique .cta-btn[data-cta="rdv"], #cta-generique .cta-btn[data-cta="brochure"]').forEach(b=>b.classList.add('selected'));
   document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('selected'));
   document.getElementById('btn-generique').classList.add('selected');
   document.getElementById('btn-evenement').classList.remove('selected');
