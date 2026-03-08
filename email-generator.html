@@ -912,24 +912,24 @@ async function hsProxyCall(method, endpoint, body) {
 async function createHubSpotEmail(email) {
   if (!getHsToken()) throw new Error('Token HubSpot non configuré — saisis-le sur l\'écran d\'accueil');
   const b = BRANDS[ST.brand];
-  const rawHtml = email.hubspot || `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px">${(email.corps||'').replace(/\n/g,'<br>')}</div>`;
-  // Document HTML complet — forçage du mode Custom HTML dans HubSpot
-  const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head><body style="margin:0;padding:0;">${rawHtml}</body></html>`;
 
-  // Payload complet avec htmlBody dès la création (mode Custom HTML dès le départ)
+  // rawHtml = juste le bloc email (sans DOCTYPE) — HubSpot attend souvent le body seul
+  const rawHtml = email.hubspot || `<div style="font-family:sans-serif;max-width:600px;margin:auto;padding:24px">${(email.corps||'').replace(/\n/g,'<br>')}</div>`;
+
+  // Payload v1 — on envoie rawHtml dans htmlBody (HubSpot gère le wrapping)
   const emailPayload = {
     name: `[${b.name}] ${email.objet}`,
     subject: email.objet,
     fromName: b.name,
     isLocalTimezoneSend: false,
-    htmlBody: fullHtml   // ← injecté dès le POST pour éviter le mode template par défaut
+    htmlBody: rawHtml
   };
 
-  // Étape 1 : créer l'email avec le HTML dedans d'emblée
+  // ── Étape 1 : créer l'email ─────────────────────────────────────────────
   const rCreate = await hsProxyCall('POST', 'https://api.hubapi.com/email/public/v1/emails', emailPayload);
 
   if (!rCreate.ok) {
-    // Fallback v3 si le scope marketing-email est disponible
+    // Fallback v3
     const r3 = await hsProxyCall('POST', 'https://api.hubapi.com/marketing/v3/emails', {
       name: `[${b.name}] ${email.objet}`,
       subject: email.objet,
@@ -945,18 +945,25 @@ async function createHubSpotEmail(email) {
   const emailId = rCreate.data.id;
   const portalId = rCreate.data.portalId;
 
-  // Étape 2 : PUT avec le payload complet (tout le contexte + htmlBody)
-  // Un PUT partiel peut réinitialiser des champs → on renvoie tout le payload
-  const rUpdate = await hsProxyCall('PUT', `https://api.hubapi.com/email/public/v1/emails/${emailId}`, emailPayload);
-  if (!rUpdate.ok) {
-    console.warn('[HubSpot] PUT htmlBody échoué :', rUpdate.status, rUpdate.data);
-    // L'email existe quand même — on retourne le lien sans planter
+  // ── Étape 2 : GET pour vérifier ce que HubSpot a vraiment enregistré ───
+  const rGet = await hsProxyCall('GET', `https://api.hubapi.com/email/public/v1/emails/${emailId}`, null);
+  const savedHtmlLen = rGet.ok ? (rGet.data.htmlBody || '').length : 0;
+  const createHtmlLen = (rCreate.data.htmlBody || '').length;
+  console.info(`[HS] POST htmlBody: ${createHtmlLen}c | GET htmlBody: ${savedHtmlLen}c`);
+
+  // ── Étape 3 : si htmlBody vide, forcer via PUT ──────────────────────────
+  let putStatus = 'skipped';
+  if (savedHtmlLen < 50) {
+    const rUpdate = await hsProxyCall('PUT', `https://api.hubapi.com/email/public/v1/emails/${emailId}`, emailPayload);
+    putStatus = rUpdate.ok ? `ok (${(rUpdate.data.htmlBody||'').length}c)` : `fail ${rUpdate.status}`;
+    console.warn(`[HS] PUT forced — ${putStatus}`, rUpdate.data?.message || '');
   }
 
   return {
     id: emailId,
     portalId,
-    hsLink: portalId ? `https://app-eu1.hubspot.com/email/${portalId}/edit/${emailId}/content` : null
+    hsLink: portalId ? `https://app-eu1.hubspot.com/email/${portalId}/edit/${emailId}/content` : null,
+    _debug: { createHtmlLen, savedHtmlLen, putStatus }
   };
 }
 async function pushCurrentEmailToHubSpot() {
@@ -975,12 +982,16 @@ async function pushCurrentEmailToHubSpot() {
     email.hsLink = data.hsLink || (data.portalId ? `https://app-eu1.hubspot.com/email/${data.portalId}/edit/${data.id}` : null);
     btn.textContent = '✅ Brouillon créé';
     btn.classList.add('hs-success');
+    const d = data._debug || {};
+    const debugStr = d.createHtmlLen !== undefined
+      ? `<br><small style="color:var(--text-dim);font-size:11px;">HTML POST:${d.createHtmlLen}c GET:${d.savedHtmlLen}c PUT:${d.putStatus}</small>`
+      : '';
     if (email.hsLink) {
-      statusEl.innerHTML = `<a href="${email.hsLink}" target="_blank" rel="noopener">Ouvrir dans HubSpot →</a>`;
+      statusEl.innerHTML = `<a href="${email.hsLink}" target="_blank" rel="noopener">Ouvrir dans HubSpot →</a>${debugStr}`;
     } else {
-      statusEl.textContent = `Créé — ID : ${data.id}`;
+      statusEl.innerHTML = `Créé — ID : ${data.id}${debugStr}`;
     }
-    renderProgressDots(); // refresh dots with HS badge if wanted
+    renderProgressDots();
   } catch(err) {
     btn.disabled = false;
     btn.textContent = 'Créer comme brouillon HubSpot';

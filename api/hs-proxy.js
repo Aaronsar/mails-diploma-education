@@ -8,25 +8,31 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { token, method, endpoint, body } = req.body || {};
-  if (!token || !endpoint || !body) {
-    return res.status(400).json({ error: 'Paramètres manquants : token, method, endpoint, body requis' });
+  const httpMethod = (method || 'POST').toUpperCase();
+  const needsBody = !['GET', 'HEAD', 'DELETE'].includes(httpMethod);
+
+  if (!token || !endpoint) {
+    return res.status(400).json({ error: 'Paramètres manquants : token et endpoint requis' });
+  }
+  if (needsBody && !body) {
+    return res.status(400).json({ error: 'Paramètres manquants : body requis pour ' + httpMethod });
   }
   if (!endpoint.startsWith('https://api.hubapi.com/')) {
     return res.status(403).json({ error: 'Endpoint non autorisé' });
   }
 
-  const httpMethod = (method || 'POST').toUpperCase();
-
   try {
-    const hsRes = await fetch(endpoint, {
+    const fetchOptions = {
       method: httpMethod,
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
+      }
+    };
+    // GET/HEAD/DELETE : pas de body (certains serveurs rejettent un body sur GET)
+    if (needsBody) fetchOptions.body = JSON.stringify(body);
 
+    const hsRes = await fetch(endpoint, fetchOptions);
     const data = await hsRes.json();
     return res.status(hsRes.status).json(data);
   } catch (err) {
