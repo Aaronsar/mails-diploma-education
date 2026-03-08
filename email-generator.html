@@ -1307,6 +1307,7 @@ const LEVEL_LABELS = { seconde:'Seconde (15-16 ans)', premiere:'Première (16-17
 
 const ST = { brand:null, level:null, campaignType:'generique', eventSubType:'confirmation', brief:'', selectedAngles:[], proposedAngles:[], count:5, duration:'4 semaines', freq:'2 emails par semaine', cadence:[], context:'', ctas:[], ctaUrls:{}, kb:[], kbMeta:[], kbFiles:[], webSearch:false, emails:[], emailValidated:[], currentStep:0, eventNom:'', eventDate:'', eventHeure:'', eventLieu:'', eventContenu:'', eventDay:'', eventLienInscription:'' };
 const CTA_URL_STORAGE_KEY = 'diploma_cta_urls';
+const SESSION_KEY = 'diploma_generator_session';
 
 // ── HELPERS : J-COUNTDOWN ─────────────────────────────────────────────────
 function getJCadence(n) {
@@ -1385,6 +1386,124 @@ function updateApiKeyBar() {
   status.style.color = ok ? '#22c55e' : '#ef4444';
 }
 
+// ========================
+// SESSION PERSISTENCE
+// ========================
+
+function saveSession() {
+  if (!ST.brand) return;
+  try {
+    // Exclude kbFiles (binary/large) and permanent KB entries (re-injected on restore)
+    const safeKb = [], safeKbMeta = [];
+    ST.kbMeta.forEach((m, i) => {
+      if (!m.permanent) { safeKb.push(ST.kb[i]); safeKbMeta.push(m); }
+    });
+    const data = Object.assign({}, ST, { kbFiles: [], kb: safeKb, kbMeta: safeKbMeta });
+    localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+  } catch(e) { /* storage full or serialization error — fail silently */ }
+}
+
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+function tryRestoreSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data || !data.brand || !BRANDS[data.brand]) return false;
+
+    // Restore ST (kbFiles excluded at save time, so they're empty on restore)
+    Object.assign(ST, data, { kbFiles: [] });
+
+    // ── Brand UI (mirror of launchBrand) ─────────────────────────────
+    const b = BRANDS[ST.brand];
+    document.getElementById('brand-selector').style.display = 'none';
+    const app = document.getElementById('app-wrapper');
+    app.style.display = 'block'; app.className = b.theme;
+    document.getElementById('app-logo').innerHTML = b.logoHtml;
+    document.getElementById('sb-brand').textContent = b.name;
+
+    // CTA links + visibility
+    loadCTALinks(); updateCtaVisibility();
+
+    // ── Campaign type toggle ──────────────────────────────────────────
+    const isEvent = ST.campaignType === 'evenement';
+    document.getElementById('btn-generique').classList.toggle('selected', !isEvent);
+    document.getElementById('btn-evenement').classList.toggle('selected', isEvent);
+    document.getElementById('row-generique').style.display = isEvent ? 'none' : '';
+    document.getElementById('row-evenement').style.display = isEvent ? '' : 'none';
+
+    // ── CTA buttons ───────────────────────────────────────────────────
+    document.querySelectorAll('.cta-btn').forEach(b => b.classList.remove('selected'));
+    (ST.ctas || []).forEach(cta => {
+      document.querySelectorAll(`.cta-btn[data-cta="${cta}"]`).forEach(b => b.classList.add('selected'));
+    });
+
+    // ── Level selection ───────────────────────────────────────────────
+    document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('selected'));
+    if (ST.level) {
+      const lvlBtn = document.querySelector(`.level-btn[data-level="${ST.level}"]`);
+      if (lvlBtn) { lvlBtn.classList.add('selected'); document.getElementById('btn-step0-next').disabled = false; }
+    }
+
+    // ── Brief textarea ────────────────────────────────────────────────
+    const bi = document.getElementById('brief-input');
+    if (bi) bi.value = ST.brief || '';
+
+    // ── Sidebar ───────────────────────────────────────────────────────
+    document.getElementById('sb-level').textContent = ST.level ? (LEVEL_LABELS[ST.level] || '—') : '—';
+    document.getElementById('sb-type').textContent = isEvent ? 'Événement' : 'Générique';
+    const totalCount = ST.emails && ST.emails.length > 0 ? ST.emails.length : (ST.count || 0);
+    document.getElementById('sb-count').textContent = totalCount > 0 ? `${totalCount} email${totalCount > 1 ? 's' : ''}` : '—';
+
+    // ── KB (re-inject brochure Diploma, then render non-permanent) ────
+    injectPermanentKb();
+    renderKb();
+    updateFreqPreview();
+
+    // ── Determine target step ─────────────────────────────────────────
+    let targetStep = typeof ST.currentStep === 'number' ? ST.currentStep : 0;
+    // Step 3 = Génération (loading screen) — can't restore that
+    if (targetStep === 3) targetStep = (ST.emails && ST.emails.length > 0) ? 4 : 2;
+    targetStep = Math.max(0, Math.min(targetStep, 5));
+
+    // ── Rebuild UIs for appropriate steps ─────────────────────────────
+    if (ST.emails && ST.emails.length > 0) {
+      renderEmails();
+      document.getElementById('results-sidebar').style.display = '';
+    } else if (ST.proposedAngles && ST.proposedAngles.length > 0 && targetStep >= 2) {
+      renderAngles(ST.proposedAngles);
+    }
+
+    // ── Navigate to restored step (bypasses the n-1 trick in advance()) ─
+    ST.currentStep = targetStep - 1;
+    switchStep(targetStep);
+
+    _showRestoreToast();
+    return true;
+  } catch(e) {
+    console.warn('[session] Restore failed:', e);
+    clearSession();
+    return false;
+  }
+}
+
+function _showRestoreToast() {
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:#18181b;color:#e5e7eb;padding:12px 24px;border-radius:100px;font-size:13px;z-index:9999;box-shadow:0 4px 24px rgba(0,0,0,0.4);font-family:system-ui,sans-serif;opacity:0;transition:opacity 0.35s,transform 0.35s;pointer-events:none;';
+  toast.textContent = '✅ Session restaurée — reprise là où tu t\'étais arrêté(e)';
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)';
+    setTimeout(() => {
+      toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(12px)';
+      setTimeout(() => toast.remove(), 400);
+    }, 3200);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const saved = getApiKey();
   const input = document.getElementById('api-key-input');
@@ -1395,6 +1514,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const hsInput = document.getElementById('hs-token-input');
   if (savedHs && hsInput) hsInput.value = savedHs;
   updateHsTokenBar();
+
+  tryRestoreSession();
 });
 
 function launchBrand(id) {
@@ -1413,6 +1534,7 @@ function launchBrand(id) {
 function backToSelector() {
   document.getElementById('app-wrapper').style.display = 'none';
   document.getElementById('brand-selector').style.display = 'flex';
+  clearSession();
 }
 
 const STEP_PANELS = ['p-0','p-1','p-1b','p-2','p-3','p-4'];
@@ -1433,6 +1555,7 @@ function switchStep(n) {
   });
   document.getElementById('sb-step').textContent = `0${n+1} / 06`;
   ST.currentStep = n;
+  saveSession();
 }
 
 function navTo(n) { if (n <= ST.currentStep) switchStep(n); }
@@ -2311,6 +2434,7 @@ Réponds UNIQUEMENT en JSON valide sans markdown :
     btn.disabled = false; btn.textContent = '🔄 Appliquer';
     document.getElementById('modif-input').value = '';
     showEmailAtIndex(_validatorIdx);
+    saveSession();
   } catch(err) {
     status.textContent = `❌ ${err.message}`;
     btn.disabled = false; btn.textContent = '🔄 Appliquer';
