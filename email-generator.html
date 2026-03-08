@@ -622,7 +622,7 @@ textarea { min-height:80px; }
               <button class="cta-btn selected" data-cta="brochure" onclick="toggleCta(this)"><span class="cta-check">✓</span>📄 Téléchargement brochure</button>
               <input type="url" id="url-brochure" class="cta-url-input" placeholder="https://…" oninput="saveCTALinks()" />
             </div>
-            <div class="cta-link-row">
+            <div class="cta-link-row" id="cta-row-inscription-event" style="display:none;">
               <button class="cta-btn" data-cta="inscription-event" onclick="toggleCta(this)"><span class="cta-check">✓</span>🎫 Inscription événement</button>
               <input type="url" id="url-inscription-event" class="cta-url-input" placeholder="https://…" oninput="saveCTALinks()" />
             </div>
@@ -1160,6 +1160,7 @@ function selectCampaign(type) {
   document.getElementById('row-generique').style.display = type === 'generique' ? '' : 'none';
   document.getElementById('row-evenement').style.display = type === 'evenement' ? '' : 'none';
   document.getElementById('cta-generique').style.display = type === 'generique' ? '' : 'none';
+  document.getElementById('cta-row-inscription-event').style.display = type === 'evenement' ? '' : 'none';
   const isConfirm = type === 'evenement' && ST.eventSubType === 'confirmation';
   document.getElementById('cta-confirmation').style.display = isConfirm ? '' : 'none';
   const proposeBtn = document.getElementById('btn-propose');
