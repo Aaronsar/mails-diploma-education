@@ -1,46 +1,41 @@
-// Vercel serverless proxy — contourne le CORS de l'API HubSpot
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+// Vercel Edge Function — runtime V8 (plus fiable que Node.js serverless pour les projets statiques)
+export const config = { runtime: 'edge' };
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type'
+};
 
-  const { token, method, endpoint, body } = req.body || {};
-  const httpMethod = (method || 'POST').toUpperCase();
-  const needsBody = !['GET', 'HEAD', 'DELETE'].includes(httpMethod);
-
-  if (!token || !endpoint) {
-    return res.status(400).json({ error: 'Paramètres manquants : token et endpoint requis' });
-  }
-  if (!endpoint.startsWith('https://api.hubapi.com/')) {
-    return res.status(403).json({ error: 'Endpoint non autorisé' });
-  }
+export default async function handler(req) {
+  if (req.method === 'OPTIONS') return new Response(null, { headers: CORS });
+  if (req.method !== 'POST') return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: CORS });
 
   try {
+    const { token, method, endpoint, body } = await req.json();
+
+    if (!token || !endpoint) return new Response(JSON.stringify({ error: 'token et endpoint requis' }), { status: 400, headers: CORS });
+    if (!endpoint.startsWith('https://api.hubapi.com/')) return new Response(JSON.stringify({ error: 'Endpoint non autorisé' }), { status: 403, headers: CORS });
+
+    const httpMethod = (method || 'POST').toUpperCase();
     const fetchOptions = {
       method: httpMethod,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
     };
-    if (needsBody && body != null) fetchOptions.body = JSON.stringify(body);
+    if (!['GET', 'HEAD', 'DELETE'].includes(httpMethod) && body != null) {
+      fetchOptions.body = JSON.stringify(body);
+    }
 
     const hsRes = await fetch(endpoint, fetchOptions);
-
-    // HubSpot renvoie parfois du texte non-JSON (ex: 204, erreurs HTML) — on gère proprement
+    const text = await hsRes.text();
     let data;
-    const ct = hsRes.headers.get('content-type') || '';
-    if (ct.includes('application/json')) {
-      data = await hsRes.json();
-    } else {
-      const text = await hsRes.text();
-      data = { _raw: text, status: hsRes.status };
-    }
-    return res.status(hsRes.status).json(data);
+    try { data = JSON.parse(text); } catch { data = { _raw: text }; }
+
+    return new Response(JSON.stringify(data), {
+      status: hsRes.status,
+      headers: { ...CORS, 'Content-Type': 'application/json' }
+    });
   } catch (err) {
-    return res.status(500).json({ error: err.message || 'Erreur proxy' });
+    return new Response(JSON.stringify({ error: err.message || 'Erreur' }), { status: 500, headers: CORS });
   }
 }
